@@ -1,0 +1,6 @@
+[submodule "Core/sh2"]
+	path = Core/sh2
+	url = https://github.com/ceva-dsp/sh2
+[submodule "Core/BMP3_SensorAPI"]
+	path = Core/BMP3_SensorAPI
+	url = https://github.com/boschsensortec/BMP3_SensorAPI
