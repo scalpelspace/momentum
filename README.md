@@ -42,7 +42,9 @@ for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
 
 ### 1.2 Block Diagram
 
-_TBD WIP_.
+![momentum.drawio.png](docs/momentum.drawio.png)
+
+> Drawio file here: [momentum.drawio](docs/momentum.drawio).
 
 ### 1.3 Pin Configurations
 
