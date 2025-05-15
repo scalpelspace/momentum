@@ -21,7 +21,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "bno085_runner.h"
+#include "init.h"
+#include "run.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -126,8 +128,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  momentum_init();
+
+  while (1) {
+    bno085_run();
+    momentum_run();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
