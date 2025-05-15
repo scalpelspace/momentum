@@ -5,7 +5,7 @@
 Microcontroller firmware
 for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
 
-- SPI sensor hub compatible with Arduino Uno-style microcontroller boards.
+- SPI sensor hub compatible with Uno-style microcontroller boards.
 
 ---
 
@@ -19,6 +19,7 @@ for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
     * [1.2 Block Diagram](#12-block-diagram)
     * [1.3 Pin Configurations](#13-pin-configurations)
     * [1.4 Clock Configurations](#14-clock-configurations)
+  * [2 Serial Peripheral Interface (SPI) Interface](#2-serial-peripheral-interface-spi-interface)
 <!-- TOC -->
 
 </details>
@@ -29,15 +30,15 @@ for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
 
 ### 1.1 Bill of Materials (BOM)
 
-| Manufacturer Part Number | Manufacturer            | Description                       | Quantity | Notes                 |
-|--------------------------|-------------------------|-----------------------------------|---------:|-----------------------|
-| STM32L432KC              | STMicroelectronics      | 32-bit MCU                        |        1 |                       |
-| CP2102N-A02-GQFN24R      | Silicon Labs            | USB 2.0 to UART Interface         |        1 |                       |
-| BNO085                   | CEVA Technologies, Inc. | 9-DOF IMU                         |        1 |                       |
-| BMP390                   | Bosch Sensortec         | Barometric Pressure Sensor        |        1 |                       |
-| TJA1051T/3               | NXP USA Inc.            | CAN Bus Transceiver               |        1 | WIP, under evaluation |
-| SAM-M10Q                 | u-blox                  | RF Receiver Galileo, GLONASS, GPS |        1 |                       |
-| WS2812B                  | (Various)               | PWM Addressable RGB LED           |        1 |                       |
+| Manufacturer Part Number | Manufacturer            | Description                       | Quantity | Notes |
+|--------------------------|-------------------------|-----------------------------------|---------:|-------|
+| STM32L432KC              | STMicroelectronics      | 32-bit MCU                        |        1 |       |
+| CP2102N-A02-GQFN24R      | Silicon Labs            | USB 2.0 to UART Interface         |        1 |       |
+| BNO085                   | CEVA Technologies, Inc. | 9-DOF IMU                         |        1 |       |
+| BMP390                   | Bosch Sensortec         | Barometric Pressure Sensor        |        1 |       |
+| TJA1051T/3               | NXP USA Inc.            | CAN Bus Transceiver               |        1 |       |
+| SAM-M10Q                 | u-blox                  | RF Receiver Galileo, GLONASS, GPS |        1 |       |
+| WS2812B                  | (Various)               | PWM Addressable RGB LED           |        1 |       |
 
 ### 1.2 Block Diagram
 
@@ -64,7 +65,7 @@ for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
 |             | `TIM2_CH1`              | PWM no output         |                                  | BMP390 BMP3 driver timer.             |
 |             | `TIM2_CH2`              | PWM no output         |                                  | BNO085 SH2 driver timer.              |
 | PA5         | `SPI1_SCK`              |                       | BNO085 Pin 19: `H_SCL/SCK/RX`    |                                       |
-| PA4         | `GPIO_Output` (SPI2 CS) | Pull-up, set high     | BNO085 Pin 18: `H_CSN`           |                                       |
+| PA4         | `GPIO_Output` (SPI1 CS) | Pull-up, set high     | BNO085 Pin 18: `H_CSN`           |                                       |
 | PA6         | `SPI1_MISO`             |                       | BNO085 Pin 20: `H_SDA/H_MISO/TX` |                                       |
 | PA7         | `SPI1_MOSI`             |                       | BNO085 Pin 17: `SA0/H_MOSI`      |                                       |
 | PB0         | `GPIO_EXTI0`            | Pull-up, falling edge | BNO085 Pin 14: `H_INTN`          |                                       |
@@ -81,6 +82,10 @@ for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
 | PA11        | `CAN1_RX`               |                       | TJA1051T/3 Pin 1: `TXD`          |                                       |
 | PA12        | `CAN1_TX`               |                       | TJA1051T/3 Pin 4: `RXD`          |                                       |
 | PA8         | `TIM1_CH1`              | PWM Generation CH1    | WS2812B Pin: `DIN`               | DIN pin number depends on IC variant. |
+| PB3         | `SPI3_SCK`              |                       | SPI interface: `SCK`             |                                       |
+| PBA15       | `SPI3_NSS`              | Pull-up, set high     | SPI interface: `SS`              |                                       |
+| PB4         | `SPI3_MISO`             |                       | SPI interface: `MISO`            |                                       |
+| PB5         | `SPI3_MOSI`             |                       | SPI interface: `MOSI`            |                                       |
 
 </details>
 
@@ -98,3 +103,13 @@ Phase-Locked Loop Main (PLLM)
  → 80 MHz APB1 (Maxed) → 80 MHz APB1 Timer
  → 80 MHz APB2 (Maxed) → 80 MHz APB2 Timer
 ```
+
+---
+
+## 2 Serial Peripheral Interface (SPI) Interface
+
+SPI configurations:
+
+- CPOL = 0.
+- CPHA = 0.
+- Hardware peripheral select (NSS) enabled.
