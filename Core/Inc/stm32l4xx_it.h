@@ -63,6 +63,7 @@ void CAN1_RX0_IRQHandler(void);
 void CAN1_RX1_IRQHandler(void);
 void USART2_IRQHandler(void);
 void SPI3_IRQHandler(void);
+void DMA2_Channel1_IRQHandler(void);
 void DMA2_Channel2_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
