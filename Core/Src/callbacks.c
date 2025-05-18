@@ -9,6 +9,7 @@
 #include "sh2_hal_spi.h"
 #include "stm32l4xx_hal.h"
 #include "ublox_hal_uart.h"
+#include "momentum_runner.h"
 
 /** Collection of user implementations of STM32 HAL (overwriting HAL). ********/
 
@@ -28,6 +29,7 @@ void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart) {}
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
   HAL_SPI_TxRxCpltCallback_sh2(hspi);
+  HAL_SPI_TxRxCpltCallback_momentum(hspi);
 }
 
 /** CAN. */
