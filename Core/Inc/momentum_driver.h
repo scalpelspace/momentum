@@ -14,7 +14,12 @@
 
 /** Definitions. **************************************************************/
 
-#define MOMENTUM_MAX_DATA_SIZE 128 // Max number of data bytes per transaction.
+// Momentum SPI transaction frame sizes (in bytes):
+#define MOMENTUM_MAX_FRAME_SIZE 128 // Total = 128.
+#define MOMENTUM_MAX_DATA_SIZE 125  // Data = 125.
+// Frame type = 1.
+// Length value = 1.
+// Checksum = 1.
 
 /** Public types. *************************************************************/
 
