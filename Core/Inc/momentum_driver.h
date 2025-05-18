@@ -14,11 +14,16 @@
 
 /** Definitions. **************************************************************/
 
+#define MOMENTUM_MAX_DATA_SIZE 128 // Max number of data bytes per transaction.
+
+/** Public types. *************************************************************/
+
 typedef struct {
   uint8_t frame_type;
   uint8_t length;
+  uint8_t data[MOMENTUM_MAX_DATA_SIZE];
   uint8_t checksum;
-} momentum_frame;
+} momentum_frame_t;
 
 typedef struct {
   float bno085_quaternion_i;
