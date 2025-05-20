@@ -24,4 +24,6 @@ extern SPI_HandleTypeDef hspi3;
 
 void HAL_SPI_TxRxCpltCallback_momentum(SPI_HandleTypeDef *hspi);
 
+void momentum_spi_start(void);
+
 #endif
