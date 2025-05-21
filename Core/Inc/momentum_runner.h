@@ -22,8 +22,10 @@ extern SPI_HandleTypeDef hspi3;
 
 /** Public functions. *********************************************************/
 
-void HAL_SPI_TxRxCpltCallback_momentum(SPI_HandleTypeDef *hspi);
-
 void momentum_spi_start(void);
+
+void HAL_SPI_TxCpltCallback_momentum(SPI_HandleTypeDef *hspi);
+
+void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi);
 
 #endif
