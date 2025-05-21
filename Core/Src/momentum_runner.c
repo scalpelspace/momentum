@@ -22,9 +22,15 @@ static volatile uint32_t rx_buf_len;
 static uint8_t tx_buffer[MOMENTUM_MAX_FRAME_SIZE];
 static uint32_t tx_buf_len;
 
-/** Public functions. *********************************************************/
+/** Private types. ************************************************************/
 
-void HAL_SPI_TxRxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
+typedef enum { WAIT_CMD, SEND_DATA } momentum_state_t;
+
+static momentum_state_t spi_state = WAIT_CMD;
+
+/** Private functions. ********************************************************/
+
+void prep_momentum_tx(SPI_HandleTypeDef *hspi) {
   if (hspi == &MOMENTUM_HSPI) {
     if (rx_buffer[0] == 1) { // Data transmit request.
       sensor_data_t data = {
@@ -67,10 +73,27 @@ void HAL_SPI_TxRxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
 
       // Pack sensor data for transmission.
       pack_sensor_data_8bit(tx_buffer, data);
+    }
+  }
+}
 
-      // Transmit data.
-      HAL_SPI_TransmitReceive_DMA(&MOMENTUM_HSPI, tx_buffer, rx_buffer,
-                                  sizeof(tx_buffer));
+/** Public functions. *********************************************************/
+
+void HAL_SPI_TxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
+  if (hspi == &MOMENTUM_HSPI) {
+    if (spi_state == SEND_DATA) {
+      spi_state = WAIT_CMD;
+      HAL_SPI_Receive_DMA(&MOMENTUM_HSPI, rx_buffer, rx_buf_len);
+    }
+  }
+}
+
+void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
+  if (hspi == &MOMENTUM_HSPI) {
+    if (spi_state == WAIT_CMD && rx_buffer[0] == 1) {
+      spi_state = SEND_DATA;
+      // prepare_tx(); // TODO: Implement tx buffer loading.
+      HAL_SPI_Transmit_DMA(&MOMENTUM_HSPI, tx_buffer, sizeof(tx_buffer));
     }
   }
 }
