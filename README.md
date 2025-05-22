@@ -65,13 +65,13 @@ for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
 |             | `TIM2_CH1`              | PWM no output         |                                  | BMP390 BMP3 driver timer.             |
 |             | `TIM2_CH2`              | PWM no output         |                                  | BNO085 SH2 driver timer.              |
 | PA5         | `SPI1_SCK`              |                       | BNO085 Pin 19: `H_SCL/SCK/RX`    |                                       |
-| PA4         | `GPIO_Output` (SPI1 CS) | Pull-up, set high     | BNO085 Pin 18: `H_CSN`           |                                       |
+| PA4         | `GPIO_Output` (SPI1 CS) | Set high              | BNO085 Pin 18: `H_CSN`           |                                       |
 | PA6         | `SPI1_MISO`             |                       | BNO085 Pin 20: `H_SDA/H_MISO/TX` |                                       |
 | PA7         | `SPI1_MOSI`             |                       | BNO085 Pin 17: `SA0/H_MOSI`      |                                       |
 | PB0         | `GPIO_EXTI0`            | Pull-up, falling edge | BNO085 Pin 14: `H_INTN`          |                                       |
-| PB1         | `GPIO_Output`           |                       | BNO085 Pin 6: `PS0/Wake`         | Pull low to trigger wake.             |
+| PB1         | `GPIO_Output`           | Set high              | BNO085 Pin 6: `PS0/Wake`         | Pull low to trigger wake.             |
 |             |                         | Hardware pull-up      | BNO085 Pin 5: `PS1`              |                                       |
-| PA1         | `GPIO_Output`           |                       | BNO085 Pin 11: `NRST`            | Pull low to reset.                    |
+| PA1         | `GPIO_Output`           | Set high              | BNO085 Pin 11: `NRST`            | Pull low to reset.                    |
 | PB6         | `I2C1_SCL`              |                       | BMP390 Pin 2: `SCK`              |                                       |
 | PB7         | `I2C1_SDA`              |                       | BMP390 Pin 4: `SDI`              |                                       |
 | PA3         | `USART2_RX`             | 115200 bps            | SAM-M10Q Pin 13: `TXD`           |                                       |
