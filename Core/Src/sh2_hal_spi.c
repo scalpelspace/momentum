@@ -61,7 +61,7 @@ static bool is_open = false;
 
 static void enable_interrupts(void) { HAL_NVIC_EnableIRQ(SH2_INTN_EXTI_IRQ); }
 
-static void disable_interrupts() { HAL_NVIC_DisableIRQ(SH2_INTN_EXTI_IRQ); }
+static void disable_interrupts(void) { HAL_NVIC_DisableIRQ(SH2_INTN_EXTI_IRQ); }
 
 static void cs_write_pin(const GPIO_PinState pin_state) {
   HAL_GPIO_WritePin(SH2_CSN_PORT, SH2_CSN_PIN, pin_state);
