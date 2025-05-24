@@ -19,7 +19,9 @@ for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
     * [1.2 Block Diagram](#12-block-diagram)
     * [1.3 Pin Configurations](#13-pin-configurations)
     * [1.4 Clock Configurations](#14-clock-configurations)
-  * [2 Serial Peripheral Interface (SPI) Interface](#2-serial-peripheral-interface-spi-interface)
+  * [2 USB Interface via CP2102N (USB-to-UART)](#2-usb-interface-via-cp2102n-usb-to-uart)
+    * [2.1 Data Line Activity LEDs](#21-data-line-activity-leds)
+  * [3 Serial Peripheral Interface (SPI)](#3-serial-peripheral-interface-spi)
 <!-- TOC -->
 
 </details>
@@ -106,7 +108,23 @@ Phase-Locked Loop Main (PLLM)
 
 ---
 
-## 2 Serial Peripheral Interface (SPI) Interface
+## 2 USB Interface via CP2102N (USB-to-UART)
+
+The CP2102N requires additional configuration and device programming via Silicon
+Labs's [Simplicity Studio Software](https://www.silabs.com/developer-tools/simplicity-studio).
+
+### 2.1 Data Line Activity LEDs
+
+Direct from the manufacturer/suppliers the CP2102N's LED GPIOs are idle.
+
+![cp2102n_leds_config.png](docs/cp2102n_leds_config.png)
+
+`GPIO0` and `GPIO1`'s `Alternative Function` need to be configured as
+`TX Toggle` and `RX Toggle` respectively as shown in the picture above.
+
+---
+
+## 3 Serial Peripheral Interface (SPI)
 
 SPI configurations:
 
