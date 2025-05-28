@@ -8,22 +8,6 @@
 
 #include "momentum_driver.h"
 
-/** Definitions. **************************************************************/
-
-#define MOMENTUM_START_OF_FRAME 0xAA
-
-#define MOMENTUM_FRAME_TYPE_IMU_QUAT 0x11
-#define MOMENTUM_FRAME_TYPE_IMU_GYRO 0x12
-#define MOMENTUM_FRAME_TYPE_IMU_ACCEL 0x13
-#define MOMENTUM_FRAME_TYPE_IMU_LINACCEL 0x14
-#define MOMENTUM_FRAME_TYPE_IMU_GRAV 0x15
-#define MOMENTUM_FRAME_TYPE_BAR_ENV 0x16
-#define MOMENTUM_FRAME_TYPE_GPS_COORD 0x17
-#define MOMENTUM_FRAME_TYPE_GPS_DATETIME 0x18
-#define MOMENTUM_FRAME_TYPE_GPS_STATS 0x19
-
-#define MOMENTUM_CRC_INITIAL 0xFFFF
-
 /** Private functions. ********************************************************/
 
 static inline uint8_t *pack_uint_8(uint8_t *p, uint8_t v) {
