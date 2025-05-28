@@ -76,20 +76,14 @@ typedef struct {
 
 /** Public functions. *********************************************************/
 
-/**
- * @brief Pack sensor data into a uint8_t array.
- *
- * @param data_array Pointer to the output array to store packed bytes.
- * @param data The sensor data to serialize.
- */
-void pack_sensor_data_8bit(uint8_t *data_array, sensor_data_t data);
-
-/**
- * @brief Unpack sensor data from a uint8_t array.
- *
- * @param data_array Pointer to the input array containing packed data.
- * @param data Pointer to the sensor_data struct to populate.
- */
-void unpack_sensor_data_8bit(const uint8_t *data_array, sensor_data_t *data);
+uint8_t build_quaternion_payload(momentum_frame_t *f, sensor_data_t *s);
+uint8_t build_gyro_payload(momentum_frame_t *f, sensor_data_t *s);
+uint8_t build_accel_payload(momentum_frame_t *f, sensor_data_t *s);
+uint8_t build_lin_accel_payload(momentum_frame_t *f, sensor_data_t *s);
+uint8_t build_gravity_payload(momentum_frame_t *f, sensor_data_t *s);
+uint8_t build_pressure_temp_payload(momentum_frame_t *f, sensor_data_t *s);
+uint8_t build_gps_datetime_payload(momentum_frame_t *f, sensor_data_t *s);
+uint8_t build_gps_coord_payload(momentum_frame_t *f, sensor_data_t *s);
+uint8_t build_gps_stats_payload(momentum_frame_t *f, sensor_data_t *s);
 
 #endif
