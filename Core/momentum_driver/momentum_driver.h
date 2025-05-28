@@ -91,8 +91,8 @@ uint16_t crc16_ccitt(uint16_t crc, const uint8_t *buf, size_t len);
 /**
  * @brief Build and append CRC to a momentum_frame_t.
  *
- * Calculates the CRC-16-CCITT (MOMENTUM_CRC_INITIAL) over the frame header and
- * payload, then writes the resulting 16-bit CRC into f->crc.
+ * Calculates the CRC-16-CCITT over the frame header and payload, then writes
+ * the resulting 16-bit CRC into f->crc.
  *
  * @param f Pointer to the frame whose CRC field will be updated.
  */
@@ -105,6 +105,7 @@ void build_crc(momentum_frame_t *f);
  * and payload bytes, then compares against the 16-bit CRC field in the frame.
  *
  * @param f Pointer to the received frame.
+ *
  * @return true if the computed CRC matches f->crc, false otherwise.
  */
 bool verify_crc(const momentum_frame_t *f);
