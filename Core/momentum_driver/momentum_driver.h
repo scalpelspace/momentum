@@ -31,6 +31,19 @@ typedef struct __attribute__((packed)) {
   uint16_t crc;                            // CRC-16 of frame_type...data[-1].
 } momentum_frame_t;
 
+/**
+ * @brief Momentum sensor hub SPI communication frame processing status.
+ */
+typedef enum {
+  MOMENTUM_OK = 0,
+  MOMENTUM_ERROR_CRC = 1,        // Invalid CRC.
+  MOMENTUM_ERROR_FRAME_TYPE = 2, // Invalid frame type.
+  MOMENTUM_ERROR_BAD_FRAME = 3,  // Invalid start of frame (SOF) or length.
+} momentum_status_t;
+
+/**
+ * @brief Momentum sensor hub sensor data.
+ */
 typedef struct {
   float bno085_quaternion_i;
   float bno085_quaternion_j;
@@ -352,5 +365,19 @@ uint8_t build_gps_stats_payload(momentum_frame_t *f, sensor_data_t *s);
  * @return Number of bytes read (== f->length).
  */
 uint8_t parse_gps_stats_payload(const momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Top-level parser for any incoming momentum_frame_t.
+ *
+ * @param f Pointer to received, packed frame.
+ * @param s Dest sensor_data_t to populate on success.
+ *
+ * @return  MOMENTUM_OK on success, otherwise an error code:
+ *          - MOMENTUM_ERROR_CRC if CRC mismatch.
+ *          - MOMENTUM_ERROR_FRAME_TYPE if unknown frame_type.
+ *          - MOMENTUM_ERROR_BAD_FRAME if SOF/length bad.
+ */
+momentum_status_t parse_momentum_frame(const momentum_frame_t *f,
+                                       sensor_data_t *s);
 
 #endif

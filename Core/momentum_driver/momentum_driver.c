@@ -20,7 +20,7 @@
 #define MOMENTUM_FRAME_TYPE_BAR_ENV 0x16
 #define MOMENTUM_FRAME_TYPE_GPS_COORD 0x17
 #define MOMENTUM_FRAME_TYPE_GPS_DATETIME 0x18
-#define MOMENTUM_FRAME_TYPE_GPS_STATUS 0x19
+#define MOMENTUM_FRAME_TYPE_GPS_STATS 0x19
 
 #define MOMENTUM_CRC_INITIAL 0xFFFF
 
@@ -256,4 +256,48 @@ uint8_t parse_gps_stats_payload(const momentum_frame_t *f, sensor_data_t *s) {
   p = unpack_double_64(p, &s->gps_altitude);
   p = unpack_double_64(p, &s->gps_geoid_sep);
   return (uint8_t)(p - f->payload);
+}
+
+momentum_status_t parse_momentum_frame(const momentum_frame_t *f,
+                                       sensor_data_t *s) {
+  if (f->start_of_frame != MOMENTUM_START_OF_FRAME ||
+      f->length > MOMENTUM_MAX_DATA_SIZE)
+    return MOMENTUM_ERROR_BAD_FRAME;
+
+  if (!verify_crc(f))
+    return MOMENTUM_ERROR_CRC;
+
+  switch (f->frame_type) {
+  case MOMENTUM_FRAME_TYPE_IMU_QUAT:
+    parse_quaternion_payload(f, s);
+    break;
+  case MOMENTUM_FRAME_TYPE_IMU_GYRO:
+    parse_gyro_payload(f, s);
+    break;
+  case MOMENTUM_FRAME_TYPE_IMU_ACCEL:
+    parse_accel_payload(f, s);
+    break;
+  case MOMENTUM_FRAME_TYPE_IMU_LINACCEL:
+    parse_lin_accel_payload(f, s);
+    break;
+  case MOMENTUM_FRAME_TYPE_IMU_GRAV:
+    parse_gravity_payload(f, s);
+    break;
+  case MOMENTUM_FRAME_TYPE_BAR_ENV:
+    parse_pressure_temp_payload(f, s);
+    break;
+  case MOMENTUM_FRAME_TYPE_GPS_COORD:
+    parse_gps_coord_payload(f, s);
+    break;
+  case MOMENTUM_FRAME_TYPE_GPS_DATETIME:
+    parse_gps_datetime_payload(f, s);
+    break;
+  case MOMENTUM_FRAME_TYPE_GPS_STATS:
+    parse_gps_stats_payload(f, s);
+    break;
+  default:
+    return MOMENTUM_ERROR_FRAME_TYPE;
+  }
+
+  return MOMENTUM_OK; // Successful frame unpacking.
 }
