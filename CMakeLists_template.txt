@@ -57,6 +57,7 @@ endif ()
 include_directories(
         ${includes}
         "Core/BMP3_SensorAPI"
+        "Core/momentum_driver"
         "Core/sh2"
 )
 

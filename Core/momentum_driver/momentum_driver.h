@@ -14,20 +14,20 @@
 
 /** Definitions. **************************************************************/
 
-// Momentum SPI transaction frame sizes (in bytes):
-#define MOMENTUM_MAX_FRAME_SIZE 128 // Total = 128.
-#define MOMENTUM_MAX_DATA_SIZE 125  // Data = 125.
-// Frame type = 1.
-// Length value = 1.
-// Checksum = 1.
+#define MOMENTUM_MAX_DATA_SIZE 32
 
 /** Public types. *************************************************************/
 
-typedef struct {
-  uint8_t frame_type;
-  uint8_t length;
-  uint8_t data[MOMENTUM_MAX_DATA_SIZE];
-  uint8_t checksum;
+/**
+ * @brief Momentum sensor hub SPI communication frame.
+ */
+typedef struct __attribute__((packed)) {
+  uint8_t start_of_frame;                  // Start of frame (SOF) for syncing.
+  uint8_t frame_type;                      // Frame type identifier.
+  uint8_t sequence;                        // Roll-over counter.
+  uint8_t length;                          // Number of data payload bytes.
+  uint8_t payload[MOMENTUM_MAX_DATA_SIZE]; // Data payload.
+  uint16_t crc;                            // CRC-16 of frame_type...data[-1].
 } momentum_frame_t;
 
 typedef struct {
