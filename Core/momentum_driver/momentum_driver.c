@@ -16,7 +16,7 @@ static inline uint8_t *pack_uint_8(uint8_t *p, uint8_t v) {
 }
 
 static inline uint8_t *pack_char_8(uint8_t *p, char c) {
-  *p = (uint8_t)c;
+  *p++ = (uint8_t)c;
   return p;
 }
 
