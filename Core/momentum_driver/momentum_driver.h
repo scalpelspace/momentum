@@ -76,14 +76,148 @@ typedef struct {
 
 /** Public functions. *********************************************************/
 
+/**
+ * @brief Compute CRC-16-CCITT over a byte buffer.
+ *
+ * @param crc Initial CRC value (usually 0xFFFF).
+ * @param buf Pointer to the data bytes to checksum.
+ * @param len Number of bytes in buf.
+ *
+ * @return The updated CRC16.
+ */
+uint16_t crc16_ccitt(uint16_t crc, const uint8_t *buf, size_t len);
+
+/**
+ * @brief Build and append CRC to a momentum_frame_t.
+ *
+ * Calculates the CRC-16-CCITT (MOMENTUM_CRC_INITIAL) over the frame header and
+ * payload, then writes the resulting 16-bit CRC into f->crc.
+ *
+ * @param f Pointer to the frame whose CRC field will be updated.
+ */
+void build_crc(momentum_frame_t *f);
+
+/**
+ * @brief Pack quaternion data into the frame payload.
+ *
+ * Serializes quaternion components (i, j, k, real) and quaternion accuracy (in
+ * radians and degrees) from the provided sensor data into the frame payload.
+ * Updates f->length to reflect the number of bytes written.
+ *
+ * @param f Pointer to the frame to populate.
+ * @param s Pointer to the sensor_data_t containing source quaternion values.
+ *
+ * @return Number of bytes written into f->payload.
+ */
 uint8_t build_quaternion_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Pack gyroscope data into the frame payload.
+ *
+ * Serializes gyroscope readings (x, y, z) from the provided sensor data into
+ * the frame payload. Updates f->length accordingly.
+ *
+ * @param f Pointer to the frame to populate.
+ * @param s Pointer to the sensor_data_t containing source gyroscope values.
+ *
+ * @return Number of bytes written into f->payload.
+ */
 uint8_t build_gyro_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Pack accelerometer data into the frame payload.
+ *
+ * Serializes accelerometer readings (x, y, z) from the provided sensor data
+ * into the frame payload. Updates f->length accordingly.
+ *
+ * @param f Pointer to the frame to populate.
+ * @param s Pointer to the sensor_data_t containing source accelerometer values.
+ *
+ * @return Number of bytes written into f->payload.
+ */
 uint8_t build_accel_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Pack linear acceleration data into the frame payload.
+ *
+ * Serializes linear acceleration readings (x, y, z) from the provided sensor
+ * data into the frame payload. Updates f->length accordingly.
+ *
+ * @param f Pointer to the frame to populate.
+ * @param s Pointer to the sensor_data_t containing source linear acceleration
+ *          values.
+ *
+ * @return Number of bytes written into f->payload.
+ */
 uint8_t build_lin_accel_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Pack gravity vector data into the frame payload.
+ *
+ * Serializes gravity vector components (x, y, z) from the provided sensor data
+ * into the frame payload. Updates f->length accordingly.
+ *
+ * @param f Pointer to the frame to populate.
+ * @param s Pointer to the sensor_data_t containing source gravity values.
+ *
+ * @return Number of bytes written into f->payload.
+ */
 uint8_t build_gravity_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Pack barometer temperature and pressure data into the frame payload.
+ *
+ * Serializes barometric temperature and pressure readings from the provided
+ * sensor data into the frame payload. Updates f->length accordingly.
+ *
+ * @param f Pointer to the frame to populate.
+ * @param s Pointer to the sensor_data_t containing source temperature and
+ *          pressure values.
+ *
+ * @return Number of bytes written into f->payload.
+ */
 uint8_t build_pressure_temp_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Pack GPS date and time data into the frame payload.
+ *
+ * Serializes GPS date and time fields (hour, minute, second, day, month, year)
+ * from the provided sensor data into the frame payload. Updates f->length
+ * accordingly.
+ *
+ * @param f Pointer to the frame to populate.
+ * @param s Pointer to the sensor_data_t containing source GPS date/time values.
+ *
+ * @return Number of bytes written into f->payload.
+ */
 uint8_t build_gps_datetime_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Pack GPS coordinate data into the frame payload.
+ *
+ * Serializes GPS position fields (latitude, latitude direction, longitude,
+ * longitude direction) from the provided sensor data into the frame payload.
+ * Updates f->length accordingly.
+ *
+ * @param f Pointer to the frame to populate.
+ * @param s Pointer to the sensor_data_t containing source GPS coordinates.
+ *
+ * @return Number of bytes written into f->payload.
+ */
 uint8_t build_gps_coord_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Pack GPS status and statistics into the frame payload.
+ *
+ * Serializes GPS status fields (fix quality, number of satellites, HDOP) and
+ * altitude (altitude above sea level, geoidal separation) from the provided
+ * sensor data into the frame payload. Updates f->length accordingly.
+ *
+ * @param f Pointer to the frame to populate.
+ * @param s Pointer to the sensor_data_t containing source GPS status values.
+ *
+ * @return Number of bytes written into f->payload.
+ */
 uint8_t build_gps_stats_payload(momentum_frame_t *f, sensor_data_t *s);
 
 #endif

@@ -22,6 +22,8 @@
 #define MOMENTUM_FRAME_TYPE_GPS_DATETIME 0x18
 #define MOMENTUM_FRAME_TYPE_GPS_STATUS 0x19
 
+#define MOMENTUM_CRC_INITIAL 0xFFFF
+
 /** Private functions. ********************************************************/
 
 static inline uint8_t *pack_uint_8(uint8_t *p, uint8_t v) {
@@ -45,6 +47,27 @@ static inline uint8_t *pack_double_64(uint8_t *p, double v) {
 }
 
 /** Public functions. *********************************************************/
+
+uint16_t crc16_ccitt(uint16_t crc, const uint8_t *buf, size_t len) {
+  while (len--) {
+    crc ^= (uint16_t)(*buf++) << 8;
+    for (uint8_t bit = 0; bit < 8; bit++) {
+      if (crc & 0x8000) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc <<= 1;
+      }
+    }
+  }
+  return crc;
+}
+
+void build_crc(momentum_frame_t *f) {
+  // Header: frame_type(1) + sequence(1) + length(1) + data[length].
+  size_t n = 3 + f->length;
+  // `&f->frame_type` is the address of first byte to CRC.
+  f->crc = crc16_ccitt(MOMENTUM_CRC_INITIAL, &f->frame_type, n);
+}
 
 uint8_t build_quaternion_payload(momentum_frame_t *f, sensor_data_t *s) {
   uint8_t *p = f->payload;
