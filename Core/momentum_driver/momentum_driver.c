@@ -28,12 +28,12 @@
 
 static inline uint8_t *pack_uint_8(uint8_t *p, uint8_t v) {
   *p++ = v;
-  return p + 1;
+  return p;
 }
 
 static inline uint8_t *pack_char_8(uint8_t *p, char c) {
   *p = (uint8_t)c;
-  return p + 1;
+  return p;
 }
 
 static inline uint8_t *pack_float_32(uint8_t *p, float v) {
