@@ -9,6 +9,7 @@
 
 /** Includes. *****************************************************************/
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -98,6 +99,17 @@ uint16_t crc16_ccitt(uint16_t crc, const uint8_t *buf, size_t len);
 void build_crc(momentum_frame_t *f);
 
 /**
+ * @brief Verify the CRC of a received frame.
+ *
+ * Recomputes CRC-16-CCITT over the received frame_type, sequence, length,
+ * and payload bytes, then compares against the 16-bit CRC field in the frame.
+ *
+ * @param f Pointer to the received frame.
+ * @return true if the computed CRC matches f->crc, false otherwise.
+ */
+bool verify_crc(const momentum_frame_t *f);
+
+/**
  * @brief Pack quaternion data into the frame payload.
  *
  * Serializes quaternion components (i, j, k, real) and quaternion accuracy (in
@@ -110,6 +122,19 @@ void build_crc(momentum_frame_t *f);
  * @return Number of bytes written into f->payload.
  */
 uint8_t build_quaternion_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Unpack quaternion data from the frame payload.
+ *
+ * Deserializes quaternion components (i, j, k, real) and quaternion accuracy
+ * (in radians and degrees) from the provided frame payload into sensor data.
+ *
+ * @param f Pointer to the frame to read.
+ * @param s Pointer to the sensor_data_t to update quaternion values.
+ *
+ * @return Number of bytes read (== f->length).
+ */
+uint8_t parse_quaternion_payload(const momentum_frame_t *f, sensor_data_t *s);
 
 /**
  * @brief Pack gyroscope data into the frame payload.
@@ -125,6 +150,19 @@ uint8_t build_quaternion_payload(momentum_frame_t *f, sensor_data_t *s);
 uint8_t build_gyro_payload(momentum_frame_t *f, sensor_data_t *s);
 
 /**
+ * @brief Unpack gyroscope data from the frame payload.
+ *
+ * Deserializes gyroscope readings (x, y, z) from the provided frame payload
+ * into sensor data.
+ *
+ * @param f Pointer to the frame to read.
+ * @param s Pointer to the sensor_data_t to update gyroscope values.
+ *
+ * @return Number of bytes read (== f->length).
+ */
+uint8_t parse_gyro_payload(const momentum_frame_t *f, sensor_data_t *s);
+
+/**
  * @brief Pack accelerometer data into the frame payload.
  *
  * Serializes accelerometer readings (x, y, z) from the provided sensor data
@@ -136,6 +174,19 @@ uint8_t build_gyro_payload(momentum_frame_t *f, sensor_data_t *s);
  * @return Number of bytes written into f->payload.
  */
 uint8_t build_accel_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Unpack accelerometer data from the frame payload.
+ *
+ * Deserializes accelerometer readings (x, y, z) from the provided frame payload
+ * into sensor data.
+ *
+ * @param f Pointer to the frame to read.
+ * @param s Pointer to the sensor_data_t to update accelerometer values.
+ *
+ * @return Number of bytes read (== f->length).
+ */
+uint8_t parse_accel_payload(const momentum_frame_t *f, sensor_data_t *s);
 
 /**
  * @brief Pack linear acceleration data into the frame payload.
@@ -152,6 +203,19 @@ uint8_t build_accel_payload(momentum_frame_t *f, sensor_data_t *s);
 uint8_t build_lin_accel_payload(momentum_frame_t *f, sensor_data_t *s);
 
 /**
+ * @brief Unpack linear acceleration data from the frame payload.
+ *
+ * Deserializes linear acceleration readings (x, y, z) from the provided frame
+ * payload into sensor data.
+ *
+ * @param f Pointer to the frame to read.
+ * @param s Pointer to the sensor_data_t to update linear acceleration values.
+ *
+ * @return Number of bytes read (== f->length).
+ */
+uint8_t parse_lin_accel_payload(const momentum_frame_t *f, sensor_data_t *s);
+
+/**
  * @brief Pack gravity vector data into the frame payload.
  *
  * Serializes gravity vector components (x, y, z) from the provided sensor data
@@ -163,6 +227,19 @@ uint8_t build_lin_accel_payload(momentum_frame_t *f, sensor_data_t *s);
  * @return Number of bytes written into f->payload.
  */
 uint8_t build_gravity_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Unpack gravity vector data from the frame payload.
+ *
+ * Deserializes gravity vector components (x, y, z) from the provided frame
+ * payload into sensor data.
+ *
+ * @param f Pointer to the frame to read.
+ * @param s Pointer to the sensor_data_t to update gravity values.
+ *
+ * @return Number of bytes read (== f->length).
+ */
+uint8_t parse_gravity_payload(const momentum_frame_t *f, sensor_data_t *s);
 
 /**
  * @brief Pack barometer temperature and pressure data into the frame payload.
@@ -179,6 +256,21 @@ uint8_t build_gravity_payload(momentum_frame_t *f, sensor_data_t *s);
 uint8_t build_pressure_temp_payload(momentum_frame_t *f, sensor_data_t *s);
 
 /**
+ * @brief Unpack barometer temperature and pressure data from the frame payload.
+ *
+ * Deserializes barometric temperature and pressure readings from the provided
+ * frame payload into sensor data.
+ *
+ * @param f Pointer to the frame to read.
+ * @param s Pointer to the sensor_data_t to update temperature and pressure
+ *          values.
+ *
+ * @return Number of bytes read (== f->length).
+ */
+uint8_t parse_pressure_temp_payload(const momentum_frame_t *f,
+                                    sensor_data_t *s);
+
+/**
  * @brief Pack GPS date and time data into the frame payload.
  *
  * Serializes GPS date and time fields (hour, minute, second, day, month, year)
@@ -191,6 +283,19 @@ uint8_t build_pressure_temp_payload(momentum_frame_t *f, sensor_data_t *s);
  * @return Number of bytes written into f->payload.
  */
 uint8_t build_gps_datetime_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Unpack GPS date and time data from the frame payload.
+ *
+ * Deserializes GPS date and time fields (hour, minute, second, day, month,
+ * year) from the provided frame payload into sensor data.
+ *
+ * @param f Pointer to the frame to read.
+ * @param s Pointer to the sensor_data_t to update GPS date/time values.
+ *
+ * @return Number of bytes read (== f->length).
+ */
+uint8_t parse_gps_datetime_payload(const momentum_frame_t *f, sensor_data_t *s);
 
 /**
  * @brief Pack GPS coordinate data into the frame payload.
@@ -207,6 +312,19 @@ uint8_t build_gps_datetime_payload(momentum_frame_t *f, sensor_data_t *s);
 uint8_t build_gps_coord_payload(momentum_frame_t *f, sensor_data_t *s);
 
 /**
+ * @brief Unpack GPS coordinate data from the frame payload.
+ *
+ * Deserializes GPS position fields (latitude, latitude direction, longitude,
+ * longitude direction) from the provided frame payload into sensor data.
+ *
+ * @param f Pointer to the frame to read.
+ * @param s Pointer to the sensor_data_t to update GPS coordinates.
+ *
+ * @return Number of bytes read (== f->length).
+ */
+uint8_t parse_gps_coord_payload(const momentum_frame_t *f, sensor_data_t *s);
+
+/**
  * @brief Pack GPS status and statistics into the frame payload.
  *
  * Serializes GPS status fields (fix quality, number of satellites, HDOP) and
@@ -219,5 +337,19 @@ uint8_t build_gps_coord_payload(momentum_frame_t *f, sensor_data_t *s);
  * @return Number of bytes written into f->payload.
  */
 uint8_t build_gps_stats_payload(momentum_frame_t *f, sensor_data_t *s);
+
+/**
+ * @brief Unpack GPS status and statistics from the frame payload.
+ *
+ * Deserializes GPS status fields (fix quality, number of satellites, HDOP) and
+ * altitude (altitude above sea level, geoidal separation) from the provided
+ * frame payload into sensor data.
+ *
+ * @param f Pointer to the frame to read.
+ * @param s Pointer to the sensor_data_t to update GPS status values.
+ *
+ * @return Number of bytes read (== f->length).
+ */
+uint8_t parse_gps_stats_payload(const momentum_frame_t *f, sensor_data_t *s);
 
 #endif

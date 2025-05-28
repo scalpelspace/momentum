@@ -46,6 +46,26 @@ static inline uint8_t *pack_double_64(uint8_t *p, double v) {
   return p + 8;
 }
 
+static inline const uint8_t *unpack_uint_8(const uint8_t *p, uint8_t *v) {
+  *v = *p;
+  return p + 1;
+}
+
+static inline const uint8_t *unpack_char_8(const uint8_t *p, char *c) {
+  *c = (char)*p;
+  return p + 1;
+}
+
+static inline const uint8_t *unpack_float_32(const uint8_t *p, float *f) {
+  memcpy(f, p, 4);
+  return p + 4;
+}
+
+static inline const uint8_t *unpack_double_64(const uint8_t *p, double *d) {
+  memcpy(d, p, 8);
+  return p + 8;
+}
+
 /** Public functions. *********************************************************/
 
 uint16_t crc16_ccitt(uint16_t crc, const uint8_t *buf, size_t len) {
@@ -63,10 +83,17 @@ uint16_t crc16_ccitt(uint16_t crc, const uint8_t *buf, size_t len) {
 }
 
 void build_crc(momentum_frame_t *f) {
-  // Header: frame_type(1) + sequence(1) + length(1) + data[length].
+  // Check: frame_type(1) + sequence(1) + length(1) + data[length].
   size_t n = 3 + f->length;
   // `&f->frame_type` is the address of first byte to CRC.
   f->crc = crc16_ccitt(MOMENTUM_CRC_INITIAL, &f->frame_type, n);
+}
+
+bool verify_crc(const momentum_frame_t *f) {
+  // Check: frame_type(1) + sequence(1) + length(1) + data[length].
+  size_t n = 3 + f->length;
+  uint16_t crc = crc16_ccitt(MOMENTUM_CRC_INITIAL, &f->frame_type, n);
+  return (crc == f->crc);
 }
 
 uint8_t build_quaternion_payload(momentum_frame_t *f, sensor_data_t *s) {
@@ -80,11 +107,30 @@ uint8_t build_quaternion_payload(momentum_frame_t *f, sensor_data_t *s) {
   return (uint8_t)(p - f->payload);
 }
 
+uint8_t parse_quaternion_payload(const momentum_frame_t *f, sensor_data_t *s) {
+  const uint8_t *p = f->payload;
+  p = unpack_float_32(p, &s->bno085_quaternion_i);
+  p = unpack_float_32(p, &s->bno085_quaternion_j);
+  p = unpack_float_32(p, &s->bno085_quaternion_k);
+  p = unpack_float_32(p, &s->bno085_quaternion_real);
+  p = unpack_float_32(p, &s->bno085_quaternion_accuracy_rad);
+  p = unpack_float_32(p, &s->bno085_quaternion_accuracy_deg);
+  return (uint8_t)(p - f->payload);
+}
+
 uint8_t build_gyro_payload(momentum_frame_t *f, sensor_data_t *s) {
   uint8_t *p = f->payload;
   p = pack_float_32(p, s->bno085_gyro_x);
   p = pack_float_32(p, s->bno085_gyro_y);
   p = pack_float_32(p, s->bno085_gyro_z);
+  return (uint8_t)(p - f->payload);
+}
+
+uint8_t parse_gyro_payload(const momentum_frame_t *f, sensor_data_t *s) {
+  const uint8_t *p = f->payload;
+  p = unpack_float_32(p, &s->bno085_gyro_x);
+  p = unpack_float_32(p, &s->bno085_gyro_y);
+  p = unpack_float_32(p, &s->bno085_gyro_z);
   return (uint8_t)(p - f->payload);
 }
 
@@ -96,11 +142,27 @@ uint8_t build_accel_payload(momentum_frame_t *f, sensor_data_t *s) {
   return (uint8_t)(p - f->payload);
 }
 
+uint8_t parse_accel_payload(const momentum_frame_t *f, sensor_data_t *s) {
+  const uint8_t *p = f->payload;
+  p = unpack_float_32(p, &s->bno085_accel_x);
+  p = unpack_float_32(p, &s->bno085_accel_y);
+  p = unpack_float_32(p, &s->bno085_accel_z);
+  return (uint8_t)(p - f->payload);
+}
+
 uint8_t build_lin_accel_payload(momentum_frame_t *f, sensor_data_t *s) {
   uint8_t *p = f->payload;
   p = pack_float_32(p, s->bno085_lin_accel_x);
   p = pack_float_32(p, s->bno085_lin_accel_y);
   p = pack_float_32(p, s->bno085_lin_accel_z);
+  return (uint8_t)(p - f->payload);
+}
+
+uint8_t parse_lin_accel_payload(const momentum_frame_t *f, sensor_data_t *s) {
+  const uint8_t *p = f->payload;
+  p = unpack_float_32(p, &s->bno085_lin_accel_x);
+  p = unpack_float_32(p, &s->bno085_lin_accel_y);
+  p = unpack_float_32(p, &s->bno085_lin_accel_z);
   return (uint8_t)(p - f->payload);
 }
 
@@ -112,10 +174,26 @@ uint8_t build_gravity_payload(momentum_frame_t *f, sensor_data_t *s) {
   return (uint8_t)(p - f->payload);
 }
 
+uint8_t parse_gravity_payload(const momentum_frame_t *f, sensor_data_t *s) {
+  const uint8_t *p = f->payload;
+  p = unpack_float_32(p, &s->bno085_gravity_x);
+  p = unpack_float_32(p, &s->bno085_gravity_y);
+  p = unpack_float_32(p, &s->bno085_gravity_z);
+  return (uint8_t)(p - f->payload);
+}
+
 uint8_t build_pressure_temp_payload(momentum_frame_t *f, sensor_data_t *s) {
   uint8_t *p = f->payload;
   p = pack_double_64(p, s->bmp390_temperature);
   p = pack_double_64(p, s->bmp390_pressure);
+  return (uint8_t)(p - f->payload);
+}
+
+uint8_t parse_pressure_temp_payload(const momentum_frame_t *f,
+                                    sensor_data_t *s) {
+  const uint8_t *p = f->payload;
+  p = unpack_double_64(p, &s->bmp390_temperature);
+  p = unpack_double_64(p, &s->bmp390_pressure);
   return (uint8_t)(p - f->payload);
 }
 
@@ -130,12 +208,33 @@ uint8_t build_gps_datetime_payload(momentum_frame_t *f, sensor_data_t *s) {
   return (uint8_t)(p - f->payload);
 }
 
+uint8_t parse_gps_datetime_payload(const momentum_frame_t *f,
+                                   sensor_data_t *s) {
+  const uint8_t *p = f->payload;
+  p = unpack_uint_8(p, &s->gps_hour);
+  p = unpack_uint_8(p, &s->gps_minute);
+  p = unpack_uint_8(p, &s->gps_second);
+  p = unpack_uint_8(p, &s->gps_day);
+  p = unpack_uint_8(p, &s->gps_month);
+  p = unpack_uint_8(p, &s->gps_year);
+  return (uint8_t)(p - f->payload);
+}
+
 uint8_t build_gps_coord_payload(momentum_frame_t *f, sensor_data_t *s) {
   uint8_t *p = f->payload;
   p = pack_double_64(p, s->gps_latitude);
   p = pack_char_8(p, s->gps_lat_dir);
   p = pack_double_64(p, s->gps_longitude);
   p = pack_char_8(p, s->gps_lon_dir);
+  return (uint8_t)(p - f->payload);
+}
+
+uint8_t parse_gps_coord_payload(const momentum_frame_t *f, sensor_data_t *s) {
+  const uint8_t *p = f->payload;
+  p = unpack_double_64(p, &s->gps_latitude);
+  p = unpack_char_8(p, &s->gps_lat_dir);
+  p = unpack_double_64(p, &s->gps_longitude);
+  p = unpack_char_8(p, &s->gps_lon_dir);
   return (uint8_t)(p - f->payload);
 }
 
@@ -146,5 +245,15 @@ uint8_t build_gps_stats_payload(momentum_frame_t *f, sensor_data_t *s) {
   p = pack_float_32(p, s->gps_hdop);
   p = pack_double_64(p, s->gps_altitude);
   p = pack_double_64(p, s->gps_geoid_sep);
+  return (uint8_t)(p - f->payload);
+}
+
+uint8_t parse_gps_stats_payload(const momentum_frame_t *f, sensor_data_t *s) {
+  const uint8_t *p = f->payload;
+  p = unpack_uint_8(p, &s->gps_fix_quality);
+  p = unpack_uint_8(p, &s->gps_satellites);
+  p = unpack_float_32(p, &s->gps_hdop);
+  p = unpack_double_64(p, &s->gps_altitude);
+  p = unpack_double_64(p, &s->gps_geoid_sep);
   return (uint8_t)(p - f->payload);
 }
