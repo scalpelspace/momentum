@@ -13,6 +13,12 @@
 #include <stdint.h>
 #include <string.h>
 
+/** CPP guard open. ***********************************************************/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Definitions. **************************************************************/
 
 #define MOMENTUM_MAX_DATA_SIZE 32
@@ -393,5 +399,11 @@ uint8_t parse_gps_stats_payload(const momentum_frame_t *f, sensor_data_t *s);
  */
 momentum_status_t parse_momentum_frame(const momentum_frame_t *f,
                                        sensor_data_t *s);
+
+/** CPP guard close. **********************************************************/
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
