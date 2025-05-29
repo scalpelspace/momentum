@@ -6,7 +6,7 @@
 
 /** Includes. *****************************************************************/
 
-//#include "momentum_runner.h" // TODO: Implement.
+#include "momentum_runner.h"
 #include "sh2_hal_spi.h"
 #include "stm32l4xx_hal.h"
 #include "ublox_hal_uart.h"
@@ -32,11 +32,11 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
 }
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
-  // HAL_SPI_RxCpltCallback_momentum(hspi); // TODO: Implement.
+  HAL_SPI_RxCpltCallback_momentum(hspi);
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
-  // HAL_SPI_TxCpltCallback_momentum(hspi); // TODO: Implement.
+  HAL_SPI_TxCpltCallback_momentum(hspi);
 }
 
 /** CAN. */

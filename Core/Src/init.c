@@ -9,6 +9,7 @@
 #include "init.h"
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
+#include "momentum_runner.h"
 #include "scheduler.h"
 #include "ublox_hal_uart.h"
 #include "ws2812b_hal_pwm.h"
@@ -34,4 +35,7 @@ void momentum_init(void) {
   // Scheduler.
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(bmp390_get_data, 10);
+
+  // Momentum runner SPI communication start.
+  momentum_spi_start();
 }
