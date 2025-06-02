@@ -82,7 +82,7 @@ typedef struct {
   float speed_knots;  // Speed over the ground in knots.
   float course_deg;   // Course over ground in degrees.
   float magnetic_deg; // Magnetic variation in degrees.
-  float mag_dir;      // Magnetic variation direction (E/W).
+  char mag_dir;      // Magnetic variation direction (E/W).
   uint8_t satellites; // Number of Satellites.
   float hdop;         // Horizontal Dilution of Precision (HDOP).
   float altitude_m;   // Altitude in meters.
