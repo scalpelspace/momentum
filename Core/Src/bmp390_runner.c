@@ -10,8 +10,8 @@
 
 /** Public variables. *********************************************************/
 
-double bmp390_temperature;
-double bmp390_pressure;
+float bmp390_temperature;
+float bmp390_pressure;
 
 /** Private variables. ********************************************************/
 
@@ -123,8 +123,8 @@ void bmp390_get_data(void) {
   uint16_t fifo_length = 0;
   struct bmp3_status status = {{0}};
   struct bmp3_data fifo_p_t_data[FIFO_MAX_SIZE];
-  double temperature_sum = 0;
-  double pressure_sum = 0;
+  float temperature_sum = 0;
+  float pressure_sum = 0;
 
   int8_t result = bmp3_get_status(&status, &dev);
 
@@ -141,11 +141,11 @@ void bmp390_get_data(void) {
       // Use moving average of frames.
       if (fifo.parsed_frames > 0) {
         for (uint8_t index = 0; index < fifo.parsed_frames; index++) {
-          temperature_sum += fifo_p_t_data[index].temperature;
-          pressure_sum += fifo_p_t_data[index].pressure;
+          temperature_sum += (float)fifo_p_t_data[index].temperature;
+          pressure_sum += (float)fifo_p_t_data[index].pressure;
         }
-        bmp390_temperature = temperature_sum / fifo.parsed_frames;
-        bmp390_pressure = pressure_sum / fifo.parsed_frames;
+        bmp390_temperature = temperature_sum / (float)fifo.parsed_frames;
+        bmp390_pressure = pressure_sum / (float)fifo.parsed_frames;
 
         if (status.intr.fifo_full == BMP3_ENABLE) {
           bmp3_fifo_flush(&dev); // Flush FIFO if full.
