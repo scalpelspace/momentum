@@ -8,6 +8,8 @@
 
 #include "ublox_hal_uart.h"
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -59,6 +61,27 @@ double to_decimal_deg(const char *coordinate, const char direction) {
   }
 
   return decimal_degrees;
+}
+
+/**
+ * @brief Compute the NMEA-style XOR checksum over a single character-buffer.
+ *
+ * This function expects to be passed exactly the characters between '$' and
+ * the '*'. For example, if you want to checksum "$PUBX,41,1,0007,0003,9600,0",
+ * call this with the pointer to "PUBX,41,1,0007,0003,9600,0" and the length
+ * of that string.
+ *
+ * @param buf    Pointer to the first character AFTER the leading '$'.
+ * @param length Length of the buffer to checksum.
+ *
+ * @return 8-bit XOR of all bytes in buf[0 .. length-1].
+ */
+static uint8_t compute_nmea_checksum(const char *buf, size_t length) {
+  uint8_t checksum = 0;
+  for (size_t i = 0; i < length; i++) {
+    checksum ^= (uint8_t)buf[i];
+  }
+  return checksum;
 }
 
 /**
@@ -239,6 +262,11 @@ void ublox_init(void) {
   // Ensure the u-blox module is not in reset state.
   HAL_GPIO_WritePin(UBLOX_RESETN_PORT, UBLOX_RESETN_PIN, GPIO_PIN_SET);
 
+  // Swap to a higher baud rate on the u-blox module, then on the STM32.
+  ublox_set_baudrate(UBLOX_INIT_BAUD_RATE);
+  UBLOX_HUART.Init.BaudRate = UBLOX_INIT_BAUD_RATE;
+  HAL_UART_Init(&UBLOX_HUART);
+
   // Start UART reception with DMA.
   HAL_UART_Receive_DMA(&UBLOX_HUART, ublox_rx_dma_buffer, UBLOX_RX_BUFFER_SIZE);
 }
@@ -247,4 +275,40 @@ void ublox_reset(void) {
   HAL_GPIO_WritePin(UBLOX_RESETN_PORT, UBLOX_RESETN_PIN, GPIO_PIN_RESET);
   HAL_Delay(5); // Hold reset for 5 ms.
   HAL_GPIO_WritePin(UBLOX_RESETN_PORT, UBLOX_RESETN_PIN, GPIO_PIN_SET);
+}
+
+void ublox_set_baudrate(uint32_t baudrate) {
+  // 1) Build the core body of the PUBX,41 sentence (no '$' and no "*CS"),
+  //    e.g. "PUBX,41,1,0007,0003,9600,0".
+  char core_msg[64];
+  int core_len = snprintf(core_msg, sizeof(core_msg),
+                          "PUBX,41,1,0007,0003,%lu,0", (unsigned long)baudrate);
+  if (core_len < 0 || core_len >= (int)sizeof(core_msg)) {
+    // snprintf error or truncation (should not happen with 64 bytes).
+    return;
+  }
+
+  // 2) Compute the XOR checksum over core_msg (i.e. the bytes after '$').
+  uint8_t cs = compute_nmea_checksum(core_msg, (size_t)core_len);
+
+  // 3) Build the final NMEA string:
+  //    "$" + core_msg + "*" + two-digit hex CS + "\r\n".
+  //    Example result: "$PUBX,41,1,0007,0003,9600,0*2A\r\n".
+  char full_sentence[80];
+  int full_len = snprintf(full_sentence, sizeof(full_sentence), "$%s*%02X\r\n",
+                          core_msg, cs);
+  if (full_len < 0 || full_len >= (int)sizeof(full_sentence)) {
+    // snprintf error (should not happen with 80 bytes)
+    return;
+  }
+
+  // 4) Transmit it out over the same UART that feeds the SAM-M10Q.
+  //    This will immediately reconfigure the module's UART port to new_baud.
+  HAL_UART_Transmit(&UBLOX_HUART, (uint8_t *)full_sentence, (uint16_t)full_len,
+                    HAL_MAX_DELAY);
+
+  // NOTE: After sending this string, the SAM-M10Q's UART hardware switches
+  //       to `new_baud`. If you want to continue communicating at new_baud,
+  //       you must reconfigure huartx.Init.BaudRate = new_baud and call
+  //       HAL_UART_Init(&huartx) on the STM32 side.
 }

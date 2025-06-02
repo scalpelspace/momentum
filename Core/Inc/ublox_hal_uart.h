@@ -20,6 +20,7 @@ extern UART_HandleTypeDef huart2;
 
 // UART.
 #define UBLOX_HUART huart2
+#define UBLOX_INIT_BAUD_RATE 115200 // Reconfigure during init via software.
 
 // GPIO output for reset.
 #define UBLOX_RESETN_PORT GPIOC
@@ -74,5 +75,12 @@ void ublox_init(void);
  * @note Only for critical situations for recovery, triggers cold start.
  */
 void ublox_reset(void);
+
+/**
+ * @brief Build and send a PUBX,41 message to reconfigure the UART Baud-rate.
+ *
+ * @param baudrate Desired UART baud-rate (e.g. 9600, 115200).
+ */
+void ublox_set_baudrate(uint32_t baudrate);
 
 #endif
