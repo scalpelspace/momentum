@@ -79,14 +79,14 @@ typedef struct {
   char lat_dir;       // Latitude direction (N/S).
   float longitude;    // Longitude in decimal degrees.
   char lon_dir;       // Longitude direction (E/W).
+  float altitude_m;   // Altitude in meters.
+  float geoid_sep_m;  // Geoidal Separation.
   float speed_knots;  // Speed over the ground in knots.
   float course_deg;   // Course over ground in degrees.
   float magnetic_deg; // Magnetic variation in degrees.
-  char mag_dir;      // Magnetic variation direction (E/W).
+  char mag_dir;       // Magnetic variation direction (E/W).
   uint8_t satellites; // Number of Satellites.
   float hdop;         // Horizontal Dilution of Precision (HDOP).
-  float altitude_m;   // Altitude in meters.
-  float geoid_sep_m;  // Geoidal Separation.
 } ublox_data_t;
 
 /** Public variables. *********************************************************/
