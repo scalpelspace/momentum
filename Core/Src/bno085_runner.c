@@ -129,7 +129,7 @@ static void general_event_handler(void *cookie, sh2_AsyncEvent_t *pEvent) {
 }
 
 /**
- * @breif Handle sensor events from the sensor hub.
+ * @brief Handle sensor events from the sensor hub.
  */
 static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
   (void)cookie; // Unused.

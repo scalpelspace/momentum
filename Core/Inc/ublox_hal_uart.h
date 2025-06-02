@@ -64,12 +64,12 @@ void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart);
 /** Public functions. *********************************************************/
 
 /**
- * @breif Initialize the u-blox module.
+ * @brief Initialize the u-blox module.
  */
 void ublox_init(void);
 
 /**
- * @breif Reset the u-blox module.
+ * @brief Reset the u-blox module.
  *
  * @note Only for critical situations for recovery, triggers cold start.
  */

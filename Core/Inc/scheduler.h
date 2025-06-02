@@ -25,12 +25,12 @@
 /** Public types. *************************************************************/
 
 /**
- * @breif Defined type for task functions.
+ * @brief Defined type for task functions.
  */
 typedef void (*task_function_t)(void);
 
 /**
- * @breif Structure to hold task information.
+ * @brief Structure to hold task information.
  *
  * task_function: A function pointer to the task that needs to be executed.
  * period_cyc: The period of the task in terms of CPU cycles.
@@ -49,7 +49,7 @@ typedef struct {
 /** Public functions. *********************************************************/
 
 /**
- * @breif Initialize scheduler which utilized DWT.
+ * @brief Initialize scheduler which utilized DWT.
  */
 void scheduler_init(void);
 
@@ -62,7 +62,7 @@ void scheduler_init(void);
 void scheduler_add_task(task_function_t task_function, uint32_t period_ms);
 
 /**
- * @breif Scheduler run function to be called in the main loop.
+ * @brief Scheduler run function to be called in the main loop.
  */
 void scheduler_run(void);
 
