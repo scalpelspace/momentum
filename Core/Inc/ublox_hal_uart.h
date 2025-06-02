@@ -84,8 +84,21 @@ void ublox_reset(void);
 /**
  * @brief Build and send a PUBX,41 message to reconfigure the UART Baud-rate.
  *
- * @param baudrate Desired UART baud-rate (e.g. 9600, 115200).
+ * @param baud_rate Desired UART baud-rate (e.g. 9600, 115200).
  */
-void ublox_set_baudrate(uint32_t baudrate);
+void ublox_set_baud_rate(uint32_t baud_rate);
+
+/**
+ * @brief Change the dynamic model in RAM (CFG-NAV5 -> dynModel).
+ *
+ * Sends a UBX-CFG-NAV5 packet (class=0x06, id=0x24, length=36). Only the
+ * dynModel field is modified. fixMode is hard-coded to 0x03 (Auto 2D/3D).
+ *
+ * @param dynModel One of {0,2,3,4,5,6,7,8,9,10,11,12} corresponding to:
+ *                 0=Portable, 2=Stationary, 3=Pedestrian, 4=Automotive,
+ *                 5=Sea, 6=Airborne<1g, 7=Airborne<2g, 8=Airborne<4g,
+ *                 9=Wrist, 10=Bike, 11=Mower, 12=E-scooter.
+ */
+void ublox_set_dynamic_model(uint8_t dynModel);
 
 #endif

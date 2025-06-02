@@ -64,6 +64,32 @@ double to_decimal_deg(const char *coordinate, const char direction) {
 }
 
 /**
+ * @brief Compute the two‐byte UBX checksum (Fletcher-like) over a byte buffer.
+ *
+ * This function implements the standard u-blox UBX checksum algorithm:
+ *   - CK_A is the 8-bit sum of all bytes in the buffer.
+ *   - CK_B is the 8-bit sum of all intermediate CK_A values.
+ * Use this to checksum the “class, id, length, payload” portion of any UBX
+ * packet before appending CK_A and CK_B to the end.
+ *
+ * @param buf Pointer to the start of the byte buffer to checksum (typically
+ *            the UBX message’s Class, ID, Length, and Payload fields).
+ * @param len Number of bytes in buf to include in the checksum calculation.
+ * @param ck_a Pointer to an 8-bit variable that will be set to the computed CK_A.
+ * @param ck_b Pointer to an 8-bit variable that will be set to the computed CK_B.
+ */
+static void compute_ubx_checksum(const uint8_t *buf, uint16_t len,
+                                 uint8_t *ck_a, uint8_t *ck_b) {
+  uint8_t a = 0, b = 0;
+  for (uint16_t i = 0; i < len; i++) {
+    a = a + buf[i];
+    b = b + a;
+  }
+  *ck_a = a;
+  *ck_b = b;
+}
+
+/**
  * @brief Compute the NMEA-style XOR checksum over a single character-buffer.
  *
  * This function expects to be passed exactly the characters between '$' and
@@ -71,7 +97,7 @@ double to_decimal_deg(const char *coordinate, const char direction) {
  * call this with the pointer to "PUBX,41,1,0007,0003,9600,0" and the length
  * of that string.
  *
- * @param buf    Pointer to the first character AFTER the leading '$'.
+ * @param buf Pointer to the first character AFTER the leading '$'.
  * @param length Length of the buffer to checksum.
  *
  * @return 8-bit XOR of all bytes in buf[0 .. length-1].
@@ -269,7 +295,7 @@ void ublox_init(void) {
   HAL_GPIO_WritePin(UBLOX_RESETN_PORT, UBLOX_RESETN_PIN, GPIO_PIN_SET);
 
   // Swap to a higher baud rate on the u-blox module, then on the STM32.
-  ublox_set_baudrate(UBLOX_INIT_BAUD_RATE);
+  ublox_set_baud_rate(UBLOX_INIT_BAUD_RATE);
   UBLOX_HUART.Init.BaudRate = UBLOX_INIT_BAUD_RATE;
   HAL_UART_Init(&UBLOX_HUART);
 
@@ -283,12 +309,13 @@ void ublox_reset(void) {
   HAL_GPIO_WritePin(UBLOX_RESETN_PORT, UBLOX_RESETN_PIN, GPIO_PIN_SET);
 }
 
-void ublox_set_baudrate(uint32_t baudrate) {
+void ublox_set_baud_rate(uint32_t baud_rate) {
   // 1) Build the core body of the PUBX,41 sentence (no '$' and no "*CS"),
   //    e.g. "PUBX,41,1,0007,0003,9600,0".
   char core_msg[64];
-  int core_len = snprintf(core_msg, sizeof(core_msg),
-                          "PUBX,41,1,0007,0003,%lu,0", (unsigned long)baudrate);
+  int core_len =
+      snprintf(core_msg, sizeof(core_msg), "PUBX,41,1,0007,0003,%lu,0",
+               (unsigned long)baud_rate);
   if (core_len < 0 || core_len >= (int)sizeof(core_msg)) {
     // snprintf error or truncation (should not happen with 64 bytes).
     return;
@@ -308,13 +335,53 @@ void ublox_set_baudrate(uint32_t baudrate) {
     return;
   }
 
-  // 4) Transmit it out over the same UART that feeds the SAM-M10Q.
-  //    This will immediately reconfigure the module's UART port to new_baud.
+  // 4) Send it out via HAL_UART (blocking).
   HAL_UART_Transmit(&UBLOX_HUART, (uint8_t *)full_sentence, (uint16_t)full_len,
                     HAL_MAX_DELAY);
 
-  // NOTE: After sending this string, the SAM-M10Q's UART hardware switches
+  // NOTE: After sending this string, the u-blox UART hardware switches
   //       to `new_baud`. If you want to continue communicating at new_baud,
   //       you must reconfigure huartx.Init.BaudRate = new_baud and call
   //       HAL_UART_Init(&huartx) on the STM32 side.
+}
+
+void ublox_set_dynamic_model(uint8_t dynModel) {
+  // 1) Construct the 36-byte payload for UBX-CFG-NAV5:
+  //    Offset 0–1 : mask (0x0001 → little endian: 0x01, 0x00).
+  //    Offset 2   : dynModel.
+  //    Offset 3   : fixMode = 0x03 (Auto 2D/3D).
+  //    Offset 4–35: all zeros.
+  uint8_t payload[36];
+  memset(payload, 0x00, sizeof(payload));
+  payload[0] = 0x01;     // mask LSB
+  payload[1] = 0x00;     // mask MSB  (→ 0x0001)
+  payload[2] = dynModel; // dynModel = user choice
+  payload[3] = 0x03;     // fixMode = 3 (Auto 2D/3D)
+
+  // 2) Build the UBX header + length (class=0x06, id=0x24, length=36).
+  //    Sync chars: 0xB5, 0x62.
+  //    Class      : 0x06.
+  //    ID         : 0x24.
+  //    Length LSB : 0x24 (36 decimal).
+  //    Length MSB : 0x00.
+  uint8_t header[6] = {0xB5, 0x62, 0x06, 0x24, 0x24, 0x00};
+
+  // 3) Allocate a single TX buffer:
+  uint8_t tx_buf[44]; // header(6) + payload(36) + CK_A/CK_B(2) = 44 bytes.
+  memcpy(&tx_buf[0], header, sizeof(header));   // Copy header.
+  memcpy(&tx_buf[6], payload, sizeof(payload)); // Copy payload.
+
+  // 4) Compute checksum:
+  // Range is (class, id, length, payload) = txBuf[2..(2+4+36-1)] = 40 bytes.
+  // Start at txBuf[2], length = 4 (class+id+len) + 36 (payload) = 40.
+  uint8_t ck_a, ck_b;
+  compute_ubx_checksum(&tx_buf[2], 40, &ck_a, &ck_b);
+
+  // 5) Append CK_A, CK_B.
+  tx_buf[42] = ck_a;
+  tx_buf[43] = ck_b;
+
+  // 6) Send it out via HAL_UART (blocking).
+  HAL_UART_Transmit(&UBLOX_HUART, tx_buf, (uint16_t)sizeof(tx_buf),
+                    HAL_MAX_DELAY);
 }
