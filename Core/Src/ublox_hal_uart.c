@@ -317,10 +317,10 @@ static bool parse_gnrmc(const char *sentence) {
     tokens[i] = strtok_r(NULL, ",", &saveptr);
   }
 
-  // 3) Check that at least tokens[0]..tokens[13] exist and are not NULL.
+  // 3) Check that at least tokens[0]..tokens[10] exist and are not NULL.
+  //    Higher (>10) index tokens may be NULL due to u-blox module specs.
   if (!tokens[0] || !tokens[1] || !tokens[2] || !tokens[3] || !tokens[4] ||
-      !tokens[5] || !tokens[6] || !tokens[7] || !tokens[8] || !tokens[9] ||
-      !tokens[10] || !tokens[11] || !tokens[12] || !tokens[13]) {
+      !tokens[5] || !tokens[6] || !tokens[7] || !tokens[8] || !tokens[10]) {
     return false;
   }
   char *endptr = NULL;
