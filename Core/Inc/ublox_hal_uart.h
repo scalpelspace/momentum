@@ -35,7 +35,12 @@ extern UART_HandleTypeDef huart2;
 
 // Define a struct to store GPS data.
 typedef struct {
-  char time[10];       // UTC Time.
+  uint8_t year;        // RTC time, year.
+  uint8_t month;       // RTC time, month.
+  uint8_t day;         // RTC time, day.
+  uint8_t hour;        // RTC time, hour.
+  uint8_t minute;      // RTC time, minute.
+  uint8_t second;      // RTC time, second.
   double latitude;     // Latitude in decimal degrees.
   char lat_dir;        // Latitude Direction (N/S).
   double longitude;    // Longitude in decimal degrees.

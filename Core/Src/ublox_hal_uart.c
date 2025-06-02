@@ -145,8 +145,14 @@ static bool parse_gngga(const char *sentence) {
 
   // Field conversions.
   // UTC time.
-  strncpy(gps_data.time, tokens[1], sizeof(gps_data.time) - 1);
-  gps_data.time[sizeof(gps_data.time) - 1] = '\0';
+  float utc_raw = strtof(tokens[1], NULL); // Convert "hhmmss.ss".
+  uint8_t hh = (uint8_t)(utc_raw / 10000.0f);
+  uint8_t mm = (uint8_t)((utc_raw - ((float)hh * 10000.0f)) / 100.0f);
+  uint8_t ss =
+      (uint8_t)(utc_raw - ((float)hh * 10000.0f) - ((float)mm * 100.0f));
+  gps_data.hour = hh;
+  gps_data.minute = mm;
+  gps_data.second = ss;
 
   // Latitude and longitude.
   gps_data.latitude = to_decimal_deg(tokens[2], tokens[3][0]);

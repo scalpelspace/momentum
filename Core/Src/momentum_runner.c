@@ -63,12 +63,12 @@ void prep_momentum_tx(void) {
                         bno085_gravity_z,
                         bmp390_temperature,
                         bmp390_pressure,
-                        0, // TODO: Implement gps_hour.
-                        0, // TODO: Implement gps_minute.
-                        0, // TODO: Implement gps_second.
-                        0, // TODO: Implement gps_day.
-                        0, // TODO: Implement gps_month.
-                        0, // TODO: Implement gps_year.
+                        gps_data.hour,
+                        gps_data.minute,
+                        gps_data.second,
+                        gps_data.day,
+                        gps_data.month,
+                        gps_data.year,
                         gps_data.latitude,
                         gps_data.lat_dir,
                         gps_data.longitude,
