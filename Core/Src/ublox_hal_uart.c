@@ -16,6 +16,7 @@
 /** Definitions. **************************************************************/
 
 #define GNGGA_TOKEN_COUNT 12
+#define GNRMC_TOKEN_COUNT 14
 
 /** Private variables. ********************************************************/
 
@@ -39,6 +40,66 @@ static uint8_t sentence_end_index = 0;
 void ublox_error_handler(void) {}
 
 /**
+ * @brief Given the three NMEA fix‐flags (status, quality, pos_mode), determine
+ *        which of the 10 possible nmea_position_fix_t types.
+ *
+ * @param flags Pointer to the three‐field struct filled from NMEA sentences:
+ *              - flags->status  = 'A' or 'V'.
+ *              - flags->quality = 0,1,2,4,5,6.
+ *              - flags->pos_mode = 'N','A','D','E','R','F'.
+ *
+ * @return One of the 10 position_fix_t enum values.
+ */
+nmea_position_fix_t classify_position_fix(const nmea_fix_flags_t *flags) {
+  // 1) No position fix at power-up or after losing satellite lock.
+  //    (status='V', quality=0, pos_mode='N').
+  if (flags->status == 'V' && flags->quality == 0 && flags->pos_mode == 'N') {
+    return FIX_TYPE_NO_FIX;
+  }
+
+  // 2) GNSS fix, but user limits exceeded.
+  //    (status='V', quality=0, pos_mode='A' or 'D').
+  if (flags->status == 'V' && flags->quality == 0 &&
+      (flags->pos_mode == 'A' || flags->pos_mode == 'D')) {
+    return FIX_TYPE_GNSS_LIMITS_EXCEEDED;
+  }
+
+  // 3) Dead-reckoning fix, but user limits exceeded.
+  //    (status='V', quality=6, pos_mode='E').
+  if (flags->status == 'V' && flags->quality == 6 && flags->pos_mode == 'E') {
+    return FIX_TYPE_DR_LIMITS_EXCEEDED;
+  }
+
+  // 4) Dead-reckoning fix.
+  //    (status='A', quality=6, pos_mode='E').
+  if (flags->status == 'A' && flags->quality == 6 && flags->pos_mode == 'E') {
+    return FIX_TYPE_DR_FIX;
+  }
+
+  // 5) RTK float.
+  //    (status='A', quality=5, pos_mode='F').
+  if (flags->status == 'A' && flags->quality == 5 && flags->pos_mode == 'F') {
+    return FIX_TYPE_RTK_FLOAT;
+  }
+
+  // 6) RTK fixed.
+  //    (status='A', quality=4, pos_mode='R').
+  if (flags->status == 'A' && flags->quality == 4 && flags->pos_mode == 'R') {
+    return FIX_TYPE_RTK_FIX;
+  }
+
+  // 7) GNSS 2D, GNSS 3D or GNSS + DR combined fix.
+  //    (status='A', quality=1 or 2, pos_mode = 'A' or 'D').
+  if (flags->status == 'A' && (flags->quality == 1 || flags->quality == 2) &&
+      (flags->pos_mode == 'A' || flags->pos_mode == 'D')) {
+    return FIX_TYPE_GNSS_FIX;
+  }
+
+  // 9) If none of the above matched, fall back to FIX_TYPE_UNDETERMINED.
+  return FIX_TYPE_UNDETERMINED;
+}
+
+/**
  * @brief Convert latitude/longitude from DDMM.MMMM to decimal degrees.
  *
  * @param coordinate Original degrees and minutes measurements.
@@ -46,14 +107,14 @@ void ublox_error_handler(void) {}
  *
  * @return Converted decimal degrees measurement.
  */
-double to_decimal_deg(const char *coordinate, const char direction) {
+float to_decimal_deg(const char *coordinate, const char direction) {
   // Parse the degrees and minutes.
-  double value = strtod(coordinate, NULL);
+  float value = strtof(coordinate, NULL);
   int degrees = (int)(value / 100);
-  double minutes = value - (degrees * 100);
+  float minutes = value - (float)(degrees * 100);
 
   // Convert to decimal degrees.
-  double decimal_degrees = degrees + (minutes / 60.0);
+  float decimal_degrees = (float)degrees + (minutes / 60.0f);
 
   // Apply direction correction (negative for S or W).
   if (direction == 'S' || direction == 'W') {
@@ -69,19 +130,19 @@ double to_decimal_deg(const char *coordinate, const char direction) {
  * This function implements the standard u-blox UBX checksum algorithm:
  *   - CK_A is the 8-bit sum of all bytes in the buffer.
  *   - CK_B is the 8-bit sum of all intermediate CK_A values.
- * Use this to checksum the “class, id, length, payload” portion of any UBX
+ * Use this to checksum the "class, id, length, payload" portion of any UBX
  * packet before appending CK_A and CK_B to the end.
  *
  * @param buf Pointer to the start of the byte buffer to checksum (typically
- *            the UBX message’s Class, ID, Length, and Payload fields).
- * @param len Number of bytes in buf to include in the checksum calculation.
- * @param ck_a Pointer to an 8-bit variable that will be set to the computed CK_A.
- * @param ck_b Pointer to an 8-bit variable that will be set to the computed CK_B.
+ *            the message's Class, ID, Length, and Payload fields).
+ * @param length Number of bytes in buf to include in the checksum calculation.
+ * @param ck_a Pointer to an 8-bit variable to update to the computed CK_A.
+ * @param ck_b Pointer to an 8-bit variable to update to the computed CK_B.
  */
-static void compute_ubx_checksum(const uint8_t *buf, uint16_t len,
+static void compute_ubx_checksum(const uint8_t *buf, uint16_t length,
                                  uint8_t *ck_a, uint8_t *ck_b) {
   uint8_t a = 0, b = 0;
-  for (uint16_t i = 0; i < len; i++) {
+  for (uint16_t i = 0; i < length; i++) {
     a = a + buf[i];
     b = b + a;
   }
@@ -142,35 +203,44 @@ static bool validate_nmea_checksum(const char *sentence) {
 
 /** @brief Parse GNGGA fields.
  *
+ * @param sentence Pointer to a null-terminated NMEA sentence string.
+ *
  * @return bool
  * @retval == true -> All values seem valid.
  * @retval == false -> At least 1 value seems invalid.
  *
  * @note GPS data is still updated on failure using information processed up to
- * (but not including) the invalid information.
+ *       (but not including) the invalid information.
  */
 static bool parse_gngga(const char *sentence) {
-  // Quick tokenization in-place.
+  // 1) Copy into a local buffer for strtok_r.
   char buf[UBLOX_RX_BUFFER_SIZE];
   size_t len = strnlen(sentence, sizeof(buf) - 1);
-  if (len >= sizeof(buf) - 1)
+  if (len >= sizeof(buf) - 1) {
+    // Too long to fit or not properly terminated.
     return false;
+  }
   memcpy(buf, sentence, len);
   buf[len] = '\0';
 
-  // Split into comma‑delimited tokens.
+  // 2) Tokenize by commas.  We only need up to GNRMC_TOKEN_COUNT fields.
   char *tokens[GNGGA_TOKEN_COUNT] = {0};
   char *saveptr = NULL;
   tokens[0] = strtok_r(buf, ",", &saveptr);
-  for (int i = 1; i < GNGGA_TOKEN_COUNT && tokens[i - 1]; ++i) {
+  for (int i = 1; i < GNGGA_TOKEN_COUNT && tokens[i - 1] != NULL; ++i) {
     tokens[i] = strtok_r(NULL, ",", &saveptr);
   }
-  // Must have at least fields up through geoid separation (index 11).
-  if (!tokens[0] || !tokens[11])
-    return false;
 
-  // Field conversions.
-  // UTC time.
+  // 3) Check that at least tokens[0]..tokens[11] exist and are not NULL.
+  if (!tokens[0] || !tokens[1] || !tokens[2] || !tokens[3] || !tokens[4] ||
+      !tokens[5] || !tokens[6] || !tokens[7] || !tokens[8] || !tokens[9] ||
+      !tokens[10] || !tokens[11]) {
+    return false;
+  }
+  char *endptr = NULL;
+
+  // 4) Time "hhmmss.ss".
+  //    Convert to hh/mm/ss integers. Ignore fractional seconds.
   float utc_raw = strtof(tokens[1], NULL); // Convert "hhmmss.ss".
   uint8_t hh = (uint8_t)(utc_raw / 10000.0f);
   uint8_t mm = (uint8_t)((utc_raw - ((float)hh * 10000.0f)) / 100.0f);
@@ -180,28 +250,163 @@ static bool parse_gngga(const char *sentence) {
   gps_data.minute = mm;
   gps_data.second = ss;
 
-  // Latitude and longitude.
+  // 5) Latitude.
+  //    tokens[2] = ddmm.mmmmm (string).
+  //    tokens[3] = 'N' or 'S'.
   gps_data.latitude = to_decimal_deg(tokens[2], tokens[3][0]);
-  gps_data.lon_dir = tokens[5][0];
-  gps_data.longitude = to_decimal_deg(tokens[4], tokens[5][0]);
   gps_data.lat_dir = tokens[3][0];
 
-  char *endptr = NULL; // Create null pointer for stdlib functions.
+  // 6) Longitude.
+  //    tokens[4] = dddmm.mmmmm (string).
+  //    tokens[5] = 'E' or 'W'.
+  gps_data.longitude = to_decimal_deg(tokens[4], tokens[5][0]);
+  gps_data.lon_dir = tokens[5][0];
 
-  // Fix quality.
-  gps_data.fix_quality = (unsigned)strtoul(tokens[6], &endptr, 10);
+  // 7) Fix quality.
+  gps_data.position_flags.quality = (unsigned)strtoul(tokens[6], &endptr, 10);
   if (endptr == tokens[6])
     return false;
 
-  // Number of satellites.
+  // 8) Number of satellites.
   gps_data.satellites = (unsigned)strtoul(tokens[7], &endptr, 10);
   if (endptr == tokens[7])
     return false;
 
-  // hdop, altitude, geoid separation.
+  // 9) Horizontal Dilution of Precision (HDOP).
   gps_data.hdop = strtof(tokens[8], &endptr);
-  gps_data.altitude = strtod(tokens[9], &endptr);
-  gps_data.geoid_sep = strtod(tokens[11], &endptr);
+
+  // 10) Altitude (m).
+  gps_data.altitude_m = strtof(tokens[9], &endptr);
+
+  // 11) Geoid separation (m).
+  gps_data.geoid_sep_m = strtof(tokens[11], &endptr);
+
+  // 12) Update position fix classification.
+  gps_data.position_fix = classify_position_fix(&gps_data.position_flags);
+
+  return true;
+}
+
+/**
+ * @brief Parse GNRMC fields.
+ *
+ * @param sentence Pointer to a null-terminated NMEA sentence string.
+ *
+ * @return == true -> All values seem valid.
+ * @return == false -> At least 1 value seems invalid.
+ *
+ * @note GPS data is still updated on failure using information processed up to
+ *       (but not including) the invalid information.
+ */
+static bool parse_gnrmc(const char *sentence) {
+  // 1) Copy into a local buffer for strtok_r.
+  char buf[UBLOX_RX_BUFFER_SIZE];
+  size_t len = strnlen(sentence, sizeof(buf) - 1);
+  if (len >= sizeof(buf) - 1) {
+    // Too long to fit or not properly terminated.
+    return false;
+  }
+  memcpy(buf, sentence, len);
+  buf[len] = '\0';
+
+  // 2) Tokenize by commas.  We only need up to GNRMC_TOKEN_COUNT fields.
+  char *tokens[GNRMC_TOKEN_COUNT] = {0};
+  char *saveptr = NULL;
+  tokens[0] = strtok_r(buf, ",", &saveptr);
+  for (int i = 1; i < GNRMC_TOKEN_COUNT && tokens[i - 1] != NULL; ++i) {
+    tokens[i] = strtok_r(NULL, ",", &saveptr);
+  }
+
+  // 3) Check that at least tokens[0]..tokens[13] exist and are not NULL.
+  if (!tokens[0] || !tokens[1] || !tokens[2] || !tokens[3] || !tokens[4] ||
+      !tokens[5] || !tokens[6] || !tokens[7] || !tokens[8] || !tokens[9] ||
+      !tokens[10] || !tokens[11] || !tokens[12] || !tokens[13]) {
+    return false;
+  }
+  char *endptr = NULL;
+
+  // 4) Time "hhmmss.ss".
+  //    Convert to hh/mm/ss integers. Ignore fractional seconds.
+  float utc_raw = strtof(tokens[1], NULL); // Convert "hhmmss.ss".
+  uint8_t hh = (uint8_t)(utc_raw / 10000.0f);
+  uint8_t mm = (uint8_t)((utc_raw - ((float)hh * 10000.0f)) / 100.0f);
+  uint8_t ss =
+      (uint8_t)(utc_raw - ((float)hh * 10000.0f) - ((float)mm * 100.0f));
+  gps_data.hour = hh;
+  gps_data.minute = mm;
+  gps_data.second = ss;
+
+  // 5) Status.
+  char status = tokens[2][0];
+  gps_data.position_flags.status = status;
+  if (status != 'A' && status != 'V') {
+    return false;
+  }
+
+  // 6) Latitude.
+  //    tokens[3] = ddmm.mmmmm (string).
+  //    tokens[4] = 'N' or 'S'.
+  gps_data.latitude = to_decimal_deg(tokens[3], tokens[4][0]);
+  gps_data.lat_dir = tokens[4][0];
+
+  // 7) Longitude.
+  //    tokens[5] = dddmm.mmmmm (string).
+  //    tokens[6] = 'E' or 'W'.
+  gps_data.longitude = to_decimal_deg(tokens[5], tokens[6][0]);
+  gps_data.lon_dir = tokens[6][0];
+
+  // 8) Speed over ground (knots).
+  float speed_kn = strtof(tokens[7], &endptr);
+  if (endptr == tokens[7]) {
+    return false;
+  }
+  gps_data.speed_knots = speed_kn;
+
+  // 9) Course over ground (degrees).
+  float course_deg = strtof(tokens[8], &endptr);
+  if (endptr == tokens[8]) {
+    return false;
+  }
+  gps_data.course_deg = course_deg;
+
+  // 10) Date "ddmmyy".
+  int date_raw = (int)strtol(tokens[9], &endptr, 10);
+  if (endptr == tokens[9] || date_raw < 0) {
+    return false;
+  }
+  uint8_t day = (uint8_t)(date_raw / 10000);
+  uint8_t month = (uint8_t)((date_raw - (day * 10000)) / 100);
+  uint8_t year = (uint8_t)(date_raw - (day * 10000) - (month * 100));
+  gps_data.day = day;
+  gps_data.month = month;
+  gps_data.year = year; // 2 digit year ("00" = 2000, "23" = 2023, etc).
+
+  // 11) Magnetic variation (optional-only if present).
+  //     tokens[10] = mv (float, degrees)
+  //     tokens[11] = mvEW ('E' or 'W')
+  if (tokens[10] && tokens[11]) {
+    float mv = strtof(tokens[10], &endptr);
+    if (endptr != tokens[10]) {
+      char mv_dir = tokens[11][0];
+      // Store signed variation: negative if 'W', positive if 'E'.
+      gps_data.magnetic_deg = (mv_dir == 'W') ? -mv : mv;
+      gps_data.mag_dir = mv_dir;
+    }
+  }
+
+  // 12) Position mode indicator (optional-only NMEA 2.3+).
+  if (tokens[12]) {
+    gps_data.position_flags.pos_mode = tokens[12][0];
+  }
+
+  // 13) Navigation status (optional-only NMEA 4.10+).
+  // TODO: Skipped implementation.
+  //  if (tokens[13]) {
+  //    gps_data.nav_status = tokens[13][0];
+  //  }
+
+  // 14) Update position fix classification.
+  gps_data.position_fix = classify_position_fix(&gps_data.position_flags);
 
   return true;
 }
@@ -214,6 +419,10 @@ static bool parse_gngga(const char *sentence) {
 static void parse_nmea_sentence(const char *sentence) {
   if (strncmp(sentence, "$GNGGA", 6) == 0) { // Handle GNGGA sentence.
     if (!validate_nmea_checksum(sentence) || !parse_gngga(sentence)) {
+      ublox_error_handler();
+    }
+  } else if (strncmp(sentence, "$GNRMC", 6) == 0) { // Handle GNRMC sentence.
+    if (!validate_nmea_checksum(sentence) || !parse_gnrmc(sentence)) {
       ublox_error_handler();
     }
   }

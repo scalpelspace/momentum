@@ -33,29 +33,60 @@ extern UART_HandleTypeDef huart2;
 
 /** Public types. *************************************************************/
 
-// Define a struct to store GPS data.
+/**
+ * @brief A compact struct containing exactly the three NMEA‐fields used for
+ *        deciding which of the nine position‐fix types is most accurate.
+ *
+ * Once these three values are determined, a higher precision
+ * nmea_position_fix_t classification can be made (see classify_position_fix).
+ */
 typedef struct {
-  uint8_t year;        // RTC date, year.
-  uint8_t month;       // RTC date, month.
-  uint8_t day;         // RTC date, day.
-  uint8_t hour;        // RTC time, hour.
-  uint8_t minute;      // RTC time, minute.
-  uint8_t second;      // RTC time, second.
-  double latitude;     // Latitude in decimal degrees.
-  char lat_dir;        // Latitude Direction (N/S).
-  double longitude;    // Longitude in decimal degrees.
-  char lon_dir;        // Longitude Direction (E/W).
-  uint8_t fix_quality; // GPS Fix Quality.
-  //  0 = No fix.
-  //  1 = Autonomous GNSS fix.
-  //  2 = Differential GNSS fix.
-  //  4 = RTK fixed.
-  //  5 = RTK float.
-  //  6 = Estimated/dead reckoning fix.
+  char status;     // RMC/GLL "status" field:
+                   // ( 'A' or 'V' ).
+  uint8_t quality; // GGA "quality" field:
+                   // ( 0..6 ).
+  char pos_mode;   // RMC/GNS "pos_mode" field:
+                   // ( 'N','A','D','E','R','F' ).
+} nmea_fix_flags_t;
+
+/**
+ * @brief ENUMs to describe the (NMEA 4.10+) possible position fix flags.
+ */
+typedef enum {
+  FIX_TYPE_UNDETERMINED = 0, // Classification pending.
+  FIX_TYPE_NO_FIX = 1,
+  FIX_TYPE_GNSS_LIMITS_EXCEEDED = 2,
+  FIX_TYPE_DR_LIMITS_EXCEEDED = 3, // DR = Dead Reckoning.
+  FIX_TYPE_DR_FIX = 4,             // DR = Dead Reckoning.
+  FIX_TYPE_RTK_FLOAT = 5,          // RTK = Real Time Kinetic.
+  FIX_TYPE_RTK_FIX = 6,            // RTK = Real Time Kinetic.
+  FIX_TYPE_GNSS_FIX = 7 // GNSS 2D, GNSS 3D or GNSS + DR combined fix.
+} nmea_position_fix_t;
+
+/**
+ * @brief Struct to store GPS data.
+ */
+typedef struct {
+  nmea_position_fix_t position_fix;
+  nmea_fix_flags_t position_flags;
+  uint8_t year;       // RTC date, year.
+  uint8_t month;      // RTC date, month.
+  uint8_t day;        // RTC date, day.
+  uint8_t hour;       // RTC time, hour.
+  uint8_t minute;     // RTC time, minute.
+  uint8_t second;     // RTC time, second.
+  float latitude;     // Latitude in decimal degrees.
+  char lat_dir;       // Latitude direction (N/S).
+  float longitude;    // Longitude in decimal degrees.
+  char lon_dir;       // Longitude direction (E/W).
+  float speed_knots;  // Speed over the ground in knots.
+  float course_deg;   // Course over ground in degrees.
+  float magnetic_deg; // Magnetic variation in degrees.
+  float mag_dir;      // Magnetic variation direction (E/W).
   uint8_t satellites; // Number of Satellites.
-  float hdop;         // Horizontal Dilution of Precision.
-  double altitude;    // Altitude in meters.
-  double geoid_sep;   // Geoidal Separation.
+  float hdop;         // Horizontal Dilution of Precision (HDOP).
+  float altitude_m;   // Altitude in meters.
+  float geoid_sep_m;  // Geoidal Separation.
 } ublox_data_t;
 
 /** Public variables. *********************************************************/
