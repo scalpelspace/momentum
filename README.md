@@ -110,12 +110,15 @@ Phase-Locked Loop Main (PLLM)
 
 ## 2 USB Interface via CP2102N (USB-to-UART)
 
-The CP2102N requires additional configuration and device programming via Silicon
-Labs's [Simplicity Studio Software](https://www.silabs.com/developer-tools/simplicity-studio).
+Utilizing the USB interface via the CP2102N requires Silicon
+Labs's [VCP CP210x USB to UART Bridge VCP Drivers](https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers).
 
 ### 2.1 Data Line Activity LEDs
 
-Direct from the manufacturer/suppliers the CP2102N's LED GPIOs are idle.
+Direct from the manufacturer/suppliers the CP2102N's LED GPIOs are not enabled.
+To enable the LED GPIOs, the CP2102N undergoes additional configuration
+programming via Silicon
+Labs's [Simplicity Studio Software](https://www.silabs.com/developer-tools/simplicity-studio).
 
 ![cp2102n_leds_config.png](docs/cp2102n_leds_config.png)
 
@@ -131,3 +134,6 @@ SPI configurations:
 - CPOL = 0.
 - CPHA = 0.
 - Hardware peripheral select (NSS) enabled.
+
+Low level SPI communication drivers can be found
+here: [momentum_driver](https://github.com/danielljeon/momentum_driver).
