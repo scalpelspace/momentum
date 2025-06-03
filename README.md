@@ -38,7 +38,7 @@ for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
 | CP2102N-A02-GQFN24R      | Silicon Labs            | USB 2.0 to UART Interface         |        1 |       |
 | BNO085                   | CEVA Technologies, Inc. | 9-DOF IMU                         |        1 |       |
 | BMP390                   | Bosch Sensortec         | Barometric Pressure Sensor        |        1 |       |
-| TJA1051T/3               | NXP USA Inc.            | CAN Bus Transceiver               |        1 |       |
+| TJA1057BTK               | NXP USA Inc.            | CAN Bus Transceiver               |        1 |       |
 | SAM-M10Q                 | u-blox                  | RF Receiver Galileo, GLONASS, GPS |        1 |       |
 | WS2812B                  | (Various)               | PWM Addressable RGB LED           |        1 |       |
 
@@ -81,8 +81,8 @@ for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
 | PC15        | `GPIO_Output`           |                                  | SAM-M10Q Pin 18: `RESET_N`       | Pull low to reset (>= 1 ms).                    |
 | PA10        | `USART1_RX`             | 115200 bps                       | CP2102N-A02-GQFN24R Pin 20: TXD  |                                                 |
 | PA9         | `USART1_TX`             | 115200 bps                       | CP2102N-A02-GQFN24R Pin 21: RXD  |                                                 |
-| PA11        | `CAN1_RX`               |                                  | TJA1051T/3 Pin 1: `TXD`          |                                                 |
-| PA12        | `CAN1_TX`               |                                  | TJA1051T/3 Pin 4: `RXD`          |                                                 |
+| PA11        | `CAN1_RX`               |                                  | TJA1057BTK Pin 1: `TXD`          |                                                 |
+| PA12        | `CAN1_TX`               |                                  | TJA1057BTK Pin 4: `RXD`          |                                                 |
 | PA8         | `TIM1_CH1`              | PWM Generation CH1               | WS2812B Pin: `DIN`               | DIN pin number depends on IC variant.           |
 | PB3         | `SPI3_SCK`              |                                  | SPI interface: `SCK`             |                                                 |
 | PBA15       | `SPI3_NSS`              | Pull-up, set high                | SPI interface: `SS`              |                                                 |
@@ -136,4 +136,4 @@ SPI configurations:
 - Hardware peripheral select (NSS) enabled.
 
 Low level SPI communication drivers can be found
-here: [momentum_driver](https://github.com/danielljeon/momentum_driver).
+here: [`momentum_driver`](https://github.com/danielljeon/momentum_driver).
