@@ -15,8 +15,8 @@
 
 /** Definitions. **************************************************************/
 
-#define GNGGA_TOKEN_COUNT 12
-#define GNRMC_TOKEN_COUNT 14
+#define GNGGA_TOKEN_COUNT 15 // GGA index [0..14], exclude checksum and return.
+#define GNRMC_TOKEN_COUNT 14 // RMC index [0..13], exclude checksum and return.
 
 /** Private variables. ********************************************************/
 
@@ -201,6 +201,48 @@ static bool validate_nmea_checksum(const char *sentence) {
   return checksum == received;
 }
 
+/**
+ * @brief Split an NMEA sentence (comma‐delimited) into exactly N tokens,
+ *        preserving empty (zero‐length) fields.  Tokens are placed in the
+ *        pre‐allocated array `tokens[]`, and each token is a pointer into the
+ *        single buffer `sentence`.  After calling this, buf[] will be modified
+ *        in place (each comma becomes `\0`).
+ *
+ * @param sentence The NMEA line (null‐terminated); this buffer is modified.
+ * @param tokens Array of pointers, length = max_tokens.
+ * @param max_tokens Maximum number of tokens to extract.
+ *
+ * @return Number of tokens actually found (could be <= max_tokens).
+ */
+static int nmea_split_preserve_empty(char *sentence, char *tokens[],
+                                     int max_tokens) {
+  int count = 0;
+  char *p = sentence;
+
+  // The first token always starts at sentence (even if sentence[0] == ',').
+  tokens[count++] = p;
+
+  while (count < max_tokens && *p != '\0') {
+    if (*p == ',') {
+      // Replace comma with NUL, and make next token point to p + 1.
+      *p = '\0';
+      tokens[count++] = p + 1;
+    }
+    p++;
+  }
+
+  // If the very last character was a comma, it creates one more empty field
+  // beyond what the loop saw.  E.g. "A,B," -> 3 tokens: "A", "B", "". But
+  // because we only increment count when we see a comma inside the loop, if
+  // the sentence ends with a comma we will still need to account for that:
+  if (count < max_tokens && p > sentence && *(p - 1) == ',') {
+    // sentence ended with a comma, so there is an empty token at the end.
+    tokens[count++] = p; // p points to '\0', so this token is an empty string.
+  }
+
+  return count;
+}
+
 /** @brief Parse GNGGA fields.
  *
  * @param sentence Pointer to a null-terminated NMEA sentence string.
@@ -211,6 +253,24 @@ static bool validate_nmea_checksum(const char *sentence) {
  *
  * @note GPS data is still updated on failure using information processed up to
  *       (but not including) the invalid information.
+ *
+ *  tokens[0] = xxGGA         (string).
+ *  tokens[1] = UTC time      (hhmmss.ss).
+ *  tokens[2] = latitude      (ddmm.mmmmm).
+ *  tokens[3] = N/S indicator ('N' or 'S').
+ *  tokens[4] = longitude     (dddmm.mmmmm).
+ *  tokens[5] = E/W indicator ('E' or 'W').
+ *  tokens[6] = quality       (0..6) (empty string means missing).
+ *  tokens[7] = numSat        (1..12+, as string).
+ *  tokens[8] = HDOP          (float string).
+ *  tokens[9] = altitude      (float string).
+ * tokens[10] = altUnit       (unit, should be 'M').
+ * tokens[11] = geoidSep      (float string).
+ * tokens[12] = geoidSepUnit  (unit, should be 'M').
+ * tokens[13] = diffAge       (character).
+ * tokens[14] = diffStation   (ID of station providing differential correction).
+ * tokens[15] = checksum      (hexadecimal string with leading '*').
+ * tokens[16] = CRLF          (character).
  */
 static bool parse_gngga(const char *sentence) {
   // 1) Copy into a local buffer for strtok_r.
@@ -223,19 +283,21 @@ static bool parse_gngga(const char *sentence) {
   memcpy(buf, sentence, len);
   buf[len] = '\0';
 
-  // 2) Tokenize by commas.  We only need up to GNRMC_TOKEN_COUNT fields.
+  // 2) Tokenize.
+  //    Split on commas, preserving empty fields.
   char *tokens[GNGGA_TOKEN_COUNT] = {0};
-  char *saveptr = NULL;
-  tokens[0] = strtok_r(buf, ",", &saveptr);
-  for (int i = 1; i < GNGGA_TOKEN_COUNT && tokens[i - 1] != NULL; ++i) {
-    tokens[i] = strtok_r(NULL, ",", &saveptr);
-  }
+  int token_count = nmea_split_preserve_empty(buf, tokens, GNGGA_TOKEN_COUNT);
 
-  // 3) Check that at least tokens[0]..tokens[11] exist and are not NULL.
-  if (!tokens[0] || !tokens[1] || !tokens[2] || !tokens[3] || !tokens[4] ||
-      !tokens[5] || !tokens[6] || !tokens[7] || !tokens[8] || !tokens[9] ||
-      !tokens[10] || !tokens[11]) {
+  // 3) Validate tokens.
+  //    Expecting tokens to exist (even empty).
+  if (token_count < GNGGA_TOKEN_COUNT) {
     return false;
+  }
+  // Check that mandatory string lengths are non‐zero.
+  for (int i = 1; i <= 12; i++) {
+    if (tokens[i][0] == '\0') {
+      return false;
+    }
   }
   char *endptr = NULL;
 
@@ -297,6 +359,23 @@ static bool parse_gngga(const char *sentence) {
  *
  * @note GPS data is still updated on failure using information processed up to
  *       (but not including) the invalid information.
+ *
+ *  tokens[0] = xxRMC         (string).
+ *  tokens[1] = UTC time      (hhmmss.ss).
+ *  tokens[2] = status        (character).
+ *  tokens[3] = latitude      (ddmm.mmmmm).
+ *  tokens[4] = N/S indicator ('N' or 'S').
+ *  tokens[5] = longitude     (dddmm.mmmmm).
+ *  tokens[6] = E/W indicator ('E' or 'W').
+ *  tokens[7] = speed         (float string).
+ *  tokens[8] = course        (float string).
+ *  tokens[9] = date          (ddmmyy).
+ * tokens[10] = magneticVar   (float string).
+ * tokens[11] = E/W indicator ('E' or 'W').
+ * tokens[12] = position mode (character).
+ * tokens[13] = nave status   (character).
+ * tokens[14] = checksum      (hexadecimal string with leading '*').
+ * tokens[15] = CRLF          (character).
  */
 static bool parse_gnrmc(const char *sentence) {
   // 1) Copy into a local buffer for strtok_r.
@@ -309,18 +388,21 @@ static bool parse_gnrmc(const char *sentence) {
   memcpy(buf, sentence, len);
   buf[len] = '\0';
 
-  // 2) Tokenize by commas.  We only need up to GNRMC_TOKEN_COUNT fields.
+  // 2) Tokenize.
+  //    Split on commas, preserving empty fields.
   char *tokens[GNRMC_TOKEN_COUNT] = {0};
-  char *saveptr = NULL;
-  tokens[0] = strtok_r(buf, ",", &saveptr);
-  for (int i = 1; i < GNRMC_TOKEN_COUNT && tokens[i - 1] != NULL; ++i) {
-    tokens[i] = strtok_r(NULL, ",", &saveptr);
-  }
+  int token_count = nmea_split_preserve_empty(buf, tokens, GNRMC_TOKEN_COUNT);
 
-  // 3) Check that at least tokens[0]..tokens[10] exist and are not NULL.
-  //    Higher (>10) index tokens may be NULL due to u-blox module specs.
-  if (!tokens[0] || !tokens[1] || !tokens[2] || !tokens[3] || !tokens[4] ||
-      !tokens[5] || !tokens[6] || !tokens[7] || !tokens[8] || !tokens[10]) {
+  // 3) Validate tokens.
+  //    Expecting tokens to exist (even empty).
+  if (token_count < GNRMC_TOKEN_COUNT) {
+    return false;
+  }
+  // Check that mandatory string lengths are non‐zero.
+  if (tokens[1][0] == '\0' || tokens[2][0] == '\0' || tokens[3][0] == '\0' ||
+      tokens[4][0] == '\0' || tokens[5][0] == '\0' || tokens[6][0] == '\0' ||
+      tokens[7][0] == '\0' || tokens[9][0] == '\0' || tokens[12][0] == '\0' ||
+      tokens[13][0] == '\0') {
     return false;
   }
   char *endptr = NULL;
@@ -364,10 +446,9 @@ static bool parse_gnrmc(const char *sentence) {
 
   // 9) Course over ground (degrees).
   float course_deg = strtof(tokens[8], &endptr);
-  if (endptr == tokens[8]) {
-    return false;
+  if (endptr != tokens[8]) {
+    gps_data.course_deg = course_deg;
   }
-  gps_data.course_deg = course_deg;
 
   // 10) Date "ddmmyy".
   int date_raw = (int)strtol(tokens[9], &endptr, 10);
@@ -381,31 +462,18 @@ static bool parse_gnrmc(const char *sentence) {
   gps_data.month = month;
   gps_data.year = year; // 2 digit year ("00" = 2000, "23" = 2023, etc).
 
-  // 11) Magnetic variation (optional-only if present).
-  //     tokens[10] = mv (float, degrees)
-  //     tokens[11] = mvEW ('E' or 'W')
-  if (tokens[10] && tokens[11]) {
-    float mv = strtof(tokens[10], &endptr);
-    if (endptr != tokens[10]) {
-      char mv_dir = tokens[11][0];
-      // Store signed variation: negative if 'W', positive if 'E'.
-      gps_data.magnetic_deg = (mv_dir == 'W') ? -mv : mv;
-      gps_data.mag_dir = mv_dir;
-    }
-  }
-
-  // 12) Position mode indicator (optional-only NMEA 2.3+).
+  // 11) Position mode indicator (optional-only NMEA 2.3+).
   if (tokens[12]) {
     gps_data.position_flags.pos_mode = tokens[12][0];
   }
 
-  // 13) Navigation status (optional-only NMEA 4.10+).
+  // 12) Navigation status (optional-only NMEA 4.10+).
   // TODO: Skipped implementation.
   //  if (tokens[13]) {
   //    gps_data.nav_status = tokens[13][0];
   //  }
 
-  // 14) Update position fix classification.
+  // 13) Update position fix classification.
   gps_data.position_fix = classify_position_fix(&gps_data.position_flags);
 
   return true;
