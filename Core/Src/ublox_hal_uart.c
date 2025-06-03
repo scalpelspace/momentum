@@ -571,10 +571,27 @@ void ublox_init(void) {
   // Ensure the u-blox module is not in reset state.
   HAL_GPIO_WritePin(UBLOX_RESETN_PORT, UBLOX_RESETN_PIN, GPIO_PIN_SET);
 
+  // Ensure u-blox module is at same starting baud rate as the STM32.
+  ublox_set_baud_rate(9600);
+  HAL_Delay(5);
+
   // Swap to a higher baud rate on the u-blox module, then on the STM32.
   ublox_set_baud_rate(UBLOX_INIT_BAUD_RATE);
   UBLOX_HUART.Init.BaudRate = UBLOX_INIT_BAUD_RATE;
   HAL_UART_Init(&UBLOX_HUART);
+  HAL_Delay(5);
+
+  // Set dynamic model.
+  ublox_set_dynamic_model(0);
+  HAL_Delay(5);
+
+  // Disable unused NMEA messages.
+  ublox_disable_other_nmea_messages();
+  HAL_Delay(5);
+
+  // Enable 10 Hz measurement and 10 Hz (GGA and RMC) messages.
+  ublox_enable_10hz();
+  HAL_Delay(5);
 
   // Start UART reception with DMA.
   HAL_UART_Receive_DMA(&UBLOX_HUART, ublox_rx_dma_buffer, UBLOX_RX_BUFFER_SIZE);
@@ -622,18 +639,18 @@ void ublox_set_baud_rate(uint32_t baud_rate) {
   //       HAL_UART_Init(&huartx) on the STM32 side.
 }
 
-void ublox_set_dynamic_model(uint8_t dynModel) {
+void ublox_set_dynamic_model(uint8_t dyn_model) {
   // 1) Construct the 36-byte payload for UBX-CFG-NAV5:
-  //    Offset 0–1 : mask (0x0001 → little endian: 0x01, 0x00).
+  //    Offset 0-1 : mask (0x0001 -> little endian: 0x01, 0x00).
   //    Offset 2   : dynModel.
   //    Offset 3   : fixMode = 0x03 (Auto 2D/3D).
-  //    Offset 4–35: all zeros.
+  //    Offset 4-35: all zeros.
   uint8_t payload[36];
   memset(payload, 0x00, sizeof(payload));
-  payload[0] = 0x01;     // mask LSB
-  payload[1] = 0x00;     // mask MSB  (→ 0x0001)
-  payload[2] = dynModel; // dynModel = user choice
-  payload[3] = 0x03;     // fixMode = 3 (Auto 2D/3D)
+  payload[0] = 0x01;      // mask LSB.
+  payload[1] = 0x00;      // mask MSB  (-> 0x0001).
+  payload[2] = dyn_model; // dynModel = user choice.
+  payload[3] = 0x03;      // fixMode = 3 (Auto 2D/3D).
 
   // 2) Build the UBX header + length (class=0x06, id=0x24, length=36).
   //    Sync chars: 0xB5, 0x62.
@@ -661,4 +678,129 @@ void ublox_set_dynamic_model(uint8_t dynModel) {
   // 6) Send it out via HAL_UART (blocking).
   HAL_UART_Transmit(&UBLOX_HUART, tx_buf, (uint16_t)sizeof(tx_buf),
                     HAL_MAX_DELAY);
+}
+
+void ublox_disable_other_nmea_messages(void) {
+  // 1) List of NMEA msgIDs to disable (all except 0x00=GGA and 0x04=RMC).
+  const uint8_t disable_list[] = {
+      0x01, // GLL.
+      0x02, // GSA.
+      0x03, // GSV.
+      0x05, // VTG.
+      0x07, // GST.
+      0x08, // ZDA.
+      0x09, // GBS (GNSS Satellite Fault Detection).
+      0x0A, // DTM (Datum reference).
+      0x0D, // GRS (GNSS Range Residuals).
+            // (skip 0x00=GGA, 0x04=RMC)
+  };
+  const size_t n = sizeof(disable_list) / sizeof(disable_list[0]);
+
+  // 2) For each message ID, build a 14-byte CFG-MSG UBX packet and transmit it.
+  for (size_t i = 0; i < n; i++) {
+    uint8_t msgID = disable_list[i];
+
+    // a) Prepare header + payload (14 bytes total including CKs at [12],[13]).
+    uint8_t packet[14] = {
+        0xB5,
+        0x62, // UBX sync chars.
+        0x06,
+        0x01, // class = CFG (0x06), id = MSG (0x01).
+        0x08,
+        0x00, // payload length = 8 (LSB=0x08, MSB=0x00).
+        0xF0,
+        msgID, // payload[0] = msgClass=NMEA (0xF0).
+               // payload[1] = msgID (disable_list[i]).
+        0x00,  // payload[2] = rateUART = 0 (disable).
+        0x00,  // payload[3] = rateI2C = 0.
+        0x00,  // payload[4] = rateUSB = 0.
+        0x00,  // payload[5] = rateSPI = 0.
+        0x00,
+        0x00 // payload[6..7] = reserved = 0x0000.
+             // packet[14], packet[15] = checksum (to be computed).
+    };
+
+    // b) Compute checksum over bytes [2..11] (class, id, length, payload[0..5],
+    //    reserved bytes).
+    //
+    //    Actually: (2..(2+4+8-1)) = indices [2..13], but since our packet[] is
+    //              14 bytes (0..13), compute over packet[2]..packet[13], then
+    //              store results at packet[12],packet[13].
+    //
+    //    But note: 6(header) + 8(payload) = 14. Check sum begins at index=2 for
+    //              4 + 8 = 12 bytes:
+    //      [2] class
+    //      [3] id
+    //      [4] length LSB
+    //      [5] length MSB
+    //      [6..13] entire 8-byte payload
+    //
+    //    Thus: check sum over 12 bytes: packet[2]..packet[13], and store CK at
+    //          [14],[15], but our array is only 14 long. To fix indexing:
+    //          packet[] is 14 bytes (0..13), so the payload ends at [11].
+    //          0x00,0x00 is stored at [12],[13] as "reserved" - but must append
+    //          CK after that, so a 16-byte array is needed.
+    uint8_t tx_buf[16];         // Switch to a 16-byte buffer for simplicity.
+    memcpy(tx_buf, packet, 12); // Copy first 12 bytes (0..11).
+    tx_buf[12] = packet[12];    // Reserved LSB.
+    tx_buf[13] = packet[13];    // Reserved MSB.
+    // Compute checksum over tx_buf[2..13].
+    uint8_t ck_a = 0, ck_b = 0;
+    compute_ubx_checksum(&tx_buf[2], 12, &ck_a, &ck_b);
+
+    // c) Append CK_A, CK_B at indices [14], [15].
+    tx_buf[14] = ck_a;
+    tx_buf[15] = ck_b;
+
+    // d) Transmit all 16 bytes.
+    HAL_UART_Transmit(&UBLOX_HUART, tx_buf, 16, HAL_MAX_DELAY);
+  }
+}
+
+void ublox_enable_10hz(void) {
+  uint8_t ck_a, ck_b;
+  uint8_t packet[16];
+
+  // 1) CFG-RATE: set measRate=100ms (0x0064), navRate=1, timeRef=0 (UTC).
+  uint8_t rate_payload[10] = {0x06, 0x08, 0x06, 0x00, 0x64,
+                              0x00, 0x01, 0x00, 0x00, 0x00};
+  // Compute checksum over the 10 bytes.
+  compute_ubx_checksum(rate_payload, sizeof(rate_payload), &ck_a, &ck_b);
+  // Build full 12-byte packet (header + payload + checksum).
+  packet[0] = 0xB5;
+  packet[1] = 0x62;
+  memcpy(&packet[2], rate_payload, sizeof(rate_payload));
+  packet[12] = ck_a;
+  packet[13] = ck_b;
+  // Transmit 14 bytes.
+  HAL_UART_Transmit(&UBLOX_HUART, packet, 14, HAL_MAX_DELAY);
+  HAL_Delay(5);
+
+  // 3) Enable GGA @ 10 Hz.
+  uint8_t gga_payload[12] = {0x06, 0x01, 0x08, 0x00, 0xF0, 0x00,
+                             0x0A, 0x00, 0x00, 0x00, 0x00, 0x00};
+  // Compute checksum over class/id/len + payload (10 bytes).
+  compute_ubx_checksum(&gga_payload[2], 10, &ck_a, &ck_b);
+  packet[0] = 0xB5;
+  packet[1] = 0x62;
+  memcpy(&packet[2], gga_payload, 12);
+  packet[14] = ck_a;
+  packet[15] = ck_b;
+  // Transmit 16 bytes.
+  HAL_UART_Transmit(&UBLOX_HUART, packet, 16, HAL_MAX_DELAY);
+  HAL_Delay(5);
+
+  // 4) Enable RMC @ 10 Hz.
+  uint8_t rmc_payload[12] = {0x06, 0x01, 0x08, 0x00, 0xF0, 0x04,
+                             0x0A, 0x00, 0x00, 0x00, 0x00, 0x00};
+  // Compute checksum over class/id/len + payload (10 bytes).
+  compute_ubx_checksum(&rmc_payload[2], 10, &ck_a, &ck_b);
+  packet[0] = 0xB5;
+  packet[1] = 0x62;
+  memcpy(&packet[2], rmc_payload, 12);
+  packet[14] = ck_a;
+  packet[15] = ck_b;
+  // Transmit 16 bytes.
+  HAL_UART_Transmit(&UBLOX_HUART, packet, 16, HAL_MAX_DELAY);
+  HAL_Delay(5);
 }

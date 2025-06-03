@@ -122,11 +122,62 @@ void ublox_set_baud_rate(uint32_t baud_rate);
  * Sends a UBX-CFG-NAV5 packet (class=0x06, id=0x24, length=36). Only the
  * dynModel field is modified. fixMode is hard-coded to 0x03 (Auto 2D/3D).
  *
- * @param dynModel One of {0,2,3,4,5,6,7,8,9,10,11,12} corresponding to:
+ * @param dyn_model One of {0,2,3,4,5,6,7,8,9,10,11,12} corresponding to:
  *                 0=Portable, 2=Stationary, 3=Pedestrian, 4=Automotive,
  *                 5=Sea, 6=Airborne<1g, 7=Airborne<2g, 8=Airborne<4g,
  *                 9=Wrist, 10=Bike, 11=Mower, 12=E-scooter.
  */
-void ublox_set_dynamic_model(uint8_t dynModel);
+void ublox_set_dynamic_model(uint8_t dyn_model);
+
+/**
+ * @brief Disable every NMEA sentence on UART except GGA (0x00) and RMC (0x04).
+ *
+ * This function sends one UBX-CFG-MSG packet (class=0x06, id=0x01, length=8)
+ * for each message ID in the “disable_list[]” array. Each packet has:
+ *
+ *  payload[0] = 0xF0      (msgClass = NMEA)
+ *  payload[1] = <msgID>   (e.g. 0x01 for GLL, 0x02 for GSA, etc.)
+ *  payload[2] = 0x00      (rateUART = 0 -> disable on UART)
+ *  payload[3] = 0x00      (rateI2C = 0, not used here)
+ *  payload[4] = 0x00      (rateUSB = 0)
+ *  payload[5] = 0x00      (rateSPI = 0)
+ *  payload[6..7] = 0x0000 (reserved)
+ *
+ * The 14-byte packet structure is:
+ *
+ *  [0]  = 0xB5
+ *  [1]  = 0x62
+ *  [2]  = 0x06    (CFG class)
+ *  [3]  = 0x01    (MSG ID)
+ *  [4]  = 0x08    (payload length LSB = 8)
+ *  [5]  = 0x00    (payload length MSB = 0)
+ *  [6]  = 0xF0    (msgClass = NMEA)
+ *  [7]  = <msgID> (e.g. 0x01 = GLL, 0x02 = GSA, etc.)
+ *  [8]  = 0x00    (rateUART = 0)
+ *  [9]  = 0x00    (rateI2C = 0)
+ *  [10] = 0x00    (rateUSB = 0)
+ *  [11] = 0x00    (rateSPI = 0)
+ *  [12] = 0x00    (reserved LSB)
+ *  [13] = 0x00    (reserved MSB)
+ *  [14] = CK_A    (computed checksum over bytes [2..13])
+ *  [15] = CK_B
+ *
+ * After transmission, the module will no longer output any of the listed NMEA
+ * sentences on UART1 (only GGA and RMC will remain enabled, assuming they are
+ * left at a nonzero rate).
+ */
+void ublox_disable_other_nmea_messages(void);
+
+/**
+ * @brief Configure SAM-M10Q for 10 Hz navigation and NMEA output (GGA/RMC).
+ *
+ * This function:
+ * 1) Sends CFG-RATE to set measurement period = 100 ms (10 Hz).
+ * 2) Disables all other NMEA sentences (GLL, GSA, GSV, VTG, etc.).
+ * 3) Enables GGA @ 10 Hz and RMC @ 10 Hz on UART1.
+ *
+ * Must be called after the UART has been initialized at the desired baud.
+ */
+void ublox_enable_10hz(void);
 
 #endif
