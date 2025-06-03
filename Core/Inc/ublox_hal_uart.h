@@ -41,26 +41,23 @@ extern UART_HandleTypeDef huart2;
  * nmea_position_fix_t classification can be made (see classify_position_fix).
  */
 typedef struct {
-  char status;     // RMC/GLL "status" field:
-                   // ( 'A' or 'V' ).
-  uint8_t quality; // GGA "quality" field:
-                   // ( 0..6 ).
-  char pos_mode;   // RMC/GNS "pos_mode" field:
-                   // ( 'N','A','D','E','R','F' ).
+  char status;     // RMC/GLL "status" field: ( 'A' or 'V' ).
+  uint8_t quality; // GGA "quality" field: ( 0..6 ).
+  char pos_mode;   // RMC/GNS "pos_mode" field: ( 'N','A','D','E','R','F' ).
 } nmea_fix_flags_t;
 
 /**
  * @brief ENUMs to describe the (NMEA 4.10+) possible position fix flags.
  */
 typedef enum {
-  FIX_TYPE_UNDETERMINED = 0, // Classification pending.
-  FIX_TYPE_NO_FIX = 1,
-  FIX_TYPE_GNSS_LIMITS_EXCEEDED = 2,
-  FIX_TYPE_DR_LIMITS_EXCEEDED = 3, // DR = Dead Reckoning.
-  FIX_TYPE_DR_FIX = 4,             // DR = Dead Reckoning.
-  FIX_TYPE_RTK_FLOAT = 5,          // RTK = Real Time Kinetic.
-  FIX_TYPE_RTK_FIX = 6,            // RTK = Real Time Kinetic.
-  FIX_TYPE_GNSS_FIX = 7 // GNSS 2D, GNSS 3D or GNSS + DR combined fix.
+  FIX_TYPE_UNDETERMINED = 0,         // Classification pending.
+  FIX_TYPE_NO_FIX = 1,               // No fix.
+  FIX_TYPE_GNSS_LIMITS_EXCEEDED = 2, // Regulation limited.
+  FIX_TYPE_DR_LIMITS_EXCEEDED = 3,   // DR = Dead Reckoning. Regulation limited.
+  FIX_TYPE_DR_FIX = 4,               // DR = Dead Reckoning.
+  FIX_TYPE_RTK_FLOAT = 5,            // RTK = Real Time Kinetic.
+  FIX_TYPE_RTK_FIX = 6,              // RTK = Real Time Kinetic.
+  FIX_TYPE_GNSS_FIX = 7              // GNSS 2D, GNSS 3D or GNSS + DR combined.
 } nmea_position_fix_t;
 
 /**
@@ -69,18 +66,18 @@ typedef enum {
 typedef struct {
   nmea_position_fix_t position_fix;
   nmea_fix_flags_t position_flags;
-  uint8_t year;       // RTC date, year.
-  uint8_t month;      // RTC date, month.
-  uint8_t day;        // RTC date, day.
-  uint8_t hour;       // RTC time, hour.
-  uint8_t minute;     // RTC time, minute.
-  uint8_t second;     // RTC time, second.
+  uint8_t year;       // RTC date, year from GPS satellite.
+  uint8_t month;      // RTC date, month from GPS satellite.
+  uint8_t day;        // RTC date, day from GPS satellite.
+  uint8_t hour;       // RTC time, hour from GPS satellite.
+  uint8_t minute;     // RTC time, minute from GPS satellite.
+  uint8_t second;     // RTC time, second from GPS satellite.
   float latitude;     // Latitude in decimal degrees.
   char lat_dir;       // Latitude direction (N/S).
   float longitude;    // Longitude in decimal degrees.
   char lon_dir;       // Longitude direction (E/W).
   float altitude_m;   // Altitude in meters.
-  float geoid_sep_m;  // Geoidal Separation.
+  float geoid_sep_m;  // Geoid separation.
   float speed_knots;  // Speed over the ground in knots.
   float course_deg;   // Course over ground in degrees.
   float magnetic_deg; // Magnetic variation in degrees.
