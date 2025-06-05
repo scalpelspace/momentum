@@ -38,9 +38,3 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
   HAL_SPI_TxCpltCallback_momentum(hspi);
 }
-
-/** CAN. */
-
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {}
-
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {}

@@ -9,6 +9,7 @@
 #include "init.h"
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
+#include "can.h"
 #include "momentum_runner.h"
 #include "scheduler.h"
 #include "ublox_hal_uart.h"
@@ -21,6 +22,9 @@
 /** Public functions. *********************************************************/
 
 void momentum_init(void) {
+  // Low level peripherals.
+  can_init();
+
   // On-board miscellaneous components.
   ws2812b_init();
   ws2812b_set_colour(0, 4, 1, 1);
