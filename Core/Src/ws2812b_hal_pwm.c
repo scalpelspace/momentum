@@ -81,9 +81,10 @@ HAL_StatusTypeDef ws2812b_update(void) {
   }
 
   // Attempt DMA transfer.
-  const HAL_StatusTypeDef hal_status = HAL_TIM_PWM_Start_DMA(
-      &WS2812B_TIM, WS2812B_TIM_CHANNEL, dma_buffer, WS2812B_DMA_BUF_LEN);
-  // Note: Here the dma_buffer is uint16_t as DMA is configured 16-bit memory to
+  const HAL_StatusTypeDef hal_status =
+      HAL_TIM_PWM_Start_DMA(&WS2812B_TIM, WS2812B_TIM_CHANNEL,
+                            (const uint32_t *)dma_buffer, WS2812B_DMA_BUF_LEN);
+  // Note: Here the dma_buffer is uint16_t as DMA is configured 8-bit memory to
   // 16-bit peripheral. HAL_TIM_PWM_Start_DMA() expects 32-bit since DMA can do
   // up to word (32-bit) transactions. In this case, only the lower 16 bits of
   // each array element will be used.
