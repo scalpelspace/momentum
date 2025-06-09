@@ -21,7 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 /* USER CODE BEGIN Includes */
-
+#include "configuration.h"
 /* USER CODE END Includes */
 extern DMA_HandleTypeDef hdma_spi1_rx;
 
@@ -316,13 +316,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
   else if(hspi->Instance==SPI3)
   {
     /* USER CODE BEGIN SPI3_MspInit 0 */
-
-    /* USER CODE END SPI3_MspInit 0 */
-    /* Peripheral clock enable */
+#ifndef MOMENTUM_W25QXX_ENABLE
     __HAL_RCC_SPI3_CLK_ENABLE();
-
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
     /**SPI3 GPIO Configuration
     PA15 (JTDI)     ------> SPI3_NSS
     PB3 (JTDO-TRACESWO)     ------> SPI3_SCK
@@ -335,7 +331,17 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+#endif
+    /* USER CODE END SPI3_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_SPI3_CLK_ENABLE();
 
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    /**SPI3 GPIO Configuration
+    PB3 (JTDO-TRACESWO)     ------> SPI3_SCK
+    PB4 (NJTRST)     ------> SPI3_MISO
+    PB5     ------> SPI3_MOSI
+    */
     GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -421,11 +427,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
   else if(hspi->Instance==SPI3)
   {
     /* USER CODE BEGIN SPI3_MspDeInit 0 */
-
-    /* USER CODE END SPI3_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_SPI3_CLK_DISABLE();
-
+#ifndef MOMENTUM_W25QXX_ENABLE
     /**SPI3 GPIO Configuration
     PA15 (JTDI)     ------> SPI3_NSS
     PB3 (JTDO-TRACESWO)     ------> SPI3_SCK
@@ -433,7 +435,16 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
     PB5     ------> SPI3_MOSI
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_15);
+#endif
+    /* USER CODE END SPI3_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_SPI3_CLK_DISABLE();
 
+    /**SPI3 GPIO Configuration
+    PB3 (JTDO-TRACESWO)     ------> SPI3_SCK
+    PB4 (NJTRST)     ------> SPI3_MISO
+    PB5     ------> SPI3_MOSI
+    */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5);
 
     /* SPI3 DMA DeInit */

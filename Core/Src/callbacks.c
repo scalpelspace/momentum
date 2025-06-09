@@ -6,6 +6,7 @@
 
 /** Includes. *****************************************************************/
 
+#include "configuration.h"
 #include "momentum_runner.h"
 #include "sh2_hal_spi.h"
 #include "stm32l4xx_hal.h"
@@ -32,9 +33,13 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
 }
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
+#ifndef MOMENTUM_W25QXX_ENABLE
   HAL_SPI_RxCpltCallback_momentum(hspi);
+#endif
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
+#ifndef MOMENTUM_W25QXX_ENABLE
   HAL_SPI_TxCpltCallback_momentum(hspi);
+#endif
 }
