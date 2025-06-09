@@ -366,6 +366,9 @@ static void MX_SPI3_Init(void)
   hspi3.Init.CRCPolynomial = 7;
   hspi3.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
   hspi3.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
+  if (HAL_SPI_Init(&hspi3) != HAL_OK) {
+    Error_Handler();
+  }
 #endif
   /* USER CODE END SPI3_Init 2 */
 
