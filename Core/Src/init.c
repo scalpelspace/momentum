@@ -10,6 +10,7 @@
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
 #include "can.h"
+#include "comm.h"
 #include "configuration.h"
 #include "momentum_runner.h"
 #include "scheduler.h"
@@ -62,6 +63,9 @@ void momentum_init(void) {
 #ifndef MOMENTUM_W25QXX_ENABLE
   // Momentum runner SPI communication start.
   momentum_spi_start();
+#else
+  // NVM communication via USB-to-UART(1) start.
+  comm_init();
 #endif
 
   // On-board miscellaneous components.

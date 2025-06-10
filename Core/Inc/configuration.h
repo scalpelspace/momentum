@@ -12,5 +12,8 @@
 // Enables use of SPI3 and PA15 (SPI3 CS) for W25Qxx operations.
 // WARNING: Overwrites HAL configs!
 //#define MOMENTUM_W25QXX_ENABLE
+//#define MOMENTUM_W25QXX_EXPECTED_MANUF 0xEF    // Example for W25Q128.
+//#define MOMENTUM_W25QXX_EXPECTED_MEM_TYPE 0x40 // Example for W25Q128.
+//#define MOMENTUM_W25QXX_EXPECTED_CAPACITY 0x18 // Example for W25Q128.
 
 #endif
