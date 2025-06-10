@@ -21,8 +21,6 @@ extern UART_HandleTypeDef huart1;
 
 /** Definitions. **************************************************************/
 
-#define NVM_FLASH_SIZE_BYTES (16UL * 1024UL * 1024UL)
-
 #define FRAME_START 0x7E
 
 #define CMD_ACK 0x06
@@ -34,6 +32,10 @@ extern UART_HandleTypeDef huart1;
 #define CMD_WRITE 0x12
 #define CMD_READ_DATA 0x20
 #define CMD_DATA 0x21
+
+/** Public variables. *********************************************************/
+
+extern bool comm_write_enabled;
 
 /** User implementations of STM32 NVIC HAL (overwriting HAL). *****************/
 

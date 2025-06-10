@@ -17,12 +17,15 @@
 #define COMM_RX_BUFFER_SIZE 256
 #define READ_CHUNK_SIZE 256
 
+/** Public variables. *********************************************************/
+
+bool comm_write_enabled;
+
 /** Private variables. ********************************************************/
 
 static uint8_t comm_rx_dma_buffer[COMM_RX_BUFFER_SIZE];
 static uint8_t comm_tx_dma_buffer[MAX_FRAME_LEN];
 
-static bool write_enabled = false;
 static uint8_t read_page_buf[READ_CHUNK_SIZE];
 
 /** Private functions. ********************************************************/
@@ -94,7 +97,7 @@ void USART1_IRQHandler_comm(UART_HandleTypeDef *huart) {
 /** Public functions. *********************************************************/
 
 void comm_init(void) {
-  write_enabled = false;
+  comm_write_enabled = false;
 
   // Start UART reception with DMA and enable IDLE based flagging.
   HAL_UART_Receive_DMA(&COMM_HUART, comm_rx_dma_buffer, COMM_RX_BUFFER_SIZE);
@@ -108,17 +111,17 @@ void comm_process_frame(uint8_t *frame, uint16_t len) {
 
   switch (command) {
   case CMD_WRITE_EN:
-    write_enabled = true;
+    comm_write_enabled = true;
     send_packet(CMD_ACK, &command, 1);
     break;
 
   case CMD_WRITE_DEN:
-    write_enabled = false;
+    comm_write_enabled = false;
     send_packet(CMD_ACK, &command, 1);
     break;
 
   case CMD_WRITE:
-    if (!write_enabled) {
+    if (!comm_write_enabled) {
       send_packet(CMD_NACK, &command, 1);
       break;
     } else {
