@@ -562,6 +562,10 @@ void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart) {
       ublox_process_byte(b, ublox_rx_index);
       ublox_rx_index = (ublox_rx_index + 1) % UBLOX_RX_BUFFER_SIZE;
     }
+
+    // Rearm DMA receive.
+    HAL_UART_Receive_DMA(&UBLOX_HUART, ublox_rx_dma_buffer,
+                         UBLOX_RX_BUFFER_SIZE);
   }
 }
 
@@ -593,8 +597,9 @@ void ublox_init(void) {
   ublox_enable_10hz();
   HAL_Delay(5);
 
-  // Start UART reception with DMA.
+  // Start UART reception with DMA and enable IDLE based interrupts.
   HAL_UART_Receive_DMA(&UBLOX_HUART, ublox_rx_dma_buffer, UBLOX_RX_BUFFER_SIZE);
+  __HAL_UART_ENABLE_IT(&UBLOX_HUART, UART_IT_IDLE);
 }
 
 void ublox_reset(void) {
