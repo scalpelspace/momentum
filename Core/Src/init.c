@@ -34,37 +34,17 @@ void momentum_init(void) {
 
   // W25Qxx flash.
 #ifdef MOMENTUM_W25QXX_ENABLE
-#define TEST_ADDR 0x000000UL
-  // 1) Initialize the flash
   if (w25q_init() != HAL_OK) {
-    printf("Flash init failed!\n");
+    return;
   }
-
-  // 2) Prepare your data
-  const char write_data[] = "Hello, W25QFlash!";
-  uint32_t len = sizeof(write_data); // includes the '\0'
-
-  // 3) Erase the 4 KB sector at TEST_ADDR
-  if (w25q_sector_erase(TEST_ADDR) != HAL_OK) {
-    printf("Sector erase failed!\n");
-  }
-
-  // 4) Program one page (max 256 B) at TEST_ADDR
-  if (w25q_page_program((uint8_t *)write_data, TEST_ADDR, len) != HAL_OK) {
-    printf("Page program failed!\n");
-  }
-
-  // 5) Read back into a buffer
-  char read_data[sizeof(write_data)] = {0};
-  if (w25q_read_data((uint8_t *)read_data, TEST_ADDR, len) != HAL_OK) {
-    printf("Read failed!\n");
-  }
-
-  // 6) Verify / print
-  if (memcmp(write_data, read_data, len) == 0) {
-    printf("SUCCESS: Read \"%s\"\n", read_data);
-  } else {
-    printf("MISMATCH! Wrote \"%s\" but read \"%s\"\n", write_data, read_data);
+  uint8_t manuf = 0;
+  uint8_t mem_type = 0;
+  uint8_t capacity = 0;
+  w25q_read_jedec(&manuf, &mem_type, &capacity);
+  if (manuf != MOMENTUM_W25QXX_EXPECTED_MANUF &&
+      mem_type != MOMENTUM_W25QXX_EXPECTED_MEM_TYPE &&
+      capacity != MOMENTUM_W25QXX_EXPECTED_CAPACITY) {
+    return;
   }
 #endif
 
@@ -78,8 +58,13 @@ void momentum_init(void) {
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(bmp390_get_data, 10);
 
+  // Momentum SPI interface.
 #ifndef MOMENTUM_W25QXX_ENABLE
   // Momentum runner SPI communication start.
   momentum_spi_start();
 #endif
+
+  // On-board miscellaneous components.
+  ws2812b_set_colour(0, 2, 2, 0);
+  ws2812b_update();
 }
