@@ -31,6 +31,8 @@ HAL_StatusTypeDef w25q_init(void);
 HAL_StatusTypeDef w25q_read_jedec(uint8_t *manuf, uint8_t *mem_type,
                                   uint8_t *capacity);
 HAL_StatusTypeDef w25q_read_data(uint8_t *pBuf, uint32_t addr, uint32_t len);
+HAL_StatusTypeDef w25q_fast_read_data(uint8_t *pBuf, uint32_t addr,
+                                      uint32_t len);
 HAL_StatusTypeDef w25q_page_program(const uint8_t *pBuf, uint32_t addr,
                                     uint16_t len);
 HAL_StatusTypeDef w25q_sector_erase(uint32_t addr);

@@ -15,16 +15,17 @@
 #define W25Q_CS_HIGH()                                                         \
   HAL_GPIO_WritePin(W25QXX_CS_GPIO_PORT, W25QXX_CS_GPIO_PIN, GPIO_PIN_SET)
 
-#define W25Q_CMD_JEDEC_ID 0x9F
-#define W25Q_CMD_RELEASE_PD 0xAB
-#define W25Q_CMD_READ_STATUS1 0x05
-#define W25Q_CMD_WRITE_ENABLE 0x06
 #define W25Q_CMD_PAGE_PROGRAM 0x02
 #define W25Q_CMD_READ_DATA 0x03
+#define W25Q_CMD_READ_STATUS1 0x05
+#define W25Q_CMD_WRITE_ENABLE 0x06
+#define W25Q_CMD_FAST_READ_DATA 0x0B
 #define W25Q_CMD_SECTOR_ERASE 0x20
 #define W25Q_CMD_BLOCK_ERASE_32K 0x52
-#define W25Q_CMD_BLOCK_ERASE_64K 0xD8
+#define W25Q_CMD_JEDEC_ID 0x9F
+#define W25Q_CMD_RELEASE_PD 0xAB
 #define W25Q_CMD_CHIP_ERASE 0xC7
+#define W25Q_CMD_BLOCK_ERASE_64K 0xD8
 
 /** Private functions. ********************************************************/
 
@@ -81,6 +82,19 @@ HAL_StatusTypeDef w25q_read_data(uint8_t *pBuf, uint32_t addr, uint32_t len) {
                     (uint8_t)(addr >> 8), (uint8_t)(addr)};
   W25Q_CS_LOW();
   HAL_StatusTypeDef st = HAL_SPI_Transmit(&W25QXX_HSPI, cmd, 4, HAL_MAX_DELAY);
+  if (st == HAL_OK) {
+    st = HAL_SPI_Receive(&W25QXX_HSPI, pBuf, len, HAL_MAX_DELAY);
+  }
+  W25Q_CS_HIGH();
+  return st;
+}
+
+HAL_StatusTypeDef w25q_fast_read_data(uint8_t *pBuf, uint32_t addr,
+                                      uint32_t len) {
+  uint8_t cmd[5] = {W25Q_CMD_FAST_READ_DATA, (uint8_t)(addr >> 16),
+                    (uint8_t)(addr >> 8), (uint8_t)(addr), 0xFF};
+  W25Q_CS_LOW();
+  HAL_StatusTypeDef st = HAL_SPI_Transmit(&W25QXX_HSPI, cmd, 5, HAL_MAX_DELAY);
   if (st == HAL_OK) {
     st = HAL_SPI_Receive(&W25QXX_HSPI, pBuf, len, HAL_MAX_DELAY);
   }
