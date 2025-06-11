@@ -15,9 +15,6 @@
 #define W25Q_CS_HIGH()                                                         \
   HAL_GPIO_WritePin(W25QXX_CS_GPIO_PORT, W25QXX_CS_GPIO_PIN, GPIO_PIN_SET)
 
-#define W25Q_PAGE_SIZE 256U
-#define W25Q_SECTOR_SIZE 4096U
-
 #define W25Q_CMD_JEDEC_ID 0x9F
 #define W25Q_CMD_RELEASE_PD 0xAB
 #define W25Q_CMD_READ_STATUS1 0x05

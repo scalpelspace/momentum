@@ -20,6 +20,11 @@ extern SPI_HandleTypeDef hspi3;
 #define W25QXX_CS_GPIO_PORT GPIOA
 #define W25QXX_CS_GPIO_PIN GPIO_PIN_15
 
+/** Definitions. **************************************************************/
+
+#define W25Q_PAGE_SIZE 256UL
+#define W25Q_SECTOR_SIZE 4096UL
+
 /** Public functions. *********************************************************/
 
 HAL_StatusTypeDef w25q_init(void);
