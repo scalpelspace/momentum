@@ -23,16 +23,16 @@ void logger_init(void);
  */
 void logger_reset(void);
 
-void log_quaternion_payload(void);
-void log_gyro_payload(void);
-void log_accel_payload(void);
-void log_lin_accel_payload(void);
-void log_gravity_payload(void);
-void log_pressure_temp_payload(void);
-void log_gps_datetime_payload(void);
-void log_gps_coord_payload(void);
-void log_gps_altitude_speed_payload(void);
-void log_gps_heading_payload(void);
-void log_gps_stats_payload(void);
+void log_quaternion(void);
+void log_gyro(void);
+void log_accel(void);
+void log_lin_accel(void);
+void log_gravity(void);
+void log_pressure_temp(void);
+void log_gps_datetime(void);
+void log_gps_coord(void);
+void log_gps_altitude_speed(void);
+void log_gps_heading(void);
+void log_gps_stats(void);
 
 #endif

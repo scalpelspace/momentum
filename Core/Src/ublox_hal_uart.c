@@ -7,6 +7,7 @@
 /** Includes. *****************************************************************/
 
 #include "ublox_hal_uart.h"
+#include "logger.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -346,6 +347,12 @@ static bool parse_gngga(const char *sentence) {
   // 12) Update position fix classification.
   gps_data.position_fix = classify_position_fix(&gps_data.position_flags);
 
+  log_gps_datetime();
+  log_gps_coord();
+  log_gps_altitude_speed();
+  log_gps_heading();
+  log_gps_stats();
+
   return true;
 }
 
@@ -553,7 +560,7 @@ void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart) {
   if (__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE)) { // Detected IDLE flag.
     __HAL_UART_CLEAR_IDLEFLAG(huart);               // Clear the IDLE flag.
 
-    // Check how many bytes have been written by DMA since last time.
+    // Total number of bytes the DMA has written into the buffer.
     uint16_t pos = UBLOX_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(huart->hdmarx);
 
     // Process every new byte in order.

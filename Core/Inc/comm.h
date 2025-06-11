@@ -10,7 +10,6 @@
 
 #include "stm32l4xx_hal.h"
 #include <stdbool.h>
-#include <stdint.h>
 
 /** STM32 port and pin configs. ***********************************************/
 
@@ -35,7 +34,6 @@ extern UART_HandleTypeDef huart1;
 
 /** Public variables. *********************************************************/
 
-extern bool comm_rx_data_ready;
 extern bool comm_write_enabled;
 
 /** User implementations of STM32 NVIC HAL (overwriting HAL). *****************/

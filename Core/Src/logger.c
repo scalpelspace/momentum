@@ -58,7 +58,7 @@ static inline const uint8_t *unpack_float_32(const uint8_t *p, float *f) {
 }
 
 /**
- * @brief Internal: erase the current sector if not already erased.
+ * @brief Erase the current sector if not already erased.
  */
 static void ensure_sector_erased(void) {
   uint32_t sector_start = nvm_address & ~(W25Q_SECTOR_SIZE - 1);
@@ -70,21 +70,36 @@ static void ensure_sector_erased(void) {
 }
 
 /**
- * @brief Internal: write one payload to flash and bump the pointer.
- * @param buf pointer to the data_array
- * @param len how many bytes to program (≤ 32 in your design)
+ * @brief Write one payload to flash and bump the pointer.
+ * @param buf pointer to the data_array.
+ * @param len how many bytes to program.
  */
 static void logger_write(const uint8_t *buf, uint8_t len) {
-  // 1) Erase sector on first entry.
-  ensure_sector_erased();
+  uint16_t remaining = len;
+  const uint8_t *p = buf;
 
-  // 2) Program the page.
-  w25q_page_program((uint8_t *)buf, nvm_address, len);
+  while (remaining) {
+    // 1) Check number of bytes left in the current 256-byte page.
+    uint32_t page_off = nvm_address & (W25Q_PAGE_SIZE - 1);
+    uint32_t space_in_page = W25Q_PAGE_SIZE - page_off;
+    uint16_t to_write = (remaining < space_in_page) ? remaining : space_in_page;
 
-  // 3) Advance pointer.
-  nvm_address += len;
+    // 2) Erase the sector if just crossed into a new sector.
+    ensure_sector_erased();
 
-  // 4) Wrap around.
+    // 3) Program up to `to_write` bytes within the current page.
+    if (w25q_page_program(p, nvm_address, to_write) != HAL_OK) {
+      // TODO: error handling/retry logic.
+      return;
+    }
+
+    // 4) Advance pointers and counters.
+    p += to_write;
+    nvm_address += to_write;
+    remaining -= to_write;
+  }
+
+  // 5) Wrap around the circular buffer if the end of the region is reached.
   if (nvm_address + W25Q_PAGE_SIZE > NVM_END_ADDRESS) {
     nvm_address = NVM_START_ADDRESS;
     sector_erased = false;
@@ -107,7 +122,7 @@ void logger_reset(void) {
   sector_erased = true;
 }
 
-void log_quaternion_payload(void) {
+void log_quaternion(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_IMU_QUAT);
@@ -121,7 +136,7 @@ void log_quaternion_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_gyro_payload(void) {
+void log_gyro(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_IMU_GYRO);
@@ -132,7 +147,7 @@ void log_gyro_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_accel_payload(void) {
+void log_accel(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_IMU_ACCEL);
@@ -143,7 +158,7 @@ void log_accel_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_lin_accel_payload(void) {
+void log_lin_accel(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_IMU_LINACCEL);
@@ -154,7 +169,7 @@ void log_lin_accel_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_gravity_payload(void) {
+void log_gravity(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_IMU_GRAV);
@@ -165,7 +180,7 @@ void log_gravity_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_pressure_temp_payload(void) {
+void log_pressure_temp(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_BAR_ENV);
@@ -175,7 +190,7 @@ void log_pressure_temp_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_gps_datetime_payload(void) {
+void log_gps_datetime(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_GPS_DATETIME);
@@ -189,7 +204,7 @@ void log_gps_datetime_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_gps_coord_payload(void) {
+void log_gps_coord(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_GPS_COORD);
@@ -201,7 +216,7 @@ void log_gps_coord_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_gps_altitude_speed_payload(void) {
+void log_gps_altitude_speed(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_GPS_ALT_SPEED);
@@ -212,7 +227,7 @@ void log_gps_altitude_speed_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_gps_heading_payload(void) {
+void log_gps_heading(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_GPS_HEAD);
@@ -223,7 +238,7 @@ void log_gps_heading_payload(void) {
   logger_write(data_array, len);
 }
 
-void log_gps_stats_payload(void) {
+void log_gps_stats(void) {
   uint8_t *start = data_array;
   uint8_t *p = data_array;
   p = pack_uint_8(p, MOMENTUM_FRAME_TYPE_GPS_STATS);

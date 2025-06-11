@@ -7,6 +7,7 @@
 /** Includes. *****************************************************************/
 
 #include "bmp390_runner.h"
+#include "logger.h"
 
 /** Public variables. *********************************************************/
 
@@ -146,6 +147,8 @@ void bmp390_get_data(void) {
         }
         bmp390_temperature = temperature_sum / (float)fifo.parsed_frames;
         bmp390_pressure = pressure_sum / (float)fifo.parsed_frames;
+
+        log_pressure_temp();
 
         if (status.intr.fifo_full == BMP3_ENABLE) {
           bmp3_fifo_flush(&dev); // Flush FIFO if full.

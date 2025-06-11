@@ -10,6 +10,7 @@
 /** Includes. *****************************************************************/
 
 #include "bno085_runner.h"
+#include "logger.h"
 
 /** Public variables. *********************************************************/
 
@@ -154,26 +155,36 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
     bno085_quaternion_accuracy_rad = value.un.rotationVector.accuracy;
     bno085_quaternion_accuracy_deg =
         value.un.rotationVector.accuracy * (float)RAD_TO_DEG;
+
+    log_quaternion();
     break;
   case SH2_GYROSCOPE_CALIBRATED:
     bno085_gyro_x = value.un.gyroscope.x;
     bno085_gyro_y = value.un.gyroscope.y;
     bno085_gyro_z = value.un.gyroscope.z;
+
+    log_gyro();
     break;
   case SH2_ACCELEROMETER:
     bno085_accel_x = value.un.accelerometer.x;
     bno085_accel_y = value.un.accelerometer.y;
     bno085_accel_z = value.un.accelerometer.z;
+
+    log_accel();
     break;
   case SH2_LINEAR_ACCELERATION:
     bno085_lin_accel_x = value.un.linearAcceleration.x;
     bno085_lin_accel_y = value.un.linearAcceleration.y;
     bno085_lin_accel_z = value.un.linearAcceleration.z;
+
+    log_lin_accel();
     break;
   case SH2_GRAVITY:
     bno085_gravity_x = value.un.gravity.x;
     bno085_gravity_y = value.un.gravity.y;
     bno085_gravity_z = value.un.gravity.z;
+
+    log_gravity();
     break;
   default: // Handle unknown sensor reports.
     break;
