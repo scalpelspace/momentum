@@ -551,6 +551,8 @@ void HAL_UART_RxCpltCallback_ublox(UART_HandleTypeDef *huart) {
 /** NOTE: USART2 hardware specific, implement in USART2_IRQHandler(). */
 void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart) {
   if (__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE)) { // Detected IDLE flag.
+    __HAL_UART_CLEAR_IDLEFLAG(huart);               // Clear the IDLE flag.
+
     // Check how many bytes have been written by DMA since last time.
     uint16_t pos = UBLOX_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(huart->hdmarx);
 
@@ -560,12 +562,6 @@ void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart) {
       ublox_process_byte(b, ublox_rx_index);
       ublox_rx_index = (ublox_rx_index + 1) % UBLOX_RX_BUFFER_SIZE;
     }
-
-    __HAL_UART_CLEAR_IDLEFLAG(huart); // Clear the IDLE flag.
-
-    // Rearm DMA receive.
-    HAL_UART_Receive_DMA(&UBLOX_HUART, ublox_rx_dma_buffer,
-                         UBLOX_RX_BUFFER_SIZE);
   }
 }
 
@@ -597,9 +593,8 @@ void ublox_init(void) {
   ublox_enable_10hz();
   HAL_Delay(5);
 
-  // Start UART reception with DMA and enable IDLE based interrupts.
+  // Start UART reception with DMA.
   HAL_UART_Receive_DMA(&UBLOX_HUART, ublox_rx_dma_buffer, UBLOX_RX_BUFFER_SIZE);
-  __HAL_UART_ENABLE_IT(&UBLOX_HUART, UART_IT_IDLE);
 }
 
 void ublox_reset(void) {
