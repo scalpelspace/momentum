@@ -22,9 +22,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t n) { HAL_GPIO_EXTI_Callback_sh2(n); }
 /** UART. */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-#ifdef MOMENTUM_W25QXX_ENABLE
   HAL_UART_RxCpltCallback_comm(huart);
-#endif
   HAL_UART_RxCpltCallback_ublox(huart);
 }
 

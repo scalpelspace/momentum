@@ -19,6 +19,7 @@
 
 /** Public variables. *********************************************************/
 
+bool comm_rx_data_ready;
 bool comm_write_enabled;
 
 /** Private variables. ********************************************************/
@@ -60,7 +61,7 @@ static void send_packet(uint8_t command, uint8_t *payload, uint16_t len) {
   comm_tx_dma_buffer[idx++] = command;
   comm_tx_dma_buffer[idx++] = (len >> 8) & 0xFF;
   comm_tx_dma_buffer[idx++] = len & 0xFF;
-  if (payload && len) {
+  if (len) {
     memcpy(&comm_tx_dma_buffer[idx], payload, len);
     idx += len;
   }
@@ -70,41 +71,7 @@ static void send_packet(uint8_t command, uint8_t *payload, uint16_t len) {
   HAL_UART_Transmit_DMA(&COMM_HUART, comm_tx_dma_buffer, idx);
 }
 
-/** User implementations of STM32 UART HAL (overwriting HAL). *****************/
-
-void HAL_UART_RxCpltCallback_comm(UART_HandleTypeDef *huart) {
-  if (huart == &COMM_HUART) {
-    comm_process_frame(comm_rx_dma_buffer, COMM_RX_BUFFER_SIZE);
-  }
-}
-
-/** NOTE: USART1 hardware specific, implement in USART1_IRQHandler(). */
-void USART1_IRQHandler_comm(UART_HandleTypeDef *huart) {
-  if (__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE)) { // Detected IDLE flag.
-    __HAL_UART_CLEAR_IDLEFLAG(huart);               // Clear the IDLE flag.
-
-    // Check how many bytes have been written by DMA since last time.
-    uint16_t bytes = COMM_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(huart->hdmarx);
-
-    // Process new packet.
-    comm_process_frame(comm_rx_dma_buffer, bytes);
-
-    // Rearm DMA receive.
-    HAL_UART_Receive_DMA(huart, comm_rx_dma_buffer, COMM_RX_BUFFER_SIZE);
-  }
-}
-
-/** Public functions. *********************************************************/
-
-void comm_init(void) {
-  comm_write_enabled = false;
-
-  // Start UART reception with DMA and enable IDLE based flagging.
-  HAL_UART_Receive_DMA(&COMM_HUART, comm_rx_dma_buffer, COMM_RX_BUFFER_SIZE);
-  __HAL_UART_ENABLE_IT(&COMM_HUART, UART_IT_IDLE);
-}
-
-void comm_process_frame(uint8_t *frame, uint16_t len) {
+static void process_frame(uint8_t *frame) {
   uint8_t command = frame[1];
   uint16_t payload_len = (frame[2] << 8) | frame[3];
   uint8_t *payload = &frame[4];
@@ -140,11 +107,11 @@ void comm_process_frame(uint8_t *frame, uint16_t len) {
   case CMD_READ_DATA:
     // payload: [ADDR_H][ADDR_M][ADDR_L][LEN_H][LEN_L].
     uint32_t read_addr = (payload[0] << 16) | (payload[1] << 8) | payload[2];
-    uint16_t rlen = (payload[3] << 8) | payload[4];
-    if (rlen > 256) // Clamp to max chunk size.
-      rlen = 256;
-    if (w25q_read_data(read_page_buf, read_addr, rlen) == HAL_OK) {
-      send_packet(CMD_DATA, read_page_buf, rlen);
+    uint16_t read_len = (payload[3] << 8) | payload[4];
+    if (read_len > 256) // Clamp to max chunk size.
+      read_len = 256;
+    if (w25q_read_data(read_page_buf, read_addr, read_len) == HAL_OK) {
+      send_packet(CMD_DATA, read_page_buf, read_len);
     } else {
       send_packet(CMD_NACK, &command, 1);
     }
@@ -153,5 +120,46 @@ void comm_process_frame(uint8_t *frame, uint16_t len) {
   default: // Unknown command.
     send_packet(CMD_NACK, &command, 1);
     break;
+  }
+}
+
+/** User implementations of STM32 UART HAL (overwriting HAL). *****************/
+
+void HAL_UART_RxCpltCallback_comm(UART_HandleTypeDef *huart) {
+  if (huart == &COMM_HUART && !comm_rx_data_ready) { // Ready for new data.
+    comm_rx_data_ready = true; // Flag new Rx data is ready for processing.
+  }
+}
+
+/** NOTE: USART1 hardware specific, implement in USART1_IRQHandler(). */
+void USART1_IRQHandler_comm(UART_HandleTypeDef *huart) {
+  if (__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE)) { // Detected IDLE flag.
+    __HAL_UART_CLEAR_IDLEFLAG(huart);               // Clear the IDLE flag.
+
+    if (!comm_rx_data_ready &&
+        (COMM_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(huart->hdmarx))) {
+      // Ready for new data and at least 1 byte received.
+      comm_rx_data_ready = true; // Flag new Rx data is ready for processing.
+    }
+  }
+}
+
+/** Public functions. *********************************************************/
+
+void comm_init(void) {
+  comm_rx_data_ready = false; // No Rx data ready on init.
+  comm_write_enabled = false; // Disable write permissions on init.
+
+  // Start UART reception with DMA and enable IDLE based flagging.
+  HAL_UART_Receive_DMA(&COMM_HUART, comm_rx_dma_buffer, COMM_RX_BUFFER_SIZE);
+  __HAL_UART_ENABLE_IT(&COMM_HUART, UART_IT_IDLE);
+}
+
+void comm_process_rx_data(void) {
+  if (comm_rx_data_ready) { // New data available.
+    process_frame(comm_rx_dma_buffer);
+
+    // Clear Rx data ready flag to allow for new data to come in.
+    comm_rx_data_ready = false;
   }
 }

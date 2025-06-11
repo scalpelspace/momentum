@@ -33,7 +33,7 @@ void momentum_init(void) {
   ws2812b_set_colour(0, 4, 1, 1);
   ws2812b_update();
 
-  // W25Qxx flash.
+  // Momentum SPI interface.
 #ifdef MOMENTUM_W25QXX_ENABLE
   if (w25q_init() != HAL_OK) {
     return;
@@ -45,8 +45,13 @@ void momentum_init(void) {
   if (manuf != MOMENTUM_W25QXX_EXPECTED_MANUF &&
       mem_type != MOMENTUM_W25QXX_EXPECTED_MEM_TYPE &&
       capacity != MOMENTUM_W25QXX_EXPECTED_CAPACITY) {
+    ws2812b_set_colour(0, 3, 0, 0);
+    ws2812b_update();
     return;
   }
+#else
+  // Momentum runner SPI communication start.
+  momentum_spi_start();
 #endif
 
   // Sensors.
@@ -59,14 +64,8 @@ void momentum_init(void) {
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(bmp390_get_data, 10);
 
-  // Momentum SPI interface.
-#ifndef MOMENTUM_W25QXX_ENABLE
-  // Momentum runner SPI communication start.
-  momentum_spi_start();
-#else
   // NVM communication via USB-to-UART(1) start.
   comm_init();
-#endif
 
   // On-board miscellaneous components.
   ws2812b_set_colour(0, 2, 2, 0);

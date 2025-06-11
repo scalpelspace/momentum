@@ -35,6 +35,7 @@ extern UART_HandleTypeDef huart1;
 
 /** Public variables. *********************************************************/
 
+extern bool comm_rx_data_ready;
 extern bool comm_write_enabled;
 
 /** User implementations of STM32 NVIC HAL (overwriting HAL). *****************/
@@ -45,6 +46,6 @@ void USART1_IRQHandler_comm(UART_HandleTypeDef *huart);
 /** Public functions. *********************************************************/
 
 void comm_init(void);
-void comm_process_frame(uint8_t *pFrame, uint16_t len);
+void comm_process_rx_data(void);
 
 #endif
