@@ -12,6 +12,7 @@
 #include "can.h"
 #include "comm.h"
 #include "configuration.h"
+#include "logger.h"
 #include "momentum_runner.h"
 #include "scheduler.h"
 #include "ublox_hal_uart.h"
@@ -66,6 +67,11 @@ void momentum_init(void) {
 
   // NVM communication via USB-to-UART(1) start.
   comm_init();
+
+#ifdef MOMENTUM_W25QXX_ENABLE
+  // NVM logger.
+  logger_init();
+#endif
 
   // On-board miscellaneous components.
   ws2812b_set_colour(0, 2, 2, 0);
