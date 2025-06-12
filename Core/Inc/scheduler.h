@@ -17,7 +17,7 @@
 #if defined(DWT)
 // Init exists.
 #else
-#warning “DWT not available, scheduler timing disabled.”
+#warning "DWT not available, scheduler timing disabled."
 #endif
 
 #define MAX_TASKS 10

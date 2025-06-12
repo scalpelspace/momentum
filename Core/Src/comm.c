@@ -195,6 +195,6 @@ void comm_process_rx_data(void) {
     comm_rx_dma_old_pos = second_len; // Wrapped start index.
   }
 
-  // 3) Clear the “new data” flag.
+  // 3) Clear the "new data" flag.
   comm_rx_dma_length = 0;
 }

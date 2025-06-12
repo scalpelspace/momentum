@@ -15,8 +15,8 @@
 /** Definitions. **************************************************************/
 
 #define NVM_START_ADDRESS 0x001000UL
-#define NVM_REGION_SIZE (256UL * 1024UL)
-// W25Q128 = 16 Mbit = 2 M-byte; adjust if using subset
+#define NVM_REGION_SIZE (256UL * 1024UL) // W25Q128 = 16 Mbit = 2 MB(yte).
+
 #define NVM_END_ADDRESS (NVM_START_ADDRESS + NVM_REGION_SIZE)
 
 /** Private variables. ********************************************************/

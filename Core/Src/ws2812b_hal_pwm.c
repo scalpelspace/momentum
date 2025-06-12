@@ -4,7 +4,7 @@
  * @brief: WS2812B functions: abstracting STM32 HAL: PWM.
  *******************************************************************************
  * @note:
- * Based on Phil’s Lab "STM32 + RGB LEDs Firmware Tutorial (TIM + DMA) - Phil's
+ * Based on Phil's Lab "STM32 + RGB LEDs Firmware Tutorial (TIM + DMA) - Phil's
  * Lab #136" (https://youtu.be/MqbJTj0Cw6o).
  *******************************************************************************
  */

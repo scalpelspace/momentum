@@ -133,7 +133,7 @@ void ublox_set_dynamic_model(uint8_t dyn_model);
  * @brief Disable every NMEA sentence on UART except GGA (0x00) and RMC (0x04).
  *
  * This function sends one UBX-CFG-MSG packet (class=0x06, id=0x01, length=8)
- * for each message ID in the “disable_list[]” array. Each packet has:
+ * for each message ID in the "disable_list[]" array. Each packet has:
  *
  *  payload[0] = 0xF0      (msgClass = NMEA)
  *  payload[1] = <msgID>   (e.g. 0x01 for GLL, 0x02 for GSA, etc.)
