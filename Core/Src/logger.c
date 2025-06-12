@@ -8,6 +8,7 @@
 #include "logger.h"
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
+#include "comm.h"
 #include "momentum_driver.h"
 #include "ublox_hal_uart.h"
 #include "w25qxx_hal_spi.h"
@@ -75,6 +76,10 @@ static void ensure_sector_erased(void) {
  * @param len how many bytes to program.
  */
 static void logger_write(const uint8_t *buf, uint8_t len) {
+  if (!comm_write_enabled) {
+    return;
+  }
+
   uint16_t remaining = len;
   const uint8_t *p = buf;
 
