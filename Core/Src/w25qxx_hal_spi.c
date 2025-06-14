@@ -49,7 +49,7 @@ HAL_StatusTypeDef w25q_init(void) {
   return HAL_OK;
 }
 
-static HAL_StatusTypeDef w25q_wait_busy(void) {
+HAL_StatusTypeDef w25q_wait_busy(void) {
   uint8_t cmd = W25Q_CMD_READ_STATUS1;
   uint8_t status;
   do {
