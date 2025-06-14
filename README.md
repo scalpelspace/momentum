@@ -1,9 +1,9 @@
 # momentum
 
-![arm_gcc_build](https://github.com/danielljeon/momentum/actions/workflows/arm_gcc_build.yaml/badge.svg)
+![arm_gcc_build](https://github.com/scalpelspace/momentum/actions/workflows/arm_gcc_build.yaml/badge.svg)
 
 Microcontroller firmware
-for [`momentum_pcb`](https://github.com/danielljeon/momentum_pcb).
+for [`momentum_pcb`](https://github.com/scalpelspace/momentum_pcb).
 
 - SPI sensor hub compatible with Uno-style microcontroller boards.
 
@@ -136,4 +136,4 @@ SPI configurations:
 - Hardware peripheral select (NSS) enabled.
 
 Low level SPI communication drivers can be found
-here: [`momentum_driver`](https://github.com/danielljeon/momentum_driver).
+here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
