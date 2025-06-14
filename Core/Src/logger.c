@@ -23,13 +23,16 @@
 
 static uint8_t data_array[32];
 
-// Region bounds & state
+// Region bounds & state.
 static uint32_t nvm_start;
 static uint32_t nvm_end;
 static uint32_t session_id;
 static uint32_t page_seq;
-static uint32_t current_page_addr;
-static uint16_t page_offset;
+
+// Ring buffer for combined single write.
+static uint8_t page_buf[W25Q_PAGE_SIZE];
+static uint16_t buf_off;       // Next free byte in page_buf[].
+static uint32_t buf_page_addr; // Flash page this buf maps to.
 
 /** Private functions. ********************************************************/
 
@@ -63,7 +66,13 @@ static inline const uint8_t *unpack_float_32(const uint8_t *p, float *f) {
   return p + 4;
 }
 
-// Helpers: check if the header area of a page is fully erased
+/**
+ * @brief Check if the header area of a page is fully erased.
+ *
+ * @param addr Address of buffer to check.
+ *
+ * @return True if the given page of the address is free for a header write.
+ */
 static bool is_page_blank(uint32_t addr) {
   uint8_t buf[sizeof(log_page_header_t)];
   if (w25q_read_data(buf, addr, sizeof(buf)) != HAL_OK) {
@@ -76,15 +85,17 @@ static bool is_page_blank(uint32_t addr) {
   return true;
 }
 
-// Find the next blank page at or after from_addr (wrapping to start).
+/**
+ * @brief Find the next blank page at or after from_addr (wrapping to start).
+ */
 static uint32_t find_next_blank_page(uint32_t from_addr) {
-  // 1) forward scan
+  // 1) Forward scan.
   for (uint32_t a = from_addr; a + W25Q_PAGE_SIZE <= nvm_end;
        a += W25Q_PAGE_SIZE) {
     if (is_page_blank(a))
       return a;
   }
-  // 2) wrap-around
+  // 2) Wrap-around.
   for (uint32_t a = nvm_start; a + W25Q_PAGE_SIZE <= from_addr;
        a += W25Q_PAGE_SIZE) {
     if (is_page_blank(a))
@@ -93,82 +104,88 @@ static uint32_t find_next_blank_page(uint32_t from_addr) {
   return INVALID_ADDRESS;
 }
 
+/**
+ * @brief Write the ring buffer (page_buf) to NVM.
+ */
+static void logger_flush_page(void) {
+  if (buf_off == 0) {
+    return;
+  }
+  // Flush the ring buffer to program one page simultaneously.
+  //  w25q_wait_busy();
+  w25q_page_program(page_buf, buf_page_addr, W25Q_PAGE_SIZE);
+  buf_off = 0;
+}
+
+/**
+ * @brief Find and claim the next blank page, prepare buf_off and page_buf.
+ */
+static void allocate_next_page(void) {
+  // 1) If this isn't the first call, move past the last page claimed.
+  if (buf_page_addr != INVALID_ADDRESS) {
+    buf_page_addr = find_next_blank_page(buf_page_addr + W25Q_PAGE_SIZE);
+  } else {
+    // First-time: start at beginning of region.
+    buf_page_addr = find_next_blank_page(nvm_start);
+  }
+
+  // 2) If there are no blank pages, mark invalid.
+  if (buf_page_addr == INVALID_ADDRESS) {
+    return;
+  }
+
+  // 3) Reset the ring buffer offset to leave room for the header.
+  buf_off = sizeof(log_page_header_t);
+
+  // 4) Pre-fill buffer with 0xFF so you can inspect partial pages.
+  memset(page_buf, 0xFF, W25Q_PAGE_SIZE);
+}
+
+/**
+ * @brief Add new data to the ring buffer and manage a potentially full buffer.
+ *
+ * @param data Data to write into the ring buffer.
+ * @param len Length of data in bytes.
+ */
+static void logger_buffered_write(const uint8_t *data, uint16_t len) {
+  // If the new data won't fit, flush current page first.
+  if (buf_off + len > W25Q_PAGE_SIZE) {
+    logger_flush_page();
+    allocate_next_page();
+  }
+  // Copy new log into RAM.
+  memcpy(&page_buf[buf_off], data, len);
+  buf_off += len;
+}
+
 /** Public functions. *********************************************************/
 
 void logger_init(uint32_t start_address, uint32_t end_address,
                  uint32_t sess_id) {
+  // 1) Region & session.
   nvm_start = start_address;
   nvm_end = end_address;
   session_id = sess_id;
+
+  // 2) Sequence and buffer state.
   page_seq = 0;
-  page_offset = sizeof(log_page_header_t);
-  // Pick up where the program left off (first blank page).
-  current_page_addr = find_next_blank_page(nvm_start);
+  buf_page_addr = INVALID_ADDRESS;
+
+  // 3) Grab our first blank page and prep the RAM buffer.
+  allocate_next_page();
 }
 
 void logger_hard_reset(void) {
-  // Erase every sector in the region.
+  // 1) Erase every sector in the region (and wait until finish.)
   for (uint32_t addr = nvm_start; addr < nvm_end; addr += W25Q_SECTOR_SIZE) {
     w25q_sector_erase(addr);
+    w25q_wait_busy();
   }
-  // Reset counters.
+
+  // 2) Reset in-RAM buffer state.
   page_seq = 0;
-  page_offset = sizeof(log_page_header_t);
-  current_page_addr = nvm_start;
-}
-
-void logger_write(const uint8_t *buf, uint16_t len) {
-  uint16_t remaining = len;
-
-  while (remaining && current_page_addr != INVALID_ADDRESS) {
-    // 1) At the start of a new page write a header.
-    if (page_offset == sizeof(log_page_header_t)) {
-      // Skip if a header already exists.
-      if (!is_page_blank(current_page_addr)) {
-        current_page_addr =
-            find_next_blank_page(current_page_addr + W25Q_PAGE_SIZE);
-        page_offset = sizeof(log_page_header_t);
-        continue;
-      }
-      log_page_header_t hdr = {.magic = LOG_MAGIC,
-                               .session_id = session_id,
-                               .page_seq = page_seq++};
-      if (w25q_page_program((uint8_t *)&hdr, current_page_addr, sizeof(hdr)) !=
-          HAL_OK) {
-        // Skip whole page on error.
-        current_page_addr =
-            find_next_blank_page(current_page_addr + W25Q_PAGE_SIZE);
-        page_offset = sizeof(log_page_header_t);
-        continue;
-      }
-    }
-
-    // 2) Calculate how much can be written into this page.
-    uint16_t space = W25Q_PAGE_SIZE - page_offset;
-    uint16_t to_write = (remaining < space) ? remaining : space;
-    uint32_t addr = current_page_addr + page_offset;
-
-    // 3) Program the data chunk.
-    if (w25q_page_program(buf, addr, to_write) != HAL_OK) {
-      // Skip whole page on error.
-      current_page_addr =
-          find_next_blank_page(current_page_addr + W25Q_PAGE_SIZE);
-      page_offset = sizeof(log_page_header_t);
-      continue;
-    }
-
-    // 4) Advance pointers.
-    buf += to_write;
-    remaining -= to_write;
-    page_offset += to_write;
-
-    // 5) If page is full, move to next blank page.
-    if (page_offset >= W25Q_PAGE_SIZE) {
-      current_page_addr =
-          find_next_blank_page(current_page_addr + W25Q_PAGE_SIZE);
-      page_offset = sizeof(log_page_header_t);
-    }
-  }
+  buf_page_addr = INVALID_ADDRESS;
+  allocate_next_page();
 }
 
 void log_quaternion(void) {
@@ -182,7 +199,7 @@ void log_quaternion(void) {
   p = pack_float_32(p, bno085_quaternion_accuracy_rad);
   p = pack_float_32(p, bno085_quaternion_accuracy_deg);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_gyro(void) {
@@ -193,7 +210,7 @@ void log_gyro(void) {
   p = pack_float_32(p, bno085_gyro_y);
   p = pack_float_32(p, bno085_gyro_z);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_accel(void) {
@@ -204,7 +221,7 @@ void log_accel(void) {
   p = pack_float_32(p, bno085_accel_y);
   p = pack_float_32(p, bno085_accel_z);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_lin_accel(void) {
@@ -215,7 +232,7 @@ void log_lin_accel(void) {
   p = pack_float_32(p, bno085_lin_accel_y);
   p = pack_float_32(p, bno085_lin_accel_z);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_gravity(void) {
@@ -226,7 +243,7 @@ void log_gravity(void) {
   p = pack_float_32(p, bno085_gravity_y);
   p = pack_float_32(p, bno085_gravity_z);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_pressure_temp(void) {
@@ -236,7 +253,7 @@ void log_pressure_temp(void) {
   p = pack_float_32(p, bmp390_temperature);
   p = pack_float_32(p, bmp390_pressure);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_gps_datetime(void) {
@@ -250,7 +267,7 @@ void log_gps_datetime(void) {
   p = pack_uint_8(p, gps_data.month);
   p = pack_uint_8(p, gps_data.year);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_gps_coord(void) {
@@ -262,7 +279,7 @@ void log_gps_coord(void) {
   p = pack_float_32(p, gps_data.longitude);
   p = pack_char_8(p, gps_data.lon_dir);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_gps_altitude_speed(void) {
@@ -273,7 +290,7 @@ void log_gps_altitude_speed(void) {
   p = pack_float_32(p, gps_data.geoid_sep_m);
   p = pack_float_32(p, gps_data.speed_knots);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_gps_heading(void) {
@@ -284,7 +301,7 @@ void log_gps_heading(void) {
   p = pack_float_32(p, gps_data.magnetic_deg);
   p = pack_char_8(p, gps_data.mag_dir);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }
 
 void log_gps_stats(void) {
@@ -295,5 +312,5 @@ void log_gps_stats(void) {
   p = pack_uint_8(p, gps_data.satellites);
   p = pack_float_32(p, gps_data.hdop);
   uint8_t len = (uint8_t)(p - start);
-  logger_write(data_array, len);
+  logger_buffered_write(data_array, len);
 }

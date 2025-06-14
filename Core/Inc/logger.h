@@ -43,17 +43,6 @@ void logger_init(uint32_t start_address, uint32_t end_address,
  */
 void logger_hard_reset(void);
 
-/**
- * @brief Append one buffer of length len into flash.
- *
- * Automatically spans pages, skips already-used pages, and never overwriting
- * data.
- *
- * @param buf Pointer to the data_array.
- * @param len Length of data in bytes to program.
- */
-void logger_write(const uint8_t *buf, uint16_t len);
-
 void log_quaternion(void);
 void log_gyro(void);
 void log_accel(void);
