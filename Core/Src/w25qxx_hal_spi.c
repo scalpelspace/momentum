@@ -61,7 +61,7 @@ HAL_StatusTypeDef w25q_init(void) {
   return HAL_OK;
 }
 
-HAL_StatusTypeDef w25q_read_jedec(uint8_t *manuf, uint8_t *mem_type,
+HAL_StatusTypeDef w25q_read_jedec(uint8_t *manufacturer, uint8_t *mem_type,
                                   uint8_t *capacity) {
   uint8_t tx[4] = {W25Q_CMD_JEDEC_ID, 0, 0, 0};
   uint8_t rx[4] = {0};
@@ -70,39 +70,39 @@ HAL_StatusTypeDef w25q_read_jedec(uint8_t *manuf, uint8_t *mem_type,
       HAL_SPI_TransmitReceive(&W25QXX_HSPI, tx, rx, 4, HAL_MAX_DELAY);
   W25Q_CS_HIGH();
   if (st == HAL_OK) {
-    *manuf = rx[1];
+    *manufacturer = rx[1];
     *mem_type = rx[2];
     *capacity = rx[3];
   }
   return st;
 }
 
-HAL_StatusTypeDef w25q_read_data(uint8_t *pBuf, uint32_t addr, uint32_t len) {
+HAL_StatusTypeDef w25q_read_data(uint8_t *buffer, uint32_t addr, uint32_t len) {
   uint8_t cmd[4] = {W25Q_CMD_READ_DATA, (uint8_t)(addr >> 16),
                     (uint8_t)(addr >> 8), (uint8_t)(addr)};
   W25Q_CS_LOW();
   HAL_StatusTypeDef st = HAL_SPI_Transmit(&W25QXX_HSPI, cmd, 4, HAL_MAX_DELAY);
   if (st == HAL_OK) {
-    st = HAL_SPI_Receive(&W25QXX_HSPI, pBuf, len, HAL_MAX_DELAY);
+    st = HAL_SPI_Receive(&W25QXX_HSPI, buffer, len, HAL_MAX_DELAY);
   }
   W25Q_CS_HIGH();
   return st;
 }
 
-HAL_StatusTypeDef w25q_fast_read_data(uint8_t *pBuf, uint32_t addr,
+HAL_StatusTypeDef w25q_fast_read_data(uint8_t *buffer, uint32_t addr,
                                       uint32_t len) {
   uint8_t cmd[5] = {W25Q_CMD_FAST_READ_DATA, (uint8_t)(addr >> 16),
                     (uint8_t)(addr >> 8), (uint8_t)(addr), 0xFF};
   W25Q_CS_LOW();
   HAL_StatusTypeDef st = HAL_SPI_Transmit(&W25QXX_HSPI, cmd, 5, HAL_MAX_DELAY);
   if (st == HAL_OK) {
-    st = HAL_SPI_Receive(&W25QXX_HSPI, pBuf, len, HAL_MAX_DELAY);
+    st = HAL_SPI_Receive(&W25QXX_HSPI, buffer, len, HAL_MAX_DELAY);
   }
   W25Q_CS_HIGH();
   return st;
 }
 
-HAL_StatusTypeDef w25q_page_program(const uint8_t *pBuf, uint32_t addr,
+HAL_StatusTypeDef w25q_page_program(const uint8_t *buffer, uint32_t addr,
                                     uint16_t len) {
   if (len > W25Q_PAGE_SIZE)
     return HAL_ERROR;
@@ -115,7 +115,7 @@ HAL_StatusTypeDef w25q_page_program(const uint8_t *pBuf, uint32_t addr,
   W25Q_CS_LOW();
   st = HAL_SPI_Transmit(&W25QXX_HSPI, cmd, 4, HAL_MAX_DELAY);
   if (st == HAL_OK) {
-    st = HAL_SPI_Transmit(&W25QXX_HSPI, (uint8_t *)pBuf, len, HAL_MAX_DELAY);
+    st = HAL_SPI_Transmit(&W25QXX_HSPI, (uint8_t *)buffer, len, HAL_MAX_DELAY);
   }
   W25Q_CS_HIGH();
   if (st == HAL_OK) {

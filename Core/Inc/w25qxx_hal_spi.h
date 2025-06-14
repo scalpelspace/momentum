@@ -22,18 +22,18 @@ extern SPI_HandleTypeDef hspi3;
 
 /** Definitions. **************************************************************/
 
-#define W25Q_PAGE_SIZE 256UL
-#define W25Q_SECTOR_SIZE 4096UL
+#define W25Q_PAGE_SIZE 256U
+#define W25Q_SECTOR_SIZE 4096U
 
 /** Public functions. *********************************************************/
 
 HAL_StatusTypeDef w25q_init(void);
-HAL_StatusTypeDef w25q_read_jedec(uint8_t *manuf, uint8_t *mem_type,
+HAL_StatusTypeDef w25q_read_jedec(uint8_t *manufacturer, uint8_t *mem_type,
                                   uint8_t *capacity);
-HAL_StatusTypeDef w25q_read_data(uint8_t *pBuf, uint32_t addr, uint32_t len);
-HAL_StatusTypeDef w25q_fast_read_data(uint8_t *pBuf, uint32_t addr,
+HAL_StatusTypeDef w25q_read_data(uint8_t *buffer, uint32_t addr, uint32_t len);
+HAL_StatusTypeDef w25q_fast_read_data(uint8_t *buffer, uint32_t addr,
                                       uint32_t len);
-HAL_StatusTypeDef w25q_page_program(const uint8_t *pBuf, uint32_t addr,
+HAL_StatusTypeDef w25q_page_program(const uint8_t *buffer, uint32_t addr,
                                     uint16_t len);
 HAL_StatusTypeDef w25q_sector_erase(uint32_t addr);
 HAL_StatusTypeDef w25q_block_erase_32k(uint32_t addr);
