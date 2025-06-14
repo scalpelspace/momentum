@@ -37,18 +37,6 @@ static HAL_StatusTypeDef w25q_write_enable(void) {
   return st;
 }
 
-static HAL_StatusTypeDef w25q_wait_busy(void) {
-  uint8_t cmd = W25Q_CMD_READ_STATUS1;
-  uint8_t status;
-  do {
-    W25Q_CS_LOW();
-    HAL_SPI_Transmit(&W25QXX_HSPI, &cmd, 1, HAL_MAX_DELAY);
-    HAL_SPI_Receive(&W25QXX_HSPI, &status, 1, HAL_MAX_DELAY);
-    W25Q_CS_HIGH();
-  } while (status & 0x01);
-  return HAL_OK;
-}
-
 /** Public functions. *********************************************************/
 
 HAL_StatusTypeDef w25q_init(void) {
@@ -58,6 +46,18 @@ HAL_StatusTypeDef w25q_init(void) {
   HAL_SPI_Transmit(&W25QXX_HSPI, &cmd, 1, HAL_MAX_DELAY);
   W25Q_CS_HIGH();
   HAL_Delay(1);
+  return HAL_OK;
+}
+
+static HAL_StatusTypeDef w25q_wait_busy(void) {
+  uint8_t cmd = W25Q_CMD_READ_STATUS1;
+  uint8_t status;
+  do {
+    W25Q_CS_LOW();
+    HAL_SPI_Transmit(&W25QXX_HSPI, &cmd, 1, HAL_MAX_DELAY);
+    HAL_SPI_Receive(&W25QXX_HSPI, &status, 1, HAL_MAX_DELAY);
+    W25Q_CS_HIGH();
+  } while (status & 0x01);
   return HAL_OK;
 }
 
@@ -118,9 +118,6 @@ HAL_StatusTypeDef w25q_page_program(const uint8_t *buffer, uint32_t addr,
     st = HAL_SPI_Transmit(&W25QXX_HSPI, (uint8_t *)buffer, len, HAL_MAX_DELAY);
   }
   W25Q_CS_HIGH();
-  if (st == HAL_OK) {
-    st = w25q_wait_busy();
-  }
   return st;
 }
 
@@ -133,9 +130,6 @@ HAL_StatusTypeDef w25q_sector_erase(uint32_t addr) {
   W25Q_CS_LOW();
   st = HAL_SPI_Transmit(&W25QXX_HSPI, cmd, 4, HAL_MAX_DELAY);
   W25Q_CS_HIGH();
-  if (st == HAL_OK) {
-    st = w25q_wait_busy();
-  }
   return st;
 }
 
@@ -148,9 +142,6 @@ HAL_StatusTypeDef w25q_block_erase_32k(uint32_t addr) {
   W25Q_CS_LOW();
   st = HAL_SPI_Transmit(&W25QXX_HSPI, cmd, 4, HAL_MAX_DELAY);
   W25Q_CS_HIGH();
-  if (st == HAL_OK) {
-    st = w25q_wait_busy();
-  }
   return st;
 }
 
@@ -163,9 +154,6 @@ HAL_StatusTypeDef w25q_block_erase_64k(uint32_t addr) {
   W25Q_CS_LOW();
   st = HAL_SPI_Transmit(&W25QXX_HSPI, cmd, 4, HAL_MAX_DELAY);
   W25Q_CS_HIGH();
-  if (st == HAL_OK) {
-    st = w25q_wait_busy();
-  }
   return st;
 }
 
@@ -177,9 +165,5 @@ HAL_StatusTypeDef w25q_chip_erase(void) {
   W25Q_CS_LOW();
   st = HAL_SPI_Transmit(&W25QXX_HSPI, &cmd, 1, HAL_MAX_DELAY);
   W25Q_CS_HIGH();
-  if (st == HAL_OK) {
-    // Full chip erase can take a while (~6-10 s).
-    st = w25q_wait_busy();
-  }
   return st;
 }

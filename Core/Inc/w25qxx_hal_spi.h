@@ -28,6 +28,7 @@ extern SPI_HandleTypeDef hspi3;
 /** Public functions. *********************************************************/
 
 HAL_StatusTypeDef w25q_init(void);
+static HAL_StatusTypeDef w25q_wait_busy(void);
 HAL_StatusTypeDef w25q_read_jedec(uint8_t *manufacturer, uint8_t *mem_type,
                                   uint8_t *capacity);
 HAL_StatusTypeDef w25q_read_data(uint8_t *buffer, uint32_t addr, uint32_t len);
