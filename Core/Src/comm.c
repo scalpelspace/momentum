@@ -7,6 +7,7 @@
 /** Definitions. **************************************************************/
 
 #include "comm.h"
+#include "logger.h"
 #include "w25qxx_hal_spi.h"
 #include <stdint.h>
 #include <string.h>
@@ -17,10 +18,6 @@
 #define MAX_FRAME_LEN 272 // 1 + 1 + 2 + COMM_READ_MAX_CHUNK_SIZE + 2.
 
 #define COMM_RX_BUFFER_SIZE 256
-
-/** Public variables. *********************************************************/
-
-bool comm_write_enabled; // Write permission state.
 
 /** Private variables. ********************************************************/
 
@@ -82,35 +79,26 @@ static void process_frame(uint8_t *frame, uint8_t length) {
   uint8_t *payload = &frame[4];
 
   switch (command) {
-  case CMD_WRITE_EN:
-    comm_write_enabled = true;
+
+  case CMD_NVM_RESET:
+    logger_hard_reset();
     send_packet(CMD_ACK, &command, 1);
     break;
 
-  case CMD_WRITE_DEN:
-    comm_write_enabled = false;
-    send_packet(CMD_ACK, &command, 1);
-    break;
-
-  case CMD_WRITE:
-    if (!comm_write_enabled) {
-      send_packet(CMD_NACK, &command, 1);
-      break;
+  case CMD_NVM_WRITE:
+    // payload = [ADDR_H][ADDR_M][ADDR_L][DATA...].
+    uint32_t write_addr = (payload[0] << 16) | (payload[1] << 8) | payload[2];
+    uint8_t *data = &payload[3];
+    uint16_t write_len = payload_len - 3;
+    if (w25q_page_program(data, write_addr, write_len) == HAL_OK) {
+      send_packet(CMD_ACK, &command, 1);
     } else {
-      // payload: [ADDR_H][ADDR_M][ADDR_L][DATA...].
-      uint32_t write_addr = (payload[0] << 16) | (payload[1] << 8) | payload[2];
-      uint8_t *data = &payload[3];
-      uint16_t write_len = payload_len - 3;
-      if (w25q_page_program(data, write_addr, write_len) == HAL_OK) {
-        send_packet(CMD_ACK, &command, 1);
-      } else {
-        send_packet(CMD_NACK, &command, 1);
-      }
+      send_packet(CMD_NACK, &command, 1);
     }
     break;
 
-  case CMD_READ_DATA:
-    // payload: [ADDR_H][ADDR_M][ADDR_L][LEN_H][LEN_L].
+  case CMD_NVM_READ:
+    // payload = [ADDR_H][ADDR_M][ADDR_L][LEN_H][LEN_L].
     uint32_t read_addr = (payload[0] << 16) | (payload[1] << 8) | payload[2];
     uint16_t read_len = (payload[3] << 8) | payload[4];
     if (read_len > COMM_READ_MAX_CHUNK_SIZE) { // Limit to max read chunk size.
@@ -159,9 +147,8 @@ void USART1_IRQHandler_comm(UART_HandleTypeDef *huart) {
 /** Public functions. *********************************************************/
 
 void comm_init(void) {
-  comm_rx_dma_length = 0;     // Reset DMA new Rx data length.
-  comm_rx_dma_old_pos = 0;    // Reset DMA new Rx data buffer index.
-  comm_write_enabled = false; // Disable write permissions on init.
+  comm_rx_dma_length = 0;  // Reset DMA new Rx data length.
+  comm_rx_dma_old_pos = 0; // Reset DMA new Rx data buffer index.
 
   // Start UART reception with DMA and enable IDLE based flagging.
   HAL_UART_Receive_DMA(&COMM_HUART, comm_rx_dma_buffer, COMM_RX_BUFFER_SIZE);

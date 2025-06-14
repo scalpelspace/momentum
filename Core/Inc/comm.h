@@ -24,17 +24,12 @@ extern UART_HandleTypeDef huart1;
 
 #define CMD_ACK 0x06
 #define CMD_NACK 0x07
+#define CMD_DATA 0x08
 
 // NVM control.
-#define CMD_WRITE_EN 0x10
-#define CMD_WRITE_DEN 0x11
-#define CMD_WRITE 0x12
-#define CMD_READ_DATA 0x20
-#define CMD_DATA 0x21
-
-/** Public variables. *********************************************************/
-
-extern bool comm_write_enabled;
+#define CMD_NVM_READ 0x10
+#define CMD_NVM_WRITE 0x11
+#define CMD_NVM_RESET 0x20
 
 /** User implementations of STM32 NVIC HAL (overwriting HAL). *****************/
 

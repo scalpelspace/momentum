@@ -8,7 +8,6 @@
 #include "logger.h"
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
-#include "comm.h"
 #include "momentum_driver.h"
 #include "ublox_hal_uart.h"
 #include "w25qxx_hal_spi.h"
@@ -23,8 +22,14 @@
 /** Private variables. ********************************************************/
 
 static uint8_t data_array[32];
-static uint32_t nvm_address;
-static bool sector_erased;
+
+// Region bounds & state
+static uint32_t nvm_start;
+static uint32_t nvm_end;
+static uint32_t session_id;
+static uint32_t page_seq;
+static uint32_t current_page_addr;
+static uint16_t page_offset;
 
 /** Private functions. ********************************************************/
 
@@ -58,73 +63,112 @@ static inline const uint8_t *unpack_float_32(const uint8_t *p, float *f) {
   return p + 4;
 }
 
-/**
- * @brief Erase the current sector if not already erased.
- */
-static void ensure_sector_erased(void) {
-  uint32_t sector_start = nvm_address & ~(W25Q_SECTOR_SIZE - 1);
-  if (!sector_erased ||
-      sector_start != ((nvm_address - 1) & ~(W25Q_SECTOR_SIZE - 1))) {
-    w25q_sector_erase(sector_start);
-    sector_erased = true;
+// Helpers: check if the header area of a page is fully erased
+static bool is_page_blank(uint32_t addr) {
+  uint8_t buf[sizeof(log_page_header_t)];
+  if (w25q_read_data(buf, addr, sizeof(buf)) != HAL_OK) {
+    return false;
   }
+  for (uint16_t i = 0; i < sizeof(buf); i++) {
+    if (buf[i] != 0xFFU)
+      return false;
+  }
+  return true;
 }
 
-/**
- * @brief Write one payload to flash and bump the pointer.
- * @param buf pointer to the data_array.
- * @param len how many bytes to program.
- */
-static void logger_write(const uint8_t *buf, uint8_t len) {
-  if (!comm_write_enabled) {
-    return;
+// Find the next blank page at or after from_addr (wrapping to start).
+static uint32_t find_next_blank_page(uint32_t from_addr) {
+  // 1) forward scan
+  for (uint32_t a = from_addr; a + W25Q_PAGE_SIZE <= nvm_end;
+       a += W25Q_PAGE_SIZE) {
+    if (is_page_blank(a))
+      return a;
   }
-
-  uint16_t remaining = len;
-  const uint8_t *p = buf;
-
-  while (remaining) {
-    // 1) Check number of bytes left in the current 256-byte page.
-    uint32_t page_off = nvm_address & (W25Q_PAGE_SIZE - 1);
-    uint32_t space_in_page = W25Q_PAGE_SIZE - page_off;
-    uint16_t to_write = (remaining < space_in_page) ? remaining : space_in_page;
-
-    // 2) Erase the sector if just crossed into a new sector.
-    ensure_sector_erased();
-
-    // 3) Program up to `to_write` bytes within the current page.
-    if (w25q_page_program(p, nvm_address, to_write) != HAL_OK) {
-      // TODO: error handling/retry logic.
-      return;
-    }
-
-    // 4) Advance pointers and counters.
-    p += to_write;
-    nvm_address += to_write;
-    remaining -= to_write;
+  // 2) wrap-around
+  for (uint32_t a = nvm_start; a + W25Q_PAGE_SIZE <= from_addr;
+       a += W25Q_PAGE_SIZE) {
+    if (is_page_blank(a))
+      return a;
   }
-
-  // 5) Wrap around the circular buffer if the end of the region is reached.
-  if (nvm_address + W25Q_PAGE_SIZE > NVM_END_ADDRESS) {
-    nvm_address = NVM_START_ADDRESS;
-    sector_erased = false;
-  }
+  return INVALID_ADDRESS;
 }
 
 /** Public functions. *********************************************************/
 
-void logger_init(void) {
-  nvm_address = NVM_START_ADDRESS;
-  sector_erased = false;
+void logger_init(uint32_t start_address, uint32_t end_address,
+                 uint32_t sess_id) {
+  nvm_start = start_address;
+  nvm_end = end_address;
+  session_id = sess_id;
+  page_seq = 0;
+  page_offset = sizeof(log_page_header_t);
+  // Pick up where the program left off (first blank page).
+  current_page_addr = find_next_blank_page(nvm_start);
 }
 
-void logger_reset(void) {
-  for (uint32_t addr = NVM_START_ADDRESS; addr < NVM_END_ADDRESS;
-       addr += W25Q_SECTOR_SIZE) {
+void logger_hard_reset(void) {
+  // Erase every sector in the region.
+  for (uint32_t addr = nvm_start; addr < nvm_end; addr += W25Q_SECTOR_SIZE) {
     w25q_sector_erase(addr);
   }
-  nvm_address = NVM_START_ADDRESS;
-  sector_erased = true;
+  // Reset counters.
+  page_seq = 0;
+  page_offset = sizeof(log_page_header_t);
+  current_page_addr = nvm_start;
+}
+
+void logger_write(const uint8_t *buf, uint16_t len) {
+  uint16_t remaining = len;
+
+  while (remaining && current_page_addr != INVALID_ADDRESS) {
+    // 1) At the start of a new page write a header.
+    if (page_offset == sizeof(log_page_header_t)) {
+      // Skip if a header already exists.
+      if (!is_page_blank(current_page_addr)) {
+        current_page_addr =
+            find_next_blank_page(current_page_addr + W25Q_PAGE_SIZE);
+        page_offset = sizeof(log_page_header_t);
+        continue;
+      }
+      log_page_header_t hdr = {.magic = LOG_MAGIC,
+                               .session_id = session_id,
+                               .page_seq = page_seq++};
+      if (w25q_page_program((uint8_t *)&hdr, current_page_addr, sizeof(hdr)) !=
+          HAL_OK) {
+        // Skip whole page on error.
+        current_page_addr =
+            find_next_blank_page(current_page_addr + W25Q_PAGE_SIZE);
+        page_offset = sizeof(log_page_header_t);
+        continue;
+      }
+    }
+
+    // 2) Calculate how much can be written into this page.
+    uint16_t space = W25Q_PAGE_SIZE - page_offset;
+    uint16_t to_write = (remaining < space) ? remaining : space;
+    uint32_t addr = current_page_addr + page_offset;
+
+    // 3) Program the data chunk.
+    if (w25q_page_program(buf, addr, to_write) != HAL_OK) {
+      // Skip whole page on error.
+      current_page_addr =
+          find_next_blank_page(current_page_addr + W25Q_PAGE_SIZE);
+      page_offset = sizeof(log_page_header_t);
+      continue;
+    }
+
+    // 4) Advance pointers.
+    buf += to_write;
+    remaining -= to_write;
+    page_offset += to_write;
+
+    // 5) If page is full, move to next blank page.
+    if (page_offset >= W25Q_PAGE_SIZE) {
+      current_page_addr =
+          find_next_blank_page(current_page_addr + W25Q_PAGE_SIZE);
+      page_offset = sizeof(log_page_header_t);
+    }
+  }
 }
 
 void log_quaternion(void) {

@@ -15,9 +15,14 @@
 #include "logger.h"
 #include "momentum_runner.h"
 #include "scheduler.h"
+#include "stm32l4xx_hal_rng.h"
 #include "ublox_hal_uart.h"
 #include "w25qxx_hal_spi.h"
 #include "ws2812b_hal_pwm.h"
+
+/** STM32 port and pin configs. ***********************************************/
+
+extern RNG_HandleTypeDef hrng;
 
 /** Private variables. ********************************************************/
 
@@ -70,7 +75,10 @@ void momentum_init(void) {
 
 #ifdef MOMENTUM_W25QXX_ENABLE
   // NVM logger.
-  logger_init();
+  uint32_t session_id;
+  HAL_RNG_GenerateRandomNumber(&hrng, &session_id);
+  logger_init(MOMENTUM_W25QXX_LOGGER_ADDR_START,
+              MOMENTUM_W25QXX_LOGGER_ADDR_END, session_id);
 #endif
 
   // On-board miscellaneous components.
