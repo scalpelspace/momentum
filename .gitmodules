@@ -6,4 +6,4 @@
 	url = https://github.com/boschsensortec/BMP3_SensorAPI
 [submodule "Core/momentum_driver"]
 	path = Core/momentum_driver
-	url = https://github.com/danielljeon/momentum_driver
+	url = https://github.com/scalpelspace/momentum_driver
