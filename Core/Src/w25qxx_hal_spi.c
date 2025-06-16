@@ -54,8 +54,7 @@ HAL_StatusTypeDef w25q_wait_busy(void) {
   uint8_t status;
   do {
     W25Q_CS_LOW();
-    HAL_SPI_Transmit(&W25QXX_HSPI, &cmd, 1, HAL_MAX_DELAY);
-    HAL_SPI_Receive(&W25QXX_HSPI, &status, 1, HAL_MAX_DELAY);
+    HAL_SPI_TransmitReceive(&W25QXX_HSPI, &cmd, &status, 1, HAL_MAX_DELAY);
     W25Q_CS_HIGH();
   } while (status & 0x01);
   return HAL_OK;
