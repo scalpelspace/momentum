@@ -347,11 +347,13 @@ static bool parse_gngga(const char *sentence) {
   // 12) Update position fix classification.
   gps_data.position_fix = classify_position_fix(&gps_data.position_flags);
 
+#ifdef MOMENTUM_W25QXX_ENABLE
   log_gps_datetime();
   log_gps_coord();
   log_gps_altitude_speed();
   log_gps_heading();
   log_gps_stats();
+#endif
 
   return true;
 }

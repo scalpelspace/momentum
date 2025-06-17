@@ -148,7 +148,9 @@ void bmp390_get_data(void) {
         bmp390_temperature = temperature_sum / (float)fifo.parsed_frames;
         bmp390_pressure = pressure_sum / (float)fifo.parsed_frames;
 
+#ifdef MOMENTUM_W25QXX_ENABLE
         log_pressure_temp();
+#endif
 
         if (status.intr.fifo_full == BMP3_ENABLE) {
           bmp3_fifo_flush(&dev); // Flush FIFO if full.
