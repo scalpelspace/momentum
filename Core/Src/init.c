@@ -36,12 +36,14 @@ void momentum_init(void) {
 
   // On-board miscellaneous components.
   ws2812b_init();
-  ws2812b_set_colour(0, 4, 1, 1);
+  ws2812b_set_colour(0, 4, 1, 1); // Init colour.
   ws2812b_update();
 
   // Momentum SPI interface.
 #ifdef MOMENTUM_W25QXX_ENABLE
   if (w25q_init() != HAL_OK) {
+    ws2812b_set_colour(0, 3, 0, 0); // NVM error colour.
+    ws2812b_update();
     return;
   }
   uint8_t manuf = 0;
@@ -51,7 +53,7 @@ void momentum_init(void) {
   if (manuf != MOMENTUM_W25QXX_EXPECTED_MANUF &&
       mem_type != MOMENTUM_W25QXX_EXPECTED_MEM_TYPE &&
       capacity != MOMENTUM_W25QXX_EXPECTED_CAPACITY) {
-    ws2812b_set_colour(0, 3, 0, 0);
+    ws2812b_set_colour(0, 3, 0, 0); // NVM error colour.
     ws2812b_update();
     return;
   }
@@ -80,8 +82,4 @@ void momentum_init(void) {
   logger_init(MOMENTUM_W25QXX_LOGGER_ADDR_START,
               MOMENTUM_W25QXX_LOGGER_ADDR_END, session_id);
 #endif
-
-  // On-board miscellaneous components.
-  ws2812b_set_colour(0, 2, 2, 0);
-  ws2812b_update();
 }

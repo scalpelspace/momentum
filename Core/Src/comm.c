@@ -9,6 +9,7 @@
 #include "comm.h"
 #include "logger.h"
 #include "w25qxx_hal_spi.h"
+#include "ws2812b_hal_pwm.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -81,8 +82,12 @@ static void process_frame(uint8_t *frame, uint8_t length) {
   switch (command) {
 
   case CMD_NVM_RESET:
+    ws2812b_set_colour(0, 3, 1, 0); // Wipe process colour.
+    ws2812b_update();
     logger_hard_reset();
     send_packet(CMD_ACK, &command, 1);
+    ws2812b_set_colour(0, 4, 1, 1); // Wipe success colour.
+    ws2812b_update();
     break;
 
   case CMD_NVM_WRITE:

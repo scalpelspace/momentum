@@ -74,11 +74,11 @@ static inline const uint8_t *unpack_float_32(const uint8_t *p, float *f) {
  * @return True if the given page of the address is free for a header write.
  */
 static bool is_page_blank(uint32_t addr) {
-  uint8_t buf[sizeof(log_page_header_t)];
-  if (w25q_read_data(buf, addr, sizeof(buf)) != HAL_OK) {
+  uint8_t buf[W25Q_PAGE_SIZE];
+  if (w25q_read_data(buf, addr, W25Q_PAGE_SIZE) != HAL_OK) {
     return false;
   }
-  for (uint16_t i = 0; i < sizeof(buf); i++) {
+  for (uint16_t i = 0; i < W25Q_PAGE_SIZE; i++) {
     if (buf[i] != 0xFFU)
       return false;
   }
@@ -89,32 +89,23 @@ static bool is_page_blank(uint32_t addr) {
  * @brief Find the next blank page at or after from_addr (wrapping to start).
  */
 static uint32_t find_next_blank_page(uint32_t from_addr) {
+  // Align the starting address to the next page boundary.
+  from_addr = (from_addr + W25Q_PAGE_SIZE - 1) & ~(W25Q_PAGE_SIZE - 1);
+
   // 1) Forward scan.
-  for (uint32_t a = from_addr; a + W25Q_PAGE_SIZE <= nvm_end;
+  for (uint32_t a = from_addr; a <= nvm_end - W25Q_PAGE_SIZE;
        a += W25Q_PAGE_SIZE) {
     if (is_page_blank(a))
       return a;
   }
+
   // 2) Wrap-around.
-  for (uint32_t a = nvm_start; a + W25Q_PAGE_SIZE <= from_addr;
+  for (uint32_t a = nvm_start; a < from_addr && a <= nvm_end - W25Q_PAGE_SIZE;
        a += W25Q_PAGE_SIZE) {
     if (is_page_blank(a))
       return a;
   }
   return INVALID_ADDRESS;
-}
-
-/**
- * @brief Write the ring buffer (page_buf) to NVM.
- */
-static void logger_flush_page(void) {
-  if (buf_off == 0) {
-    return;
-  }
-  // Flush the ring buffer to program one page simultaneously.
-  //  w25q_wait_busy();
-  w25q_page_program(page_buf, buf_page_addr, W25Q_PAGE_SIZE);
-  buf_off = 0;
 }
 
 /**
@@ -139,6 +130,19 @@ static void allocate_next_page(void) {
 
   // 4) Pre-fill buffer with 0xFF so you can inspect partial pages.
   memset(page_buf, 0xFF, W25Q_PAGE_SIZE);
+}
+
+/**
+ * @brief Write the ring buffer (page_buf) to NVM.
+ */
+static void logger_flush_page(void) {
+  if (buf_off == 0) {
+    return;
+  }
+  // Flush the ring buffer to program one page simultaneously.
+  w25q_wait_busy();
+  w25q_page_program(page_buf, buf_page_addr, W25Q_PAGE_SIZE);
+  buf_off = 0;
 }
 
 /**
@@ -176,11 +180,9 @@ void logger_init(uint32_t start_address, uint32_t end_address,
 }
 
 void logger_hard_reset(void) {
-  // 1) Erase every sector in the region (and wait until finish.)
-  for (uint32_t addr = nvm_start; addr < nvm_end; addr += W25Q_SECTOR_SIZE) {
-    w25q_sector_erase(addr);
-    w25q_wait_busy();
-  }
+  // 1) Erase the entire chip.
+  w25q_chip_erase();
+  w25q_wait_busy();
 
   // 2) Reset in-RAM buffer state.
   page_seq = 0;
