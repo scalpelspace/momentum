@@ -205,7 +205,11 @@ void process_reaction(momentum_frame_t request) {
   }
 }
 
-void rx_header(void) { HAL_SPI_Receive_DMA(&MOMENTUM_HSPI, rx_buffer, 4); }
+void restart(void) {
+  // Restart state machine and await new 4 byte frame header.
+  spi_state = WAIT_HEADER;
+  HAL_SPI_Receive_DMA(&MOMENTUM_HSPI, rx_buffer, 4);
+}
 
 /** User implementations of STM32 UART HAL (overwriting HAL). *****************/
 
@@ -218,7 +222,8 @@ void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
     process_header();
     if (rx_frame.length) { // Additional payload data is expected to arrive.
       spi_state = WAIT_PAYLOAD;
-      HAL_SPI_Receive_DMA(&MOMENTUM_HSPI, rx_buffer, rx_frame.length);
+      // Receive payload and 2 CRC bytes.
+      HAL_SPI_Receive_DMA(&MOMENTUM_HSPI, rx_buffer, rx_frame.length + 2);
     } else { // Immediately handle reactionary logic.
       spi_state = REACTIONARY;
     }
@@ -232,11 +237,11 @@ void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
     // Check if frame expects a response.
     if (rx_frame.start_of_frame == MOMENTUM_START_OF_REQUEST_FRAME) {
       spi_state = SEND_RESPONSE;
+      prep_momentum_response_tx(rx_frame); // Prep response.
+      HAL_SPI_Transmit_DMA(&MOMENTUM_HSPI, tx_buffer, tx_buf_len);
+    } else {
+      restart();
     }
-  }
-  if (spi_state == SEND_RESPONSE) {
-    prep_momentum_response_tx(rx_frame); // Prep response.
-    HAL_SPI_Transmit_DMA(&MOMENTUM_HSPI, tx_buffer, tx_buf_len);
   }
 }
 
@@ -244,13 +249,9 @@ void HAL_SPI_TxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
   if (hspi != &MOMENTUM_HSPI || spi_state != SEND_RESPONSE)
     return;
 
-  spi_state = WAIT_HEADER;
-  rx_header();
+  restart();
 }
 
 /** Public functions. *********************************************************/
 
-void momentum_spi_start(void) {
-  spi_state = WAIT_HEADER;
-  rx_header();
-}
+void momentum_spi_start(void) { restart(); }
