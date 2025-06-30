@@ -11,12 +11,14 @@
 #include "bno085_runner.h"
 #include "momentum_driver.h"
 #include "ublox_hal_uart.h"
+#include "ws2812b_hal_pwm.h"
 #include <string.h>
 
 /** Private variables. ********************************************************/
 
 // Receive variables.
 static uint8_t rx_buffer[sizeof(momentum_frame_t)];
+static momentum_frame_t rx_frame;
 
 // Transmit variables.
 static uint8_t tx_buffer[sizeof(momentum_frame_t)];
@@ -33,15 +35,20 @@ static uint8_t seq_counter = 0;
  *  1. Controller request command.
  *  2. Peripheral response to request.
  */
-typedef enum { WAIT_CMD, SEND_DATA } momentum_state_t;
-static momentum_state_t spi_state = WAIT_CMD;
+typedef enum {
+  WAIT_HEADER,   // Phase 1: Wait for frame header from controller.
+  WAIT_PAYLOAD,  // Phase 2: Wait for remaining payload data.
+  REACTIONARY,   // Phase 3.A: Complete frame reactionary logic.
+  SEND_RESPONSE, // Phase 3.C: Transmit response frame.
+} momentum_state_t;
+static momentum_state_t spi_state = WAIT_HEADER;
 
 /** Private functions. ********************************************************/
 
 /**
  * @brief Prepare and pack a frame in response.
  */
-void prep_momentum_tx(void) {
+void prep_momentum_response_tx(momentum_frame_t request) {
   // Assemble the latest sensor_data_t.
   sensor_data_t data = {bno085_quaternion_i,
                         bno085_quaternion_j,
@@ -86,8 +93,8 @@ void prep_momentum_tx(void) {
   // Build the frame.
   momentum_frame_t frame;
   memset(&frame, 0, sizeof(frame));
-  frame.start_of_frame = MOMENTUM_START_OF_FRAME;
-  frame.frame_type = rx_buffer[0];
+  frame.start_of_frame = MOMENTUM_START_OF_RESPONSE_FRAME;
+  frame.frame_type = request.frame_type;
   frame.sequence = seq_counter++;
 
   // Pack payload based on requested frame type.
@@ -154,33 +161,86 @@ void prep_momentum_tx(void) {
   tx_buf_len = idx;
 }
 
+void process_header(void) {
+  // Validate received frame header.
+  rx_frame.start_of_frame = rx_buffer[0];
+  rx_frame.frame_type = rx_buffer[1];
+  rx_frame.sequence = rx_buffer[2];
+  rx_frame.length = rx_buffer[3];
+
+  if (rx_frame.start_of_frame != MOMENTUM_START_OF_COMMAND_FRAME &&
+      rx_frame.start_of_frame != MOMENTUM_START_OF_REQUEST_FRAME) {
+    // Start of frame error.
+    spi_state = WAIT_HEADER; // Reset to waiting for new header.
+    return;
+  }
+
+  // TODO: Implement rolling sequence counter checking.
+}
+
+void process_payload(void) {
+  if (!verify_crc(&rx_frame)) {
+    // CRC error.
+    spi_state = WAIT_HEADER; // Reset to waiting for new header.
+    return;
+  }
+
+  memcpy(rx_frame.payload, rx_buffer + 4,
+         rx_frame.length);                   // Copy out the payload.
+  size_t crc_index = 4 + rx_frame.length;    // Determine CRC location.
+  uint8_t crc_lo = rx_buffer[crc_index + 0]; // CRC low byte.
+  uint8_t crc_hi = rx_buffer[crc_index + 1]; // CRC high byte.
+  rx_frame.crc = (uint16_t)crc_lo | ((uint16_t)crc_hi << 8); // Reconstruct CRC.
+}
+
+void process_reaction(momentum_frame_t request) {}
+
+void rx_header(void) { HAL_SPI_Receive_DMA(&MOMENTUM_HSPI, rx_buffer, 4); }
+
 /** User implementations of STM32 UART HAL (overwriting HAL). *****************/
 
 void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
-  if (hspi != &MOMENTUM_HSPI || spi_state != WAIT_CMD)
+  if (hspi != &MOMENTUM_HSPI) {
     return;
+  }
 
-  // Phase 1 (complete): Received rx_buffer[0].
-  prep_momentum_tx();    // Fill tx_buffer[] and update tx_buf_len.
-  spi_state = SEND_DATA; // Update state machine.
+  if (spi_state == WAIT_HEADER) {
+    process_header();
+    if (rx_frame.length) { // Additional payload data is expected to arrive.
+      spi_state = WAIT_PAYLOAD;
+      HAL_SPI_Transmit_DMA(&MOMENTUM_HSPI, rx_buffer, rx_frame.length);
+    } else { // Immediately handle reactionary logic.
+      spi_state = REACTIONARY;
+    }
+  } else if (spi_state == WAIT_PAYLOAD) {
+    process_payload();
+    spi_state = REACTIONARY;
+  }
+  if (spi_state == REACTIONARY) {
+    process_reaction(rx_frame);
 
-  // Phase 2: queue the full response for when the controller clocks it.
-  HAL_SPI_Transmit_IT(&MOMENTUM_HSPI, tx_buffer, tx_buf_len);
+    // Check if frame expects a response.
+    if (rx_frame.start_of_frame == MOMENTUM_START_OF_REQUEST_FRAME) {
+      spi_state = SEND_RESPONSE;
+    }
+  }
+  if (spi_state == SEND_RESPONSE) {
+    prep_momentum_response_tx(rx_frame); // Prep response.
+    HAL_SPI_Transmit_DMA(&MOMENTUM_HSPI, tx_buffer, tx_buf_len);
+  }
 }
 
 void HAL_SPI_TxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
-  if (hspi != &MOMENTUM_HSPI || spi_state != SEND_DATA)
+  if (hspi != &MOMENTUM_HSPI || spi_state != SEND_RESPONSE)
     return;
 
-  // Phase 2 (complete): await the next command from controller.
-  spi_state = WAIT_CMD;
-  HAL_SPI_Receive_IT(&MOMENTUM_HSPI, rx_buffer, 1);
+  spi_state = WAIT_HEADER;
+  rx_header();
 }
 
 /** Public functions. *********************************************************/
 
 void momentum_spi_start(void) {
-  spi_state = WAIT_CMD;
-  // Phase 1: Wait for command from controller.
-  HAL_SPI_Receive_IT(&MOMENTUM_HSPI, rx_buffer, 1);
+  spi_state = WAIT_HEADER;
+  rx_header();
 }
