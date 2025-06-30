@@ -193,7 +193,17 @@ void process_payload(uint8_t *rx_payload) {
   }
 }
 
-void process_reaction(momentum_frame_t request) {}
+void process_reaction(momentum_frame_t request) {
+  switch (request.frame_type) {
+  case MOMENTUM_FRAME_TYPE_LED:
+    ws2812b_set_colour(request.payload[0], request.payload[1],
+                       request.payload[2], request.payload[3]);
+    ws2812b_update();
+    break;
+  default:
+    break;
+  }
+}
 
 void rx_header(void) { HAL_SPI_Receive_DMA(&MOMENTUM_HSPI, rx_buffer, 4); }
 
