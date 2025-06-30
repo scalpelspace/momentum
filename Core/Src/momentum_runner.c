@@ -178,19 +178,19 @@ void process_header(void) {
   // TODO: Implement rolling sequence counter checking.
 }
 
-void process_payload(void) {
+void process_payload(uint8_t *rx_payload) {
+  memcpy(rx_frame.payload, rx_payload, rx_frame.length); // Copy in payload.
+  size_t crc_index = rx_frame.length;         // Determine CRC location.
+  uint8_t crc_lo = rx_payload[crc_index + 0]; // CRC low byte.
+  uint8_t crc_hi = rx_payload[crc_index + 1]; // CRC high byte.
+  rx_frame.crc = (uint16_t)crc_lo | ((uint16_t)crc_hi << 8); // Reconstruct CRC.
+
+  // Check CRC for bad frame.
   if (!verify_crc(&rx_frame)) {
     // CRC error.
     spi_state = WAIT_HEADER; // Reset to waiting for new header.
     return;
   }
-
-  memcpy(rx_frame.payload, rx_buffer + 4,
-         rx_frame.length);                   // Copy out the payload.
-  size_t crc_index = 4 + rx_frame.length;    // Determine CRC location.
-  uint8_t crc_lo = rx_buffer[crc_index + 0]; // CRC low byte.
-  uint8_t crc_hi = rx_buffer[crc_index + 1]; // CRC high byte.
-  rx_frame.crc = (uint16_t)crc_lo | ((uint16_t)crc_hi << 8); // Reconstruct CRC.
 }
 
 void process_reaction(momentum_frame_t request) {}
@@ -208,12 +208,12 @@ void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
     process_header();
     if (rx_frame.length) { // Additional payload data is expected to arrive.
       spi_state = WAIT_PAYLOAD;
-      HAL_SPI_Transmit_DMA(&MOMENTUM_HSPI, rx_buffer, rx_frame.length);
+      HAL_SPI_Receive_DMA(&MOMENTUM_HSPI, rx_buffer, rx_frame.length);
     } else { // Immediately handle reactionary logic.
       spi_state = REACTIONARY;
     }
   } else if (spi_state == WAIT_PAYLOAD) {
-    process_payload();
+    process_payload(rx_buffer);
     spi_state = REACTIONARY;
   }
   if (spi_state == REACTIONARY) {
