@@ -86,7 +86,7 @@ static void process_frame(uint8_t *frame, uint8_t length) {
     ws2812b_update();
     logger_hard_reset();
     send_packet(CMD_ACK, &command, 1);
-    ws2812b_set_colour(0, 4, 1, 1); // Wipe success colour.
+    ws2812b_set_colour(0, 2, 1, 3); // Wipe success colour.
     ws2812b_update();
     break;
 

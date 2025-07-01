@@ -36,7 +36,7 @@ void momentum_init(void) {
 
   // On-board miscellaneous components.
   ws2812b_init();
-  ws2812b_set_colour(0, 4, 1, 1); // Init colour.
+  ws2812b_set_colour(0, 2, 1, 3); // Init colour.
   ws2812b_update();
 
   // Momentum SPI interface.
