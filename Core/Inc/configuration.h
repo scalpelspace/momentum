@@ -17,4 +17,8 @@
 //#define MOMENTUM_W25QXX_EXPECTED_CAPACITY 0x18      // Example for W25Q128.
 //#define MOMENTUM_W25QXX_LOGGER_ADDR_START 0x000000U // Example for W25Q128.
 //#define MOMENTUM_W25QXX_LOGGER_ADDR_END 0x1FFFFFU   // Example for W25Q128.
+
+// Enables low level USART1 comm functions for USB serial interface operations.
+//#define MOMENTUM_COMM_ENABLE
+
 #endif

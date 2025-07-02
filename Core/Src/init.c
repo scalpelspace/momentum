@@ -72,8 +72,10 @@ void momentum_init(void) {
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(bmp390_get_data, 10);
 
+#ifdef MOMENTUM_COMM_ENABLE
   // NVM communication via USB-to-UART(1) start.
   comm_init();
+#endif
 
 #ifdef MOMENTUM_W25QXX_ENABLE
   // NVM logger.

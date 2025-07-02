@@ -13,7 +13,9 @@
 /** Public functions. *********************************************************/
 
 void momentum_run(void) {
+#ifdef MOMENTUM_COMM_ENABLE
   comm_process_rx_data(); // UART1 communications RX data process.
-  bno085_run();           // BNO085 process.
-  scheduler_run();        // Run the scheduler.
+#endif
+  bno085_run();    // BNO085 process.
+  scheduler_run(); // Run the scheduler.
 }
