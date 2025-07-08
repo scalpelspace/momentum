@@ -90,6 +90,9 @@ void prep_momentum_response_tx(momentum_frame_t request) {
                         gps_data.satellites,
                         gps_data.hdop};
 
+  version_t version = {MOMENTUM_VERSION_MAJOR, MOMENTUM_VERSION_MINOR,
+                       MOMENTUM_VERSION_PATCH, MOMENTUM_VERSION_IDENTIFIER};
+
   // Build the frame.
   momentum_frame_t frame;
   memset(&frame, 0, sizeof(frame));
@@ -100,6 +103,9 @@ void prep_momentum_response_tx(momentum_frame_t request) {
   // Pack payload based on requested frame type.
   uint8_t len = 0;
   switch (frame.frame_type) {
+  case MOMENTUM_FRAME_TYPE_VERSION:
+    len = build_version_payload(&frame, &version);
+    break;
   case MOMENTUM_FRAME_TYPE_IMU_QUAT:
     len = build_quaternion_payload(&frame, &data);
     break;
