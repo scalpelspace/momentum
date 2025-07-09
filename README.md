@@ -36,11 +36,16 @@ for [`momentum_pcb`](https://github.com/scalpelspace/momentum_pcb).
 |--------------------------|-------------------------|-----------------------------------|---------:|-------|
 | STM32L432KC              | STMicroelectronics      | 32-bit MCU                        |        1 |       |
 | CP2102N-A02-GQFN24R      | Silicon Labs            | USB 2.0 to UART Interface         |        1 |       |
-| BNO085                   | CEVA Technologies, Inc. | 9-DOF IMU                         |        1 |       |
+| BNO086                   | CEVA Technologies, Inc. | 9-DOF IMU                         |        1 |       |
 | BMP390                   | Bosch Sensortec         | Barometric Pressure Sensor        |        1 |       |
 | TJA1057BTK               | NXP USA Inc.            | CAN Bus Transceiver               |        1 |       |
 | SAM-M10Q                 | u-blox                  | RF Receiver Galileo, GLONASS, GPS |        1 |       |
 | WS2812B                  | (Various)               | PWM Addressable RGB LED           |        1 |       |
+
+> **Note:** Momentum was originally designed for the BNO085, however hardware
+> files were updated to reflect use of the newer BNO086. Firmware is cross
+> compatible for both the BNO085/6, however source files maintain the use of
+> the "BNO085" naming.
 
 ### 1.2 Block Diagram
 
@@ -65,15 +70,15 @@ for [`momentum_pcb`](https://github.com/scalpelspace/momentum_pcb).
 | PA14        | `SYS_JTCK-SWCLK`        |                                  | TC2050 SWD Pin 4: `SWCLK`        |                                                 |
 | PA13        | `SYS_JTMS-SWDIO`        |                                  | TC2050 SWD Pin 2: `SWDIO`        |                                                 |
 |             | `TIM2_CH1`              | PWM no output                    |                                  | BMP390 BMP3 driver timer.                       |
-|             | `TIM2_CH2`              | PWM no output                    |                                  | BNO085 SH2 driver timer.                        |
-| PA5         | `SPI1_SCK`              |                                  | BNO085 Pin 19: `H_SCL/SCK/RX`    |                                                 |
-| PA4         | `GPIO_Output` (SPI1 CS) | Set high                         | BNO085 Pin 18: `H_CSN`           |                                                 |
-| PA6         | `SPI1_MISO`             |                                  | BNO085 Pin 20: `H_SDA/H_MISO/TX` |                                                 |
-| PA7         | `SPI1_MOSI`             |                                  | BNO085 Pin 17: `SA0/H_MOSI`      |                                                 |
-| PB0         | `GPIO_EXTI0`            | Pull-up, falling edge            | BNO085 Pin 14: `H_INTN`          |                                                 |
-| PB1         | `GPIO_Output`           | Set high                         | BNO085 Pin 6: `PS0/Wake`         | Pull low to trigger wake.                       |
-|             |                         | Hardware pull-up                 | BNO085 Pin 5: `PS1`              |                                                 |
-| PA1         | `GPIO_Output`           | Set high                         | BNO085 Pin 11: `NRST`            | Pull low to reset.                              |
+|             | `TIM2_CH2`              | PWM no output                    |                                  | BNO086 SH2 driver timer.                        |
+| PA5         | `SPI1_SCK`              |                                  | BNO086 Pin 19: `H_SCL/SCK/RX`    |                                                 |
+| PA4         | `GPIO_Output` (SPI1 CS) | Set high                         | BNO086 Pin 18: `H_CSN`           |                                                 |
+| PA6         | `SPI1_MISO`             |                                  | BNO086 Pin 20: `H_SDA/H_MISO/TX` |                                                 |
+| PA7         | `SPI1_MOSI`             |                                  | BNO086 Pin 17: `SA0/H_MOSI`      |                                                 |
+| PB0         | `GPIO_EXTI0`            | Pull-up, falling edge            | BNO086 Pin 14: `H_INTN`          |                                                 |
+| PB1         | `GPIO_Output`           | Set high                         | BNO086 Pin 6: `PS0/Wake`         | Pull low to trigger wake.                       |
+|             |                         | Hardware pull-up                 | BNO086 Pin 5: `PS1`              |                                                 |
+| PA1         | `GPIO_Output`           | Set high                         | BNO086 Pin 11: `NRST`            | Pull low to reset.                              |
 | PB6         | `I2C1_SCL`              |                                  | BMP390 Pin 2: `SCK`              |                                                 |
 | PB7         | `I2C1_SDA`              |                                  | BMP390 Pin 4: `SDI`              |                                                 |
 | PA3         | `USART2_RX`             | 9600 bps (-> 115200 in software) | SAM-M10Q Pin 13: `TXD`           | Starts as 9600 bps to match the u-blox default. |
