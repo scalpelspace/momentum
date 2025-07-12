@@ -7,7 +7,14 @@
 /** Includes. *****************************************************************/
 
 #include "bmp390_runner.h"
+
+#include "configuration.h"
+#ifdef MOMENTUM_W25QXX_ENABLE
 #include "logger.h"
+#endif
+#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+#include "telemetry.h"
+#endif
 
 /** Public variables. *********************************************************/
 
@@ -150,6 +157,9 @@ void bmp390_get_data(void) {
 
 #ifdef MOMENTUM_W25QXX_ENABLE
         log_pressure_temp();
+#endif
+#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+        can_tx_barometric();
 #endif
 
         if (status.intr.fifo_full == BMP3_ENABLE) {

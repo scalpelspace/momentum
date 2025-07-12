@@ -7,12 +7,19 @@
 /** Includes. *****************************************************************/
 
 #include "ublox_hal_uart.h"
-#include "logger.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "configuration.h"
+#ifdef MOMENTUM_W25QXX_ENABLE
+#include "logger.h"
+#endif
+#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+#include "telemetry.h"
+#endif
 
 /** Definitions. **************************************************************/
 
@@ -354,6 +361,11 @@ static bool parse_gngga(const char *sentence) {
   log_gps_heading();
   log_gps_stats();
 #endif
+#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+  can_tx_gps1();
+  can_tx_gps2();
+  can_tx_gps3();
+#endif
 
   return true;
 }
@@ -484,6 +496,12 @@ static bool parse_gnrmc(const char *sentence) {
 
   // 13) Update position fix classification.
   gps_data.position_fix = classify_position_fix(&gps_data.position_flags);
+
+#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+  can_tx_gps1();
+  can_tx_gps2();
+  can_tx_gps3();
+#endif
 
   return true;
 }
