@@ -7,7 +7,7 @@
 /** Includes. *****************************************************************/
 
 #include "can.h"
-#include "can_messages.h"
+#include "can_dbc.h"
 #include "math.h"
 
 /** Private variables. ********************************************************/

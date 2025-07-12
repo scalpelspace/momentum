@@ -1,0 +1,121 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_:
+
+
+BO_ 257 state: 1 Vector__XXX
+ SG_ system_state : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 258 barometric: 8 Vector__XXX
+ SG_ pressure : 0|32@1+ (0.00566,30000) [30000|24339514.8897] "Pa" Vector__XXX
+ SG_ temperature : 32|16@1+ (0.0019074,-40) [-40|85.001459] "degC" Vector__XXX
+ SG_ barometric_state : 48|8@1+ (1,0) [0|255] "enum" Vector__XXX
+
+BO_ 259 gps1: 8 Vector__XXX
+ SG_ latitude : 0|32@1+ (4.1909516E-08,-90) [-90|90.0000005692792] "deg" Vector__XXX
+ SG_ longitude : 32|32@1+ (8.3819032E-08,-180) [-180|180.000001138558] "deg" Vector__XXX
+
+BO_ 260 gps2: 8 Vector__XXX
+ SG_ speed : 0|16@1+ (0.01,0) [0|655.35] "knots" Vector__XXX
+ SG_ course : 16|16@1+ (0.01,0) [0|655.35] "deg" Vector__XXX
+ SG_ position_fix : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ satellite_count : 40|8@1+ (1,0) [0|255] "count" Vector__XXX
+ SG_ hdop : 48|16@1+ (0.01,0) [0|655.35] "" Vector__XXX
+
+BO_ 261 gps3: 7 Vector__XXX
+ SG_ altitude : 0|32@1+ (0.01,-150) [-150|42949522.95] "m" Vector__XXX
+ SG_ geoid_separation : 32|16@1- (0.01,0) [-327.68|327.67] "m" Vector__XXX
+ SG_ gps_state : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 262 imu1: 8 Vector__XXX
+ SG_ quaternion_x : 0|16@1+ (3.05185E-05,-1) [-1|1.0000298975] "q15" Vector__XXX
+ SG_ quaternion_y : 16|16@1+ (3.05185E-05,-1) [-1|1.0000298975] "q15" Vector__XXX
+ SG_ quaternion_z : 32|16@1+ (3.05185E-05,-1) [-1|1.0000298975] "q15" Vector__XXX
+ SG_ quaternion_w : 48|16@1+ (3.05185E-05,-1) [-1|1.0000298975] "q15" Vector__XXX
+
+BO_ 263 imu2: 6 Vector__XXX
+ SG_ gyro_x : 0|16@1+ (0.0610359,-2000) [-2000|1999.9877065] "deg/s" Vector__XXX
+ SG_ gyro_y : 16|16@1+ (0.0610359,-2000) [-2000|1999.9877065] "deg/s" Vector__XXX
+ SG_ gyro_z : 32|16@1+ (0.0610359,-2000) [-2000|1999.9877065] "deg/s" Vector__XXX
+
+BO_ 264 imu3: 6 Vector__XXX
+ SG_ accel_x : 0|16@1+ (0.0047889,-156.9) [-156.9|156.9405615] "m/s^2" Vector__XXX
+ SG_ accel_y : 16|16@1+ (0.0047889,-156.9) [-156.9|156.9405615] "m/s^2" Vector__XXX
+ SG_ accel_z : 32|16@1+ (0.0047889,-156.9) [-156.9|156.9405615] "m/s^2" Vector__XXX
+
+BO_ 265 imu4: 6 Vector__XXX
+ SG_ lin_accel_x : 0|16@1+ (0.0047889,-156.9) [-156.9|156.9405615] "m/s^2" Vector__XXX
+ SG_ lin_accel_y : 16|16@1+ (0.0047889,-156.9) [-156.9|156.9405615] "m/s^2" Vector__XXX
+ SG_ lin_accel_z : 32|16@1+ (0.0047889,-156.9) [-156.9|156.9405615] "m/s^2" Vector__XXX
+
+BO_ 272 imu5: 6 Vector__XXX
+ SG_ gravity_x : 0|16@1+ (0.0002994,-9.81) [-9.81|9.811179] "m/s^2" Vector__XXX
+ SG_ gravity_y : 16|16@1+ (0.0002994,-9.81) [-9.81|9.811179] "m/s^2" Vector__XXX
+ SG_ gravity_z : 32|16@1+ (0.0002994,-9.81) [-9.81|9.811179] "m/s^2" Vector__XXX
+
+BO_ 513 command_a: 8 Vector__XXX
+ SG_ command_u16_0 : 0|16@1+ (1,0) [0|65535] "unit" Vector__XXX
+ SG_ command_u16_1 : 16|16@1+ (1,0) [0|65535] "unit" Vector__XXX
+ SG_ command_u16_2 : 32|16@1+ (1,0) [0|65535] "unit" Vector__XXX
+ SG_ command_u16_3 : 48|16@1+ (1,0) [0|65535] "unit" Vector__XXX
+
+BO_ 600 rtc: 8 Vector__XXX
+ SG_ rtc_state : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ rtc_year : 8|8@1+ (1,2000) [2000|2099] "" Vector__XXX
+ SG_ rtc_month : 16|8@1+ (1,0) [1|12] "" Vector__XXX
+ SG_ rtc_day : 24|8@1+ (1,0) [1|31] "" Vector__XXX
+ SG_ rtc_weekday : 32|8@1+ (1,0) [1|7] "" Vector__XXX
+ SG_ rtc_hour : 40|8@1+ (1,0) [0|23] "" Vector__XXX
+ SG_ rtc_minute : 48|8@1+ (1,0) [0|59] "" Vector__XXX
+ SG_ rtc_second : 56|8@1+ (1,0) [0|59] "" Vector__XXX
+
+
+
+CM_ BO_ 257 "State machine info";
+CM_ BO_ 258 "Barometric pressure data";
+CM_ BO_ 259 "Global positioning data 1";
+CM_ BO_ 260 "Global positioning data 2";
+CM_ BO_ 261 "Global positioning data 3";
+CM_ BO_ 262 "Inertial measurement unit data 1";
+CM_ BO_ 263 "Inertial measurement unit data 2";
+CM_ BO_ 264 "Inertial measurement unit data 3";
+CM_ BO_ 265 "Inertial measurement unit data 4";
+CM_ BO_ 272 "Inertial measurement unit data 5";
+BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
+BA_DEF_  "BusType" STRING ;
+BA_DEF_DEF_  "MultiplexExtEnabled" "No";
+BA_DEF_DEF_  "BusType" "CAN";
+

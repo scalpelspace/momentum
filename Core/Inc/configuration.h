@@ -21,4 +21,7 @@
 // Enables low level USART1 comm functions for USB serial interface operations.
 //#define MOMENTUM_COMM_ENABLE
 
+// Full telemetry flood on CAN bus intended for debug/development purposes.
+//#define FULL_CAN_TELEMETRY
+
 #endif
