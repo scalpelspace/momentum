@@ -37,8 +37,15 @@ void process_can_message(CAN_RxHeaderTypeDef *header, uint8_t *data) {
       if (dbc_messages[i].dlc == 0 || header->DLC == dbc_messages[i].dlc) {
 
         // Call the rx_handler if it exists.
+        // TODO: Use of function pointers as CAN Rx and Tx handlers need to be
+        //  fully evaluated.
+        //  TODO: Use of the reduced CAN header type `can_header_t` (made to
+        //   remove dependency on CAN_RxHeaderTypeDef (STM32 HAL) within
+        //   momentum_driver) needs to be further evaluated.
         if (dbc_messages[i].rx_handler) {
-          dbc_messages[i].rx_handler(header, data);
+          can_header_t reduced_header = {header->StdId, header->ExtId,
+                                         header->IDE, header->DLC, header->RTR};
+          dbc_messages[i].rx_handler(&reduced_header, data);
         }
 
       } else {
