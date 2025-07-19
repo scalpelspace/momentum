@@ -1,7 +1,6 @@
 # momentum
 
 ![arm_gcc_build](https://github.com/scalpelspace/momentum/actions/workflows/arm_gcc_build.yaml/badge.svg)
-![black_formatter](https://github.com/scalpelspace/momentum/actions/workflows/black_formatter.yaml/badge.svg)
 
 Microcontroller firmware
 for [`momentum_pcb`](https://github.com/scalpelspace/momentum_pcb).
