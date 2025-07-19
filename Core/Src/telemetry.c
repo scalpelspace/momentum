@@ -1,6 +1,6 @@
 /*******************************************************************************
- * @file telemetry.h
- * @brief General telemetry functions including CAN and XBee radio.
+ * @file telemetry.c
+ * @brief General CAN message transmission functions.
  *******************************************************************************
  */
 
