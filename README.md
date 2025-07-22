@@ -5,7 +5,8 @@
 Microcontroller firmware
 for [`momentum_pcb`](https://github.com/scalpelspace/momentum_pcb).
 
-- SPI sensor hub compatible with Uno-style microcontroller boards.
+- GPS, IMU and barometer sensor hub compatible with Uno-style microcontroller
+  boards via SPI and CAN bus.
 
 ---
 
