@@ -13,9 +13,8 @@
 
 /** Definitions. **************************************************************/
 
-#define MAX_FRAME_LEN 272 // 1 + 1 + 2 + 256 + 2.
-
-#define COMM_RX_BUFFER_SIZE 256
+#define COMM_TX_BUFFER_SIZE 128
+#define COMM_RX_BUFFER_SIZE 128
 
 /** Private variables. ********************************************************/
 
@@ -52,7 +51,7 @@ static bool crc16_check(const uint8_t *frame, uint16_t frame_len) {
 
 static void send_packet(uint8_t command, const uint8_t *payload,
                         const uint16_t len) {
-  uint8_t comm_tx_dma_buffer[MAX_FRAME_LEN];
+  uint8_t comm_tx_dma_buffer[COMM_TX_BUFFER_SIZE];
 
   uint16_t idx = 0;
   comm_tx_dma_buffer[idx++] = FRAME_START;
