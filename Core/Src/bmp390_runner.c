@@ -9,9 +9,6 @@
 #include "bmp390_runner.h"
 
 #include "configuration.h"
-#ifdef MOMENTUM_W25QXX_ENABLE
-#include "logger.h"
-#endif
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
 #include "telemetry.h"
 #endif
@@ -155,9 +152,6 @@ void bmp390_get_data(void) {
         bmp390_temperature = temperature_sum / (float)fifo.parsed_frames;
         bmp390_pressure = pressure_sum / (float)fifo.parsed_frames;
 
-#ifdef MOMENTUM_W25QXX_ENABLE
-        log_pressure_temp();
-#endif
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
         can_tx_barometric();
 #endif

@@ -37,13 +37,9 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
 }
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
-#ifndef MOMENTUM_W25QXX_ENABLE
   HAL_SPI_RxCpltCallback_momentum(hspi);
-#endif
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
-#ifndef MOMENTUM_W25QXX_ENABLE
   HAL_SPI_TxCpltCallback_momentum(hspi);
-#endif
 }

@@ -22,15 +22,6 @@ extern UART_HandleTypeDef huart1;
 
 #define FRAME_START 0x7E
 
-#define CMD_ACK 0x06
-#define CMD_NACK 0x07
-#define CMD_DATA 0x08
-
-// NVM control.
-#define CMD_NVM_READ 0x10
-#define CMD_NVM_WRITE 0x11
-#define CMD_NVM_RESET 0x20
-
 /** User implementations of STM32 NVIC HAL (overwriting HAL). *****************/
 
 void HAL_UART_RxCpltCallback_comm(UART_HandleTypeDef *huart);

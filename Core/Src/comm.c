@@ -7,16 +7,13 @@
 /** Definitions. **************************************************************/
 
 #include "comm.h"
-#include "logger.h"
-#include "w25qxx_hal_spi.h"
 #include "ws2812b_hal_pwm.h"
 #include <stdint.h>
 #include <string.h>
 
 /** Definitions. **************************************************************/
 
-#define COMM_READ_MAX_CHUNK_SIZE 256
-#define MAX_FRAME_LEN 272 // 1 + 1 + 2 + COMM_READ_MAX_CHUNK_SIZE + 2.
+#define MAX_FRAME_LEN 272 // 1 + 1 + 2 + 256 + 2.
 
 #define COMM_RX_BUFFER_SIZE 256
 
@@ -26,8 +23,6 @@ static uint8_t comm_rx_dma_buffer[COMM_RX_BUFFER_SIZE];
 
 static uint8_t comm_rx_dma_length;  // DMA new Rx data length.
 static uint8_t comm_rx_dma_old_pos; // DMA new Rx data buffer index.
-
-static uint8_t read_page_buf[COMM_READ_MAX_CHUNK_SIZE];
 
 /** Private functions. ********************************************************/
 
@@ -79,48 +74,14 @@ static void process_frame(uint8_t *frame, uint8_t length) {
   uint16_t payload_len = (frame[2] << 8) | frame[3];
   uint8_t *payload = &frame[4];
 
-  switch (command) {
-
-  case CMD_NVM_RESET:
-    ws2812b_set_colour(0, 3, 1, 0); // Wipe process colour.
-    ws2812b_update();
-    logger_hard_reset();
-    send_packet(CMD_ACK, &command, 1);
-    ws2812b_set_colour(0, 2, 1, 3); // Wipe success colour.
-    ws2812b_update();
-    break;
-
-  case CMD_NVM_WRITE:
-    // payload = [ADDR_H][ADDR_M][ADDR_L][DATA...].
-    uint32_t write_addr = (payload[0] << 16) | (payload[1] << 8) | payload[2];
-    uint8_t *data = &payload[3];
-    uint16_t write_len = payload_len - 3;
-    if (w25q_page_program(data, write_addr, write_len) == HAL_OK) {
-      send_packet(CMD_ACK, &command, 1);
-    } else {
-      send_packet(CMD_NACK, &command, 1);
-    }
-    break;
-
-  case CMD_NVM_READ:
-    // payload = [ADDR_H][ADDR_M][ADDR_L][LEN_H][LEN_L].
-    uint32_t read_addr = (payload[0] << 16) | (payload[1] << 8) | payload[2];
-    uint16_t read_len = (payload[3] << 8) | payload[4];
-    if (read_len > COMM_READ_MAX_CHUNK_SIZE) { // Limit to max read chunk size.
-      send_packet(CMD_NACK, &command, 1);
-      break;
-    }
-    if (w25q_read_data(read_page_buf, read_addr, read_len) == HAL_OK) {
-      send_packet(CMD_DATA, read_page_buf, read_len);
-    } else {
-      send_packet(CMD_NACK, &command, 1);
-    }
-    break;
-
-  default: // Unknown command.
-    send_packet(CMD_NACK, &command, 1);
-    break;
-  }
+  //  switch (command) {
+  //  case EXAMPLE_COMMAND_BYTE_MACRO:
+  //    send_packet(EXAMPLE_CMD_ACK_MACRO, &command, 1);
+  //    break;
+  //  default: // Unknown command.
+  //    send_packet(CMD_NACK, &command, 1);
+  //    break;
+  //  }
 }
 
 /** User implementations of STM32 UART HAL (overwriting HAL). *****************/

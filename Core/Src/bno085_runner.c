@@ -12,9 +12,6 @@
 #include "bno085_runner.h"
 
 #include "configuration.h"
-#ifdef MOMENTUM_W25QXX_ENABLE
-#include "logger.h"
-#endif
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
 #include "telemetry.h"
 #endif
@@ -163,9 +160,6 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
     bno085_quaternion_accuracy_deg =
         value.un.rotationVector.accuracy * (float)RAD_TO_DEG;
 
-#ifdef MOMENTUM_W25QXX_ENABLE
-    log_quaternion();
-#endif
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu1();
 #endif
@@ -176,9 +170,6 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
     bno085_gyro_y = value.un.gyroscope.y;
     bno085_gyro_z = value.un.gyroscope.z;
 
-#ifdef MOMENTUM_W25QXX_ENABLE
-    log_gyro();
-#endif
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu2();
 #endif
@@ -189,9 +180,6 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
     bno085_accel_y = value.un.accelerometer.y;
     bno085_accel_z = value.un.accelerometer.z;
 
-#ifdef MOMENTUM_W25QXX_ENABLE
-    log_accel();
-#endif
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu3();
 #endif
@@ -202,9 +190,6 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
     bno085_lin_accel_y = value.un.linearAcceleration.y;
     bno085_lin_accel_z = value.un.linearAcceleration.z;
 
-#ifdef MOMENTUM_W25QXX_ENABLE
-    log_lin_accel();
-#endif
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu4();
 #endif
@@ -215,9 +200,6 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
     bno085_gravity_y = value.un.gravity.y;
     bno085_gravity_z = value.un.gravity.z;
 
-#ifdef MOMENTUM_W25QXX_ENABLE
-    log_gravity();
-#endif
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu5();
 #endif
