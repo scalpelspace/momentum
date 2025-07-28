@@ -22,7 +22,19 @@
 
 #define RAD_TO_DEG (180.0 / 3.14159265358)
 
+/** Public types. *************************************************************/
+
+/**
+ * @brief Struct containing SH-2 sensor ID and sh2_SensorConfig_t.
+ */
+typedef struct {
+  int sensorId;
+  sh2_SensorConfig_t config;
+} sensor_config_t;
+
 /** Public variables. *********************************************************/
+
+extern sensor_config_t sensor_config[SH2_MAX_SENSOR_ID];
 
 extern float bno085_quaternion_i;
 extern float bno085_quaternion_j;

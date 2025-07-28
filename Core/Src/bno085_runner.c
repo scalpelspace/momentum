@@ -18,6 +18,28 @@
 
 /** Public variables. *********************************************************/
 
+sensor_config_t sensor_config[SH2_MAX_SENSOR_ID] = {
+    // Calibrated accelerometer data on X, Y and Z axes.
+    // 200 Hz.
+    {SH2_ACCELEROMETER, {.reportInterval_us = 5000}},
+
+    // Calibrated gyroscope data.
+    // 200 Hz.
+    {SH2_GYROSCOPE_CALIBRATED, {.reportInterval_us = 5000}},
+
+    // Linear acceleration minus/isolated from the gravitational component.
+    // 200 Hz.
+    {SH2_LINEAR_ACCELERATION, {.reportInterval_us = 5000}},
+
+    // Fused orientation quaternion.
+    // 200 Hz.
+    {SH2_ROTATION_VECTOR, {.reportInterval_us = 5000}},
+
+    // Gravity vector for orientation.
+    // 50 Hz.
+    {SH2_GRAVITY, {.reportInterval_us = 20000}},
+};
+
 float bno085_quaternion_i = 0;
 float bno085_quaternion_j = 0;
 float bno085_quaternion_k = 0;
@@ -78,34 +100,6 @@ void sh2_error_handler(const int status) {
  * `1000-3625 - SH-2 Reference Manual v1.4` for all possible metadata records.
  */
 static void start_reports() {
-  // Each entry of sensor_config[] is one sensor to be configured.
-  static const struct {
-    int sensorId;
-    sh2_SensorConfig_t config;
-  }
-
-  sensor_config[] = {
-      // Fused orientation quaternion.
-      // 200 Hz.
-      {SH2_ROTATION_VECTOR, {.reportInterval_us = 5000}},
-
-      // Calibrated gyroscope data.
-      // 200 Hz.
-      {SH2_GYROSCOPE_CALIBRATED, {.reportInterval_us = 5000}},
-
-      // Calibrated accelerometer data on X, Y and Z axes.
-      // 200 Hz.
-      {SH2_ACCELEROMETER, {.reportInterval_us = 5000}},
-
-      // Linear acceleration minus/isolated from the gravitational component.
-      // 200 Hz.
-      {SH2_LINEAR_ACCELERATION, {.reportInterval_us = 5000}},
-
-      // Gravity vector for orientation.
-      // 50 Hz.
-      {SH2_GRAVITY, {.reportInterval_us = 20000}},
-  };
-
   for (int n = 0; n < ARRAY_LEN(sensor_config); n++) {
     const int status = sh2_setSensorConfig(sensor_config[n].sensorId,
                                            &sensor_config[n].config);
