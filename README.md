@@ -66,7 +66,7 @@ for [`momentum_pcb`](https://github.com/scalpelspace/momentum_pcb).
 <details markdown="1">
   <summary>Pin & Peripherals Table</summary>
 
-| STM32F446RE | Peripheral              | Config                           | Connection                       | Notes                                           |
+| STM32L432KC | Peripheral              | Config                           | Connection                       | Notes                                           |
 |-------------|-------------------------|----------------------------------|----------------------------------|-------------------------------------------------|
 | PA14        | `SYS_JTCK-SWCLK`        |                                  | TC2050 SWD Pin 4: `SWCLK`        |                                                 |
 | PA13        | `SYS_JTMS-SWDIO`        |                                  | TC2050 SWD Pin 2: `SWDIO`        |                                                 |
