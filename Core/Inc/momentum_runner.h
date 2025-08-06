@@ -16,7 +16,7 @@
 
 // Software version: `MAJOR.MINOR.PATCH-IDENTIFIER`.
 #define MOMENTUM_VERSION_MAJOR 0        // uint8_t number.
-#define MOMENTUM_VERSION_MINOR 1        // uint8_t number.
+#define MOMENTUM_VERSION_MINOR 3        // uint8_t number.
 #define MOMENTUM_VERSION_PATCH 0        // uint8_t number.
 #define MOMENTUM_VERSION_IDENTIFIER 'a' // ASCII character.
 
