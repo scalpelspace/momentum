@@ -2,10 +2,9 @@
 
 ![arm_gcc_build](https://github.com/scalpelspace/momentum/actions/workflows/arm_gcc_build.yaml/badge.svg)
 
-Microcontroller firmware
-for [`momentum_pcb`](https://github.com/scalpelspace/momentum_pcb).
+STM32L432KC microcontroller firmware for `momentum_pcb`.
 
-- GPS, IMU and barometer sensor hub compatible with Uno-style microcontroller
+- GNSS, IMU and barometer sensor hub compatible with Uno-style microcontroller
   boards via SPI and CAN bus.
 
 ---
