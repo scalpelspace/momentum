@@ -23,6 +23,7 @@ for [`momentum_pcb`](https://github.com/scalpelspace/momentum_pcb).
   * [2 USB Interface via CP2102N (USB-to-UART)](#2-usb-interface-via-cp2102n-usb-to-uart)
     * [2.1 Data Line Activity LEDs](#21-data-line-activity-leds)
   * [3 Serial Peripheral Interface (SPI)](#3-serial-peripheral-interface-spi)
+  * [4 Third-Party Licenses](#4-third-party-licenses)
 <!-- TOC -->
 
 </details>
@@ -143,3 +144,30 @@ SPI configurations:
 
 Low level SPI communication drivers can be found
 here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
+
+---
+
+## 4 Third-Party Licenses
+
+This project uses the following open-source software components:
+
+- **Bosch [BMP3_SensorAPI](https://github.com/boschsensortec/BMP3_SensorAPI)**,
+  Bosch Sensortec and contributors.
+    - Licensed under the `3-Clause BSD License`.
+        - See [
+          `LICENSE`](https://github.com/boschsensortec/BMP3_SensorAPI/blob/master/LICENSE).
+
+- **CEVA [sh2](https://github.com/ceva-dsp/sh2)**, CEVA Inc.
+    - Licensed under the `Apache License, Version 2.0`.
+        - See [
+          `NOTICE.txt`](https://github.com/ceva-dsp/sh2/blob/main/NOTICE.txt)
+          and code headers, for example in: [
+          `sh2.h`](https://github.com/ceva-dsp/sh2/blob/main/sh2.h).
+
+- **STM32Cube HAL**, STMicroelectronics.
+    - Licensed under the `3-Clause BSD License`.
+        - See [`LICENSE.txt`](Drivers/STM32L4xx_HAL_Driver/LICENSE.txt).
+
+> Bosch, CEVA, and STMicroelectronics are trademarks of their respective
+> owners. Use of these names does **not** imply any endorsement by the trademark
+> holders.
