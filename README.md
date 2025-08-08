@@ -91,7 +91,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 | PA12        | `CAN1_TX`               |                                  | TJA1057BTK Pin 4: `RXD`          |                                                 |
 | PA8         | `TIM1_CH1`              | PWM Generation CH1               | WS2812B Pin: `DIN`               | DIN pin number depends on IC variant.           |
 | PB3         | `SPI3_SCK`              |                                  | SPI interface: `SCK`             |                                                 |
-| PBA15       | `SPI3_NSS`              | Pull-up, set high                | SPI interface: `SS`              |                                                 |
+| PA15        | `SPI3_NSS`              | Pull-up, set high                | SPI interface: `SS`              |                                                 |
 | PB4         | `SPI3_MISO`             |                                  | SPI interface: `MISO`            |                                                 |
 | PB5         | `SPI3_MOSI`             |                                  | SPI interface: `MOSI`            |                                                 |
 
