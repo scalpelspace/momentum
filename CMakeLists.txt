@@ -58,6 +58,7 @@ endif ()
 include_directories(
         Core/Inc Drivers/STM32L4xx_HAL_Driver/Inc Drivers/STM32L4xx_HAL_Driver/Inc/Legacy Drivers/CMSIS/Device/ST/STM32L4xx/Include Drivers/CMSIS/Include
         "Core/BMP3_SensorAPI"
+        "Core/BMP5_SensorAPI"
         "Core/momentum_driver"
         "Core/sh2"
 )
