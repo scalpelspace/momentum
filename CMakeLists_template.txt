@@ -69,6 +69,7 @@ add_definitions(${defines})
 file(GLOB_RECURSE CORE_SOURCES ${sources})
 list(FILTER CORE_SOURCES EXCLUDE REGEX "Core/BMP3_SensorAPI/examples/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "Core/BMP3_SensorAPI/self-test/.*")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "Core/BMP5_SensorAPI/examples/.*")
 set(SOURCES ${CORE_SOURCES})
 
 # Linker settings.

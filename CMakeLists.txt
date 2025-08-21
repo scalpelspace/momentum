@@ -70,6 +70,7 @@ add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32L432xx)
 file(GLOB_RECURSE CORE_SOURCES "Core/*.*" "Drivers/*.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "Core/BMP3_SensorAPI/examples/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "Core/BMP3_SensorAPI/self-test/.*")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "Core/BMP5_SensorAPI/examples/.*")
 set(SOURCES ${CORE_SOURCES})
 
 # Linker settings.
