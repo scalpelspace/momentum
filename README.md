@@ -38,7 +38,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 | STM32L432KC              | STMicroelectronics      | 32-bit MCU                        |        1 |       |
 | CP2102N-A02-GQFN24R      | Silicon Labs            | USB 2.0 to UART Interface         |        1 |       |
 | BNO086                   | CEVA Technologies, Inc. | 9-DOF IMU                         |        1 |       |
-| BMP390                   | Bosch Sensortec         | Barometric Pressure Sensor        |        1 |       |
+| BMP390/BMP581            | Bosch Sensortec         | Barometric Pressure Sensor        |        1 |       |
 | TJA1057BTK               | NXP USA Inc.            | CAN Bus Transceiver               |        1 |       |
 | SAM-M10Q                 | u-blox                  | RF Receiver Galileo, GLONASS, GPS |        1 |       |
 | WS2812B                  | (Various)               | PWM Addressable RGB LED           |        1 |       |
@@ -80,8 +80,8 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 | PB1         | `GPIO_Output`           | Set high                         | BNO086 Pin 6: `PS0/Wake`         | Pull low to trigger wake.                       |
 |             |                         | Hardware pull-up                 | BNO086 Pin 5: `PS1`              |                                                 |
 | PA1         | `GPIO_Output`           | Set high                         | BNO086 Pin 11: `NRST`            | Pull low to reset.                              |
-| PB6         | `I2C1_SCL`              |                                  | BMP390 Pin 2: `SCK`              |                                                 |
-| PB7         | `I2C1_SDA`              |                                  | BMP390 Pin 4: `SDI`              |                                                 |
+| PB6         | `I2C1_SCL`              |                                  | BMP390/BMP581 Pin 2: `SCK`       |                                                 |
+| PB7         | `I2C1_SDA`              |                                  | BMP390/BMP581 Pin 4: `SDI`       |                                                 |
 | PA3         | `USART2_RX`             | 9600 bps (-> 115200 in software) | SAM-M10Q Pin 13: `TXD`           | Starts as 9600 bps to match the u-blox default. |
 | PA2         | `USART2_TX`             | 9600 bps (-> 115200 in software) | SAM-M10Q Pin 14: `RXD`           | Starts as 9600 bps to match the u-blox default. |
 | PC15        | `GPIO_Output`           |                                  | SAM-M10Q Pin 18: `RESET_N`       | Pull low to reset (>= 1 ms).                    |
@@ -155,6 +155,12 @@ This project uses the following open-source software components:
     - Licensed under the `3-Clause BSD License`.
         - See [
           `LICENSE`](https://github.com/boschsensortec/BMP3_SensorAPI/blob/master/LICENSE).
+
+- **Bosch [BMP5_SensorAPI](https://github.com/boschsensortec/BMP5_SensorAPI)**,
+  Bosch Sensortec and contributors.
+    - Licensed under the `3-Clause BSD License`.
+        - See [
+          `LICENSE`](https://github.com/boschsensortec/BMP5_SensorAPI/blob/master/LICENSE).
 
 - **CEVA [sh2](https://github.com/ceva-dsp/sh2)**, CEVA Inc.
     - Licensed under the `Apache License, Version 2.0`.
