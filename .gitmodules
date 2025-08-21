@@ -7,3 +7,6 @@
 [submodule "Core/momentum_driver"]
 	path = Core/momentum_driver
 	url = https://github.com/scalpelspace/momentum_driver
+[submodule "Core/BMP5_SensorAPI"]
+	path = Core/BMP5_SensorAPI
+	url = https://github.com/boschsensortec/BMP5_SensorAPI
