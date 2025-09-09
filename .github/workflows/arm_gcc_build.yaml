@@ -9,16 +9,20 @@ name: ARM GCC CMake build
 on:
   push:
     paths:
-      - "**/*.h"
-      - "**/*.c"
-      - ".github/workflows/arm_gcc_build.yaml"
+      - "**/*.{c,h,s,S}"                       # Source & startup.
+      - "**/*.ld"                              # Linker scripts.
+      - "**/CMakeLists.txt"                    # Any subdirectory CMake.
+      - "cmake/**"                             # Toolchain/cmake modules.
+      - ".github/workflows/arm_gcc_build.yaml" # Workflow file.
     branches:
       - main
   pull_request:
     paths:
-      - "**/*.h"
-      - "**/*.c"
-      - ".github/workflows/arm_gcc_build.yaml"
+      - "**/*.{c,h,s,S}"                       # Source & startup.
+      - "**/*.ld"                              # Linker scripts.
+      - "**/CMakeLists.txt"                    # Any subdirectory CMake.
+      - "cmake/**"                             # Toolchain/cmake modules.
+      - ".github/workflows/arm_gcc_build.yaml" # Workflow file.
     branches:
       - main
 
