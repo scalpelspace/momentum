@@ -1,90 +1,104 @@
-#THIS FILE IS AUTO GENERATED FROM THE TEMPLATE! DO NOT CHANGE!
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_VERSION 1)
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.22)
 
-# Specify cross-compilers and tools.
-set(CMAKE_C_COMPILER arm-none-eabi-gcc)
-set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
-set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
-set(CMAKE_AR arm-none-eabi-ar)
-set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
-set(CMAKE_OBJDUMP arm-none-eabi-objdump)
-set(SIZE arm-none-eabi-size)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+#
+# This file is generated only once,
+# and is not re-generated if converter is called multiple times.
+#
+# User is free to modify the file as much as necessary
+#
 
-# Project settings.
-project(momentum C CXX ASM)
-set(CMAKE_CXX_STANDARD 17)
+# Setup compiler settings
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
 
-#Uncomment for hardware floating point.
-## Hardware floating point.
-#add_compile_definitions(ARM_MATH_CM4;ARM_MATH_MATRIX_CHECK;ARM_MATH_ROUNDING)
-#add_compile_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
-#add_link_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
 
-#Uncomment for software floating point.
-## Software floating point.
-#add_compile_options(-mfloat-abi=soft)
-
-# Compiler options.
-add_compile_options(-mcpu=cortex-m4 -mthumb -mthumb-interwork)
-add_compile_options(-ffunction-sections -fdata-sections -fno-common -fmessage-length=0)
-
-# Uncomment to mitigate c++17 absolute addresses warnings.
-## Mitigate c++17 absolute addresses warnings.
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register")
-
-# Enable assembler files preprocessing.
-add_compile_options($<$<COMPILE_LANGUAGE:ASM>:-x$<SEMICOLON>assembler-with-cpp>)
-
-# Optimizations.
-if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-    message(STATUS "Maximum optimization for speed")
-    add_compile_options(-Ofast)
-elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
-    message(STATUS "Maximum optimization for speed, debug info included")
-    add_compile_options(-Ofast -g)
-elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
-    message(STATUS "Maximum optimization for size")
-    add_compile_options(-Os)
-else ()
-    message(STATUS "Minimal optimization, debug info included")
-    add_compile_options(-Og -g)
+# Define the build type
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 
-# Include directories.
-include_directories(
-        Core/Inc Drivers/STM32L4xx_HAL_Driver/Inc Drivers/STM32L4xx_HAL_Driver/Inc/Legacy Drivers/CMSIS/Device/ST/STM32L4xx/Include Drivers/CMSIS/Include
+# Set the project name
+set(CMAKE_PROJECT_NAME momentum)
+
+# Include toolchain file
+include("cmake/gcc-arm-none-eabi.cmake")
+
+# Enable compile command to ease indexing with e.g. clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+
+# Core project settings
+project(${CMAKE_PROJECT_NAME})
+message("Build type: " ${CMAKE_BUILD_TYPE})
+
+# Enable CMake support for ASM and C languages
+enable_language(C ASM)
+
+# Create an executable object type
+add_executable(${CMAKE_PROJECT_NAME})
+
+# Create additional executable object types (hex/bin)
+find_program(CMAKE_OBJCOPY arm-none-eabi-objcopy)
+add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${CMAKE_PROJECT_NAME}> ${CMAKE_PROJECT_NAME}.hex
+        COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${CMAKE_PROJECT_NAME}> ${CMAKE_PROJECT_NAME}.bin
+)
+
+# Add STM32CubeMX generated sources
+add_subdirectory(cmake/stm32cubemx)
+
+# Link directories setup
+target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
+        # Add user defined library search paths
+)
+
+# Add sources to executable
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+        # Add user sources here
+        "Core/BMP3_SensorAPI/bmp3.c"
+        "Core/BMP5_SensorAPI/bmp5.c"
+        "Core/momentum_driver/momentum_can_dbc.c"
+        "Core/momentum_driver/momentum_can_driver.c"
+        "Core/momentum_driver/momentum_spi_driver.c"
+        "Core/sh2/euler.c"
+        "Core/sh2/sh2.c"
+        "Core/sh2/sh2_SensorValue.c"
+        "Core/sh2/sh2_util.c"
+        "Core/sh2/shtp.c"
+        "Core/Src/bmp3_hal_i2c.c"
+        "Core/Src/bmp390_runner.c"
+        "Core/Src/bno085_runner.c"
+        "Core/Src/callbacks.c"
+        "Core/Src/can.c"
+        "Core/Src/comm.c"
+        "Core/Src/init.c"
+        "Core/Src/momentum_runner.c"
+        "Core/Src/rtc.c"
+        "Core/Src/run.c"
+        "Core/Src/scheduler.c"
+        "Core/Src/sh2_hal_spi.c"
+        "Core/Src/telemetry.c"
+        "Core/Src/ublox_hal_uart.c"
+        "Core/Src/ws2812b_hal_pwm.c"
+)
+
+# Add include paths
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+        # Add user defined include paths
         "Core/BMP3_SensorAPI"
+        "Core/BMP5_SensorAPI"
         "Core/momentum_driver"
         "Core/sh2"
 )
 
-# Define macros.
-add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32L432xx)
+# Add project symbols (macros)
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+        # Add user defined symbols
+)
 
-# Source files.
-file(GLOB_RECURSE CORE_SOURCES "Core/*.*" "Drivers/*.*")
-list(FILTER CORE_SOURCES EXCLUDE REGEX "Core/BMP3_SensorAPI/examples/.*")
-list(FILTER CORE_SOURCES EXCLUDE REGEX "Core/BMP3_SensorAPI/self-test/.*")
-set(SOURCES ${CORE_SOURCES})
+# Add linked libraries
+target_link_libraries(${CMAKE_PROJECT_NAME}
+        stm32cubemx
 
-# Linker settings.
-set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32L432KCUX_FLASH.ld)
-add_link_options(-Wl,-gc-sections,--print-memory-usage,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map)
-add_link_options(-mcpu=cortex-m4 -mthumb -mthumb-interwork)
-add_link_options(-T ${LINKER_SCRIPT})
-
-# Build the executable.
-add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
-
-# Output files.
-set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
-set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
-
-add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
-        COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
-        COMMENT "Building ${HEX_FILE} Building ${BIN_FILE}")
+        # Add user defined libraries
+)
