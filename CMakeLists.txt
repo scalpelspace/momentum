@@ -55,38 +55,38 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         # Add user sources here
-        "Core/BMP3_SensorAPI/bmp3.c"
-        "Core/momentum_driver/momentum_can_dbc.c"
-        "Core/momentum_driver/momentum_can_driver.c"
-        "Core/momentum_driver/momentum_spi_driver.c"
-        "Core/sh2/euler.c"
-        "Core/sh2/sh2.c"
-        "Core/sh2/sh2_SensorValue.c"
-        "Core/sh2/sh2_util.c"
-        "Core/sh2/shtp.c"
-        "Core/Src/bmp3_hal_i2c.c"
-        "Core/Src/bmp390_runner.c"
-        "Core/Src/bno085_runner.c"
-        "Core/Src/callbacks.c"
-        "Core/Src/can.c"
-        "Core/Src/comm.c"
-        "Core/Src/init.c"
-        "Core/Src/momentum_runner.c"
-        "Core/Src/rtc.c"
-        "Core/Src/run.c"
-        "Core/Src/scheduler.c"
-        "Core/Src/sh2_hal_spi.c"
-        "Core/Src/telemetry.c"
-        "Core/Src/ublox_hal_uart.c"
-        "Core/Src/ws2812b_hal_pwm.c"
+        Core/BMP3_SensorAPI/bmp3.c
+        Core/momentum_driver/momentum_can_dbc.c
+        Core/momentum_driver/momentum_can_driver.c
+        Core/momentum_driver/momentum_spi_driver.c
+        Core/sh2/euler.c
+        Core/sh2/sh2.c
+        Core/sh2/sh2_SensorValue.c
+        Core/sh2/sh2_util.c
+        Core/sh2/shtp.c
+        Core/Src/bmp3_hal_i2c.c
+        Core/Src/bmp390_runner.c
+        Core/Src/bno085_runner.c
+        Core/Src/callbacks.c
+        Core/Src/can.c
+        Core/Src/comm.c
+        Core/Src/init.c
+        Core/Src/momentum_runner.c
+        Core/Src/rtc.c
+        Core/Src/run.c
+        Core/Src/scheduler.c
+        Core/Src/sh2_hal_spi.c
+        Core/Src/telemetry.c
+        Core/Src/ublox_hal_uart.c
+        Core/Src/ws2812b_hal_pwm.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         # Add user defined include paths
-        "Core/BMP3_SensorAPI"
-        "Core/momentum_driver"
-        "Core/sh2"
+        Core/BMP3_SensorAPI
+        Core/momentum_driver
+        Core/sh2
 )
 
 # Add project symbols (macros)
