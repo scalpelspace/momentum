@@ -28,7 +28,7 @@ void can_tx_barometric(void) {
                                          (float)0}; // TODO: Hardcoded state.
   for (int i = 0; i < pressure_msg.signal_count; ++i) {
     pressure_sigs[i] =
-        float_to_raw(pressure_source_sigs[i], &pressure_msg.signals[i]);
+        physical_to_raw(pressure_source_sigs[i], &pressure_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &pressure_msg, pressure_sigs);
 }
@@ -38,7 +38,7 @@ void can_tx_gps1(void) {
   uint32_t gps1_sigs[2] = {0};
   const float gps1_source_sigs[2] = {gps_data.latitude, gps_data.longitude};
   for (int i = 0; i < gps1_msg.signal_count; ++i) {
-    gps1_sigs[i] = float_to_raw(gps1_source_sigs[i], &gps1_msg.signals[i]);
+    gps1_sigs[i] = physical_to_raw(gps1_source_sigs[i], &gps1_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &gps1_msg, gps1_sigs);
 }
@@ -50,7 +50,7 @@ void can_tx_gps2(void) {
                                      gps_data.position_fix, gps_data.satellites,
                                      gps_data.hdop};
   for (int i = 0; i < gps2_msg.signal_count; ++i) {
-    gps2_sigs[i] = float_to_raw(gps2_source_sigs[i], &gps2_msg.signals[i]);
+    gps2_sigs[i] = physical_to_raw(gps2_source_sigs[i], &gps2_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &gps2_msg, gps2_sigs);
 }
@@ -61,7 +61,7 @@ void can_tx_gps3(void) {
   const float gps3_source_sigs[3] = {gps_data.altitude_m, gps_data.geoid_sep_m,
                                      (float)0}; // TODO: Hardcoded state.
   for (int i = 0; i < gps3_msg.signal_count; ++i) {
-    gps3_sigs[i] = float_to_raw(gps3_source_sigs[i], &gps3_msg.signals[i]);
+    gps3_sigs[i] = physical_to_raw(gps3_source_sigs[i], &gps3_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &gps3_msg, gps3_sigs);
 }
@@ -73,7 +73,7 @@ void can_tx_imu1(void) {
                                      bno085_quaternion_k,
                                      bno085_quaternion_real};
   for (int i = 0; i < imu1_msg.signal_count; ++i) {
-    imu1_sigs[i] = float_to_raw(imu1_source_sigs[i], &imu1_msg.signals[i]);
+    imu1_sigs[i] = physical_to_raw(imu1_source_sigs[i], &imu1_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &imu1_msg, imu1_sigs);
 }
@@ -84,7 +84,7 @@ void can_tx_imu2(void) {
   const float imu2_source_sigs[3] = {bno085_gyro_x, bno085_gyro_y,
                                      bno085_gyro_z};
   for (int i = 0; i < imu2_msg.signal_count; ++i) {
-    imu2_sigs[i] = float_to_raw(imu2_source_sigs[i], &imu2_msg.signals[i]);
+    imu2_sigs[i] = physical_to_raw(imu2_source_sigs[i], &imu2_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &imu2_msg, imu2_sigs);
 }
@@ -95,7 +95,7 @@ void can_tx_imu3(void) {
   const float imu3_source_sigs[3] = {bno085_accel_x, bno085_accel_y,
                                      bno085_accel_z};
   for (int i = 0; i < imu3_msg.signal_count; ++i) {
-    imu3_sigs[i] = float_to_raw(imu3_source_sigs[i], &imu3_msg.signals[i]);
+    imu3_sigs[i] = physical_to_raw(imu3_source_sigs[i], &imu3_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &imu3_msg, imu3_sigs);
 }
@@ -106,7 +106,7 @@ void can_tx_imu4(void) {
   const float imu4_source_sigs[3] = {bno085_lin_accel_x, bno085_lin_accel_y,
                                      bno085_lin_accel_z};
   for (int i = 0; i < imu4_msg.signal_count; ++i) {
-    imu4_sigs[i] = float_to_raw(imu4_source_sigs[i], &imu4_msg.signals[i]);
+    imu4_sigs[i] = physical_to_raw(imu4_source_sigs[i], &imu4_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &imu4_msg, imu4_sigs);
 }
@@ -117,7 +117,7 @@ void can_tx_imu5(void) {
   const float imu5_source_sigs[3] = {bno085_gravity_x, bno085_gravity_y,
                                      bno085_gravity_z};
   for (int i = 0; i < imu5_msg.signal_count; ++i) {
-    imu5_sigs[i] = float_to_raw(imu5_source_sigs[i], &imu5_msg.signals[i]);
+    imu5_sigs[i] = physical_to_raw(imu5_source_sigs[i], &imu5_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &imu5_msg, imu5_sigs);
 }
