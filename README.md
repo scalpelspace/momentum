@@ -46,8 +46,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
       * [6.2.1 Bit Time Calculation](#621-bit-time-calculation)
       * [6.2.2 Nested Vectored Interrupt Controller (NVIC)](#622-nested-vectored-interrupt-controller-nvic)
     * [6.3 CAN High-Level Driver](#63-can-high-level-driver)
-    * [6.4 CAN Database Container (DBC)](#64-can-database-container-dbc)
-      * [6.4.1 CAN DBC](#641-can-dbc)
+    * [6.4 CAN DBC and Low-Level Driver](#64-can-dbc-and-low-level-driver)
   * [7 SAM-M10Q RF Receiver Galileo, GLONASS, GPS](#7-sam-m10q-rf-receiver-galileo-glonass-gps)
     * [7.1 Background](#71-background)
     * [7.2 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#72-universal-synchronousasynchronous-receivertransmitter-usart)
@@ -448,19 +447,10 @@ messages.
 1. [can.h](Core/Inc/can.h).
 2. [can.c](Core/Src/can.c).
 
-### 6.4 CAN Database Container (DBC)
+### 6.4 CAN DBC and Low-Level Driver
 
-- [can_nerve.dbc](Core/momentum_driver/can_momentum.dbc).
-- [generate_can_defs.py](Core/momentum_driver/generate_can_defs.py).
-
-> Quick web based CAN DB editor:
-> [https://www.csselectronics.com/pages/dbc-editor-can-bus-database](https://www.csselectronics.com/pages/dbc-editor-can-bus-database).
-
-#### 6.4.1 CAN DBC
-
-[generate_can_defs.py](Core/momentum_driver/generate_can_defs.py) is a DBC to
-static CAN message definition header generator, aimed to simplify change
-management from DBC files.
+Low level CAN communication drivers can be found
+here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
 
 ---
 
