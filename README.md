@@ -13,60 +13,63 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
   <summary>Table of Contents</summary>
 
 <!-- TOC -->
+
 * [momentum](#momentum)
-  * [1 Overview](#1-overview)
-    * [1.1 Bill of Materials (BOM)](#11-bill-of-materials-bom)
-    * [1.2 Block Diagram](#12-block-diagram)
-    * [1.3 Pin Configurations](#13-pin-configurations)
-    * [1.4 Clock Configurations](#14-clock-configurations)
-  * [2 USB Interface via CP2102N (USB-to-UART)](#2-usb-interface-via-cp2102n-usb-to-uart)
-    * [2.1 Data Line Activity LEDs](#21-data-line-activity-leds)
-  * [3 Serial Peripheral Interface (SPI)](#3-serial-peripheral-interface-spi)
-  * [4 BNO086 9-DOF IMU](#4-bno086-9-dof-imu)
-    * [4.1 Background](#41-background)
-    * [4.2 Serial Peripheral Interface (SPI)](#42-serial-peripheral-interface-spi)
-      * [4.2.1 Full-Duplex vs. Half-Duplex](#421-full-duplex-vs-half-duplex)
-      * [4.2.2 Clock Polarity, Phase and Modes](#422-clock-polarity-phase-and-modes)
-      * [4.2.3 Clock Rate](#423-clock-rate)
-      * [4.2.4 Direct Memory Access (DMA)](#424-direct-memory-access-dma)
-    * [4.3 General-Purpose Input/Output (GPIO) Output](#43-general-purpose-inputoutput-gpio-output)
-    * [4.4 Timer](#44-timer)
-      * [4.4.1 Timer Prescaler Calculation](#441-timer-prescaler-calculation)
-    * [4.5 Nested Vectored Interrupt Controller (NVIC)](#45-nested-vectored-interrupt-controller-nvic)
-      * [4.5.1 GPIO External Interrupt/Event Controller (EXTI)](#451-gpio-external-interruptevent-controller-exti)
-    * [4.6 BNO086 Driver](#46-bno086-driver)
-  * [5 BMP390 Barometric Pressure Sensor](#5-bmp390-barometric-pressure-sensor)
-    * [5.1 Background](#51-background)
-    * [5.2 Inter-Integrated Circuit (I2C)](#52-inter-integrated-circuit-i2c)
-    * [5.3 Timer](#53-timer)
-    * [5.4 BMP390 Driver](#54-bmp390-driver)
-  * [6 TJA1057BTK CAN Bus Transceiver](#6-tja1057btk-can-bus-transceiver)
-    * [6.1 Background](#61-background)
-    * [6.2 Controller Area Network (CAN)](#62-controller-area-network-can)
-      * [6.2.1 Bit Time Calculation](#621-bit-time-calculation)
-      * [6.2.2 Nested Vectored Interrupt Controller (NVIC)](#622-nested-vectored-interrupt-controller-nvic)
-    * [6.3 CAN High-Level Driver](#63-can-high-level-driver)
-    * [6.4 CAN DBC and Low-Level Driver](#64-can-dbc-and-low-level-driver)
-  * [7 SAM-M10Q RF Receiver Galileo, GLONASS, GPS](#7-sam-m10q-rf-receiver-galileo-glonass-gps)
-    * [7.1 Background](#71-background)
-    * [7.2 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#72-universal-synchronousasynchronous-receivertransmitter-usart)
-      * [7.2.1 Direct Memory Access (DMA)](#721-direct-memory-access-dma)
-      * [7.2.2 Nested Vectored Interrupt Controller (NVIC)](#722-nested-vectored-interrupt-controller-nvic)
-    * [7.3 SAM-M10Q Driver](#73-sam-m10q-driver)
-  * [8 WS2812B PWM Addressable RGB LED](#8-ws2812b-pwm-addressable-rgb-led)
-    * [8.1 Clocks](#81-clocks)
-    * [8.2 Pulse Width Modulation (PWM) Timer](#82-pulse-width-modulation-pwm-timer)
-      * [8.2.1 Timer Calculations](#821-timer-calculations)
-    * [8.3 Direct Memory Access (DMA)](#83-direct-memory-access-dma)
-    * [8.4 Nested Vectored Interrupt Controller (NVIC)](#84-nested-vectored-interrupt-controller-nvic)
-    * [8.5 WS2812B Driver](#85-ws2812b-driver)
-      * [8.5.1 PWM Duty Cycle Calculations](#851-pwm-duty-cycle-calculations)
-      * [8.5.2 Reset Code Time Periods Calculation](#852-reset-code-time-periods-calculation)
-  * [9 Real Time Clock (RTC)](#9-real-time-clock-rtc)
-    * [9.1 RTC Driver](#91-rtc-driver)
-  * [10 Shared Low-Level Software Features](#10-shared-low-level-software-features)
-    * [10.1 Callbacks](#101-callbacks)
-  * [11 Third-Party Licenses](#11-third-party-licenses)
+    * [1 Overview](#1-overview)
+        * [1.1 Bill of Materials (BOM)](#11-bill-of-materials-bom)
+        * [1.2 Block Diagram](#12-block-diagram)
+        * [1.3 Pin Configurations](#13-pin-configurations)
+        * [1.4 Clock Configurations](#14-clock-configurations)
+    * [2 USB Interface via CP2102N (USB-to-UART)](#2-usb-interface-via-cp2102n-usb-to-uart)
+        * [2.1 Data Line Activity LEDs](#21-data-line-activity-leds)
+    * [3 Serial Peripheral Interface (SPI)](#3-serial-peripheral-interface-spi)
+    * [4 BNO086 9-DOF IMU](#4-bno086-9-dof-imu)
+        * [4.1 Background](#41-background)
+        * [4.2 Serial Peripheral Interface (SPI)](#42-serial-peripheral-interface-spi)
+            * [4.2.1 Full-Duplex vs. Half-Duplex](#421-full-duplex-vs-half-duplex)
+            * [4.2.2 Clock Polarity, Phase and Modes](#422-clock-polarity-phase-and-modes)
+            * [4.2.3 Clock Rate](#423-clock-rate)
+            * [4.2.4 Direct Memory Access (DMA)](#424-direct-memory-access-dma)
+        * [4.3 General-Purpose Input/Output (GPIO) Output](#43-general-purpose-inputoutput-gpio-output)
+        * [4.4 Timer](#44-timer)
+            * [4.4.1 Timer Prescaler Calculation](#441-timer-prescaler-calculation)
+        * [4.5 Nested Vectored Interrupt Controller (NVIC)](#45-nested-vectored-interrupt-controller-nvic)
+            * [4.5.1 GPIO External Interrupt/Event Controller (EXTI)](#451-gpio-external-interruptevent-controller-exti)
+        * [4.6 BNO086 Driver](#46-bno086-driver)
+            * [4.6.1 SH2 Set Reorientation Quaternion](#461-sh2-set-reorientation-quaternion)
+    * [5 BMP390 Barometric Pressure Sensor](#5-bmp390-barometric-pressure-sensor)
+        * [5.1 Background](#51-background)
+        * [5.2 Inter-Integrated Circuit (I2C)](#52-inter-integrated-circuit-i2c)
+        * [5.3 Timer](#53-timer)
+        * [5.4 BMP390 Driver](#54-bmp390-driver)
+    * [6 TJA1057BTK CAN Bus Transceiver](#6-tja1057btk-can-bus-transceiver)
+        * [6.1 Background](#61-background)
+        * [6.2 Controller Area Network (CAN)](#62-controller-area-network-can)
+            * [6.2.1 Bit Time Calculation](#621-bit-time-calculation)
+            * [6.2.2 Nested Vectored Interrupt Controller (NVIC)](#622-nested-vectored-interrupt-controller-nvic)
+        * [6.3 CAN High-Level Driver](#63-can-high-level-driver)
+        * [6.4 CAN DBC and Low-Level Driver](#64-can-dbc-and-low-level-driver)
+    * [7 SAM-M10Q RF Receiver Galileo, GLONASS, GPS](#7-sam-m10q-rf-receiver-galileo-glonass-gps)
+        * [7.1 Background](#71-background)
+        * [7.2 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#72-universal-synchronousasynchronous-receivertransmitter-usart)
+            * [7.2.1 Direct Memory Access (DMA)](#721-direct-memory-access-dma)
+            * [7.2.2 Nested Vectored Interrupt Controller (NVIC)](#722-nested-vectored-interrupt-controller-nvic)
+        * [7.3 SAM-M10Q Driver](#73-sam-m10q-driver)
+    * [8 WS2812B PWM Addressable RGB LED](#8-ws2812b-pwm-addressable-rgb-led)
+        * [8.1 Clocks](#81-clocks)
+        * [8.2 Pulse Width Modulation (PWM) Timer](#82-pulse-width-modulation-pwm-timer)
+            * [8.2.1 Timer Calculations](#821-timer-calculations)
+        * [8.3 Direct Memory Access (DMA)](#83-direct-memory-access-dma)
+        * [8.4 Nested Vectored Interrupt Controller (NVIC)](#84-nested-vectored-interrupt-controller-nvic)
+        * [8.5 WS2812B Driver](#85-ws2812b-driver)
+            * [8.5.1 PWM Duty Cycle Calculations](#851-pwm-duty-cycle-calculations)
+            * [8.5.2 Reset Code Time Periods Calculation](#852-reset-code-time-periods-calculation)
+    * [9 Real Time Clock (RTC)](#9-real-time-clock-rtc)
+        * [9.1 RTC Driver](#91-rtc-driver)
+    * [10 Shared Low-Level Software Features](#10-shared-low-level-software-features)
+        * [10.1 Callbacks](#101-callbacks)
+    * [11 Third-Party Licenses](#11-third-party-licenses)
+
 <!-- TOC -->
 
 </details>
@@ -356,6 +359,16 @@ STM32 HAL abstraction and runner functions:
 2. [sh2_hal_spi.c](Core/Src/sh2_hal_spi.c).
 3. [bno085_runner.h](Core/Inc/bno085_runner.h).
 4. [bno085_runner.c](Core/Src/bno085_runner.c).
+
+#### 4.6.1 SH2 Set Reorientation Quaternion
+
+The hub composes the re-orientation vector as:
+
+$$q_{\mathrm{out}} = q_{\mathrm{reorient}} \otimes q_{\mathrm{measured}}$$
+
+To make a specific physical pose `P` report as identity (0,0,0,1),
+the **inverse of that pose in the sensor/device frame** must be sent, converted
+to Q14 and passed to `sh2_setReorientation()`.
 
 ---
 
