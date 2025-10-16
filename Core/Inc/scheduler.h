@@ -1,6 +1,6 @@
 /*******************************************************************************
  * @file scheduler.h
- * @brief Scheduler: Manages real time scheduling via DWT.
+ * @brief Scheduler: Manages real time scheduling via timer peripheral.
  *******************************************************************************
  */
 
@@ -11,14 +11,17 @@
 
 #include "stm32l4xx_hal.h"
 
-/** Definitions. **************************************************************/
+/** STM32 port and pin configs. ***********************************************/
 
-// Ensure DWT utilization is possible.
-#if defined(DWT)
-// Init exists.
-#else
-#warning "DWT not available, scheduler timing disabled."
-#endif
+extern TIM_HandleTypeDef htim2;
+
+// Timer for signals.
+#define SCHEDULER_HTIM htim2
+
+// Timer address.
+#define SCHEDULER_TIM TIM2
+
+/** Definitions. **************************************************************/
 
 #define MAX_TASKS 10
 
@@ -31,25 +34,17 @@ typedef void (*task_function_t)(void);
 
 /**
  * @brief Structure to hold task information.
- *
- * task_function: A function pointer to the task that needs to be executed.
- * period_cyc: The period of the task in terms of CPU cycles.
- *  This is calculated by converting the desired period in milliseconds to CPU
- *  cycles using the formula period_cyc = period_ms * CPU_CYCLES_PER_MS.
- * next_execution_cyc: The absolute CPU cycle count at which the task is next
- *  scheduled to run. This is used to determine when the task should be executed
- *  based on the DWT cycle counter.
  */
 typedef struct {
   task_function_t task_function; // Pointer to the task function.
-  uint32_t period_cyc;           // Task execution period in CPU cycles.
-  uint32_t next_execution_cyc;   // Next execution time in CPU cycles.
+  uint32_t period_us;            // Task execution period in us.
+  uint32_t next_execution_us;    // Next execution due in us.
 } task_t;
 
 /** Public functions. *********************************************************/
 
 /**
- * @brief Initialize scheduler which utilized DWT.
+ * @brief Initialize scheduler.
  */
 void scheduler_init(void);
 
