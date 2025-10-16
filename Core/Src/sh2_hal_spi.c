@@ -246,9 +246,8 @@ static int sh2_spi_hal_open(sh2_Hal_t *self) {
   is_open = true; // Define open instance.
 
   // Enable hardware (timer).
-  __HAL_TIM_ENABLE(&SH2_HTIM);
-  HAL_TIM_Base_Init(&SH2_HTIM);
-  HAL_TIM_Base_Start(&SH2_HTIM);
+  // TODO: DEV NOTE: Timer initialization completed by scheduler (TIM owner).
+  // HAL_TIM_Base_Start(&SH2_HTIM);
 
   // Initialize pin states.
   rstn_write_pin(GPIO_PIN_RESET); // Hold in reset.
@@ -291,7 +290,8 @@ static void sh2_spi_hal_close(sh2_Hal_t *self) {
   rstn_write_pin(GPIO_PIN_RESET); // Pull reset low (reset).
   cs_write_pin(GPIO_PIN_SET);     // Pull CS high (no longer calling CS).
 
-  __HAL_TIM_DISABLE(&SH2_HTIM); // Disable the timer.
+  // TODO: DEV NOTE: Timer initialization completed by scheduler (TIM owner).
+  // __HAL_TIM_DISABLE(&SH2_HTIM); // Disable the timer.
 
   is_open = false; // No longer open.
 }

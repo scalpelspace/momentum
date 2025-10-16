@@ -40,15 +40,17 @@ void momentum_init(void) {
   // Momentum runner SPI communication start.
   momentum_spi_start();
 
+  // Scheduler.
+  scheduler_init(); // Initialize scheduler.
+  scheduler_add_task(bmp390_get_data, 10);
+
   // Sensors.
+  // TODO: DEV NOTE: Timer initialization completed by scheduler (TIM owner).
+  //  Sensors need to be initialized after scheduler initialization.
   ublox_init();
   bmp390_init();
   bno085_reset();
   bno085_init();
-
-  // Scheduler.
-  scheduler_init(); // Initialize scheduler.
-  scheduler_add_task(bmp390_get_data, 10);
 
 #ifdef MOMENTUM_COMM_ENABLE
   // NVM communication via USB-to-UART(1) start.

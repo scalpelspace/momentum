@@ -42,7 +42,8 @@ BMP3_INTF_RET_TYPE bmp3_interface_init(struct bmp3_dev *bmp3, uint8_t intf) {
     }
 
     // Start hardware (timer).
-    HAL_TIM_Base_Start(&BMP3_HTIM);
+    // TODO: DEV NOTE: Timer initialization completed by scheduler (TIM owner).
+    // HAL_TIM_Base_Start(&BMP3_HTIM);
 
     bmp3->delay_us = bmp3_delay_us;
     bmp3->intf_ptr = &device_address;
