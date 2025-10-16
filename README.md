@@ -110,8 +110,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 |-------------|-------------------------|----------------------------------|-----------------------------------|-------------------------------------------------|
 | PA14        | `SYS_JTCK-SWCLK`        |                                  | TC2050 SWD Pin 4: `SWCLK`         |                                                 |
 | PA13        | `SYS_JTMS-SWDIO`        |                                  | TC2050 SWD Pin 2: `SWDIO`         |                                                 |
-|             | `TIM2_CH1`              | PWM no output                    |                                   | BMP390 BMP3 driver timer.                       |
-|             | `TIM2_CH2`              | PWM no output                    |                                   | BNO086 SH2 driver timer.                        |
+|             | `TIM2_CH1`              | PWM no output                    |                                   | Scheduler, BNO086 SH2 and BMP390 BMP3 timer.    |
 | PA5         | `SPI1_SCK`              |                                  | BNO086 Pin 19: `H_SCL/SCK/RX`     |                                                 |
 | PA4         | `GPIO_Output` (SPI1 CS) | Set high                         | BNO086 Pin 18: `H_CSN`            |                                                 |
 | PA6         | `SPI1_MISO`             |                                  | BNO086 Pin 20: `H_SDA/H_MISO/TX`  |                                                 |
