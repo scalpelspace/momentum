@@ -49,25 +49,6 @@ static bool crc16_check(const uint8_t *frame, uint16_t frame_len) {
   return (received == calculated);
 }
 
-static void send_packet(uint8_t command, const uint8_t *payload,
-                        const uint16_t len) {
-  uint8_t comm_tx_dma_buffer[COMM_TX_BUFFER_SIZE];
-
-  uint16_t idx = 0;
-  comm_tx_dma_buffer[idx++] = FRAME_START;
-  comm_tx_dma_buffer[idx++] = command;
-  comm_tx_dma_buffer[idx++] = (len >> 8) & 0xFF;
-  comm_tx_dma_buffer[idx++] = len & 0xFF;
-  if (len) {
-    memcpy(&comm_tx_dma_buffer[idx], payload, len);
-    idx += len;
-  }
-  uint16_t crc = crc16_calc(comm_tx_dma_buffer, idx);
-  comm_tx_dma_buffer[idx++] = (crc >> 8) & 0xFF;
-  comm_tx_dma_buffer[idx++] = crc & 0xFF;
-  HAL_UART_Transmit(&COMM_HUART, comm_tx_dma_buffer, idx, HAL_MAX_DELAY);
-}
-
 static void process_frame(uint8_t *frame, uint8_t length) {
   uint8_t command = frame[1];
   uint16_t payload_len = (frame[2] << 8) | frame[3];
@@ -149,4 +130,23 @@ void comm_process_rx_data(void) {
 
   // 3) Clear the "new data" flag.
   comm_rx_dma_length = 0;
+}
+
+void comm_send_packet(const uint8_t command, const uint8_t *payload,
+                      const uint16_t len) {
+  uint8_t comm_tx_dma_buffer[COMM_TX_BUFFER_SIZE];
+
+  uint16_t idx = 0;
+  comm_tx_dma_buffer[idx++] = FRAME_START;
+  comm_tx_dma_buffer[idx++] = command;
+  comm_tx_dma_buffer[idx++] = (len >> 8) & 0xFF;
+  comm_tx_dma_buffer[idx++] = len & 0xFF;
+  if (len) {
+    memcpy(&comm_tx_dma_buffer[idx], payload, len);
+    idx += len;
+  }
+  const uint16_t crc = crc16_calc(comm_tx_dma_buffer, idx);
+  comm_tx_dma_buffer[idx++] = (crc >> 8) & 0xFF;
+  comm_tx_dma_buffer[idx++] = crc & 0xFF;
+  HAL_UART_Transmit(&COMM_HUART, comm_tx_dma_buffer, idx, HAL_MAX_DELAY);
 }
