@@ -10,8 +10,6 @@
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
 #include "can.h"
-#include "comm.h"
-#include "configuration.h"
 #include "momentum_runner.h"
 #include "scheduler.h"
 #include "stm32l4xx_hal_rng.h"
@@ -51,9 +49,4 @@ void momentum_init(void) {
   bmp390_init();
   bno085_reset();
   bno085_init();
-
-#ifdef MOMENTUM_COMM_ENABLE
-  // Initialize communication via USB-to-UART.
-  comm_init();
-#endif
 }
