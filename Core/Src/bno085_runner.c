@@ -12,7 +12,8 @@
 #include "bno085_runner.h"
 
 #include "configuration.h"
-#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+#if defined(MOMENTUM_FULL_CAN_TELEMETRY) ||                                    \
+    defined(MOMENTUM_FULL_COMM_TELEMETRY)
 #include "telemetry.h"
 #endif
 
@@ -157,6 +158,9 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu1();
 #endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+    comm_tx_imu1();
+#endif
 
     break;
   case SH2_GYROSCOPE_CALIBRATED:
@@ -166,6 +170,9 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
 
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu2();
+#endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+    comm_tx_imu2();
 #endif
 
     break;
@@ -177,6 +184,9 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu3();
 #endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+    comm_tx_imu3();
+#endif
 
     break;
   case SH2_LINEAR_ACCELERATION:
@@ -187,6 +197,9 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu4();
 #endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+    comm_tx_imu4();
+#endif
 
     break;
   case SH2_GRAVITY:
@@ -196,6 +209,9 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
 
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_imu5();
+#endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+    comm_tx_imu5();
 #endif
 
     break;
