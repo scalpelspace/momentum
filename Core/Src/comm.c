@@ -1,6 +1,11 @@
 /*******************************************************************************
- * @file    comm.c
- * @brief   USART1 Communication Interface: abstracting STM32 HAL: UART.
+ * @file comm.c
+ * @brief USART1 Communication Interface: abstracting STM32 HAL: UART.
+*******************************************************************************
+ * @note:
+ * USART1 (UART1) communication must be enabled via the `configuration.h` macro:
+ * `MOMENTUM_COMM_ENABLE`. Transmit functions should be handled via `stdio.h`
+ * `printf()` function. The `_write()` function is implemented in `comm.c`.
  *******************************************************************************
  */
 
@@ -9,6 +14,7 @@
 #include "comm.h"
 #include "ws2812b_hal_pwm.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 /** Definitions. **************************************************************/
@@ -25,43 +31,9 @@ static uint8_t comm_rx_dma_old_pos; // DMA new Rx data buffer index.
 
 /** Private functions. ********************************************************/
 
-static uint16_t crc16_calc(const uint8_t *data, uint16_t len) {
-  uint16_t crc = 0xFFFF;        // Initial value.
-  const uint16_t poly = 0x1021; // CRC-16-CCITT polynomial.
-  for (uint16_t i = 0; i < len; i++) {
-    crc ^= (uint16_t)data[i] << 8;
-    for (uint8_t bit = 0; bit < 8; bit++) {
-      if (crc & 0x8000) {
-        crc = (crc << 1) ^ poly;
-      } else {
-        crc <<= 1;
-      }
-    }
-  }
-  return crc;
-}
-
-static bool crc16_check(const uint8_t *frame, uint16_t frame_len) {
-  if (frame_len < 2)
-    return false;
-  uint16_t received = (frame[frame_len - 2] << 8) | frame[frame_len - 1];
-  uint16_t calculated = crc16_calc(frame, frame_len - 2);
-  return (received == calculated);
-}
-
-static void process_frame(uint8_t *frame, uint8_t length) {
-  uint8_t command = frame[1];
-  uint16_t payload_len = (frame[2] << 8) | frame[3];
-  uint8_t *payload = &frame[4];
-
-  //  switch (command) {
-  //  case EXAMPLE_COMMAND_BYTE_MACRO:
-  //    send_packet(EXAMPLE_CMD_ACK_MACRO, &command, 1);
-  //    break;
-  //  default: // Unknown command.
-  //    send_packet(CMD_NACK, &command, 1);
-  //    break;
-  //  }
+int _write(int file, char *ptr, int len) {
+  HAL_UART_Transmit(&COMM_HUART, (uint8_t *)ptr, len, HAL_MAX_DELAY);
+  return len;
 }
 
 /** User implementations of STM32 UART HAL (overwriting HAL). *****************/
@@ -108,45 +80,30 @@ void comm_process_rx_data(void) {
 
   // 1) The new data fits entirely before the end of buffer.
   if (comm_rx_dma_old_pos + comm_rx_dma_length <= COMM_RX_BUFFER_SIZE) {
-    process_frame(&comm_rx_dma_buffer[comm_rx_dma_old_pos], comm_rx_dma_length);
 
-    comm_rx_dma_old_pos += comm_rx_dma_length;
+    // TODO: Example RX buffer handler.
+    // process(&comm_rx_dma_buffer[comm_rx_dma_old_pos], comm_rx_dma_length);
+    // comm_rx_dma_old_pos += comm_rx_dma_length;
+
     // Wrap exactly at the boundary.
     if (comm_rx_dma_old_pos == COMM_RX_BUFFER_SIZE) {
       comm_rx_dma_old_pos = 0;
     }
   } else {
     // 2) Overrun the end, use two slices.
+
     // First slice: from old_pos to buffer end.
-    uint16_t first_len = COMM_RX_BUFFER_SIZE - comm_rx_dma_old_pos;
-    process_frame(&comm_rx_dma_buffer[comm_rx_dma_old_pos], first_len);
+    // TODO: Example RX buffer handler.
+    // uint16_t first_len = COMM_RX_BUFFER_SIZE - comm_rx_dma_old_pos;
+    // process(&comm_rx_dma_buffer[comm_rx_dma_old_pos], first_len);
 
     // Second slice: from buffer start for the remainder.
-    uint16_t second_len = comm_rx_dma_length - first_len;
-    process_frame(&comm_rx_dma_buffer[0], second_len);
-
-    comm_rx_dma_old_pos = second_len; // Wrapped start index.
+    // TODO: Example RX buffer handler.
+    // uint16_t second_len = comm_rx_dma_length - first_len;
+    // process(&comm_rx_dma_buffer[0], second_len);
+    // comm_rx_dma_old_pos = second_len; // Wrapped start index.
   }
 
   // 3) Clear the "new data" flag.
   comm_rx_dma_length = 0;
-}
-
-void comm_send_packet(const uint8_t command, const uint8_t *payload,
-                      const uint16_t len) {
-  uint8_t comm_tx_dma_buffer[COMM_TX_BUFFER_SIZE];
-
-  uint16_t idx = 0;
-  comm_tx_dma_buffer[idx++] = FRAME_START;
-  comm_tx_dma_buffer[idx++] = command;
-  comm_tx_dma_buffer[idx++] = (len >> 8) & 0xFF;
-  comm_tx_dma_buffer[idx++] = len & 0xFF;
-  if (len) {
-    memcpy(&comm_tx_dma_buffer[idx], payload, len);
-    idx += len;
-  }
-  const uint16_t crc = crc16_calc(comm_tx_dma_buffer, idx);
-  comm_tx_dma_buffer[idx++] = (crc >> 8) & 0xFF;
-  comm_tx_dma_buffer[idx++] = crc & 0xFF;
-  HAL_UART_Transmit(&COMM_HUART, comm_tx_dma_buffer, idx, HAL_MAX_DELAY);
 }

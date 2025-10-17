@@ -137,67 +137,62 @@ void can_tx_rtc(void) {
 }
 
 void comm_tx_state(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[0].message_id, &comm_payload, len);
+  printf("s=%u\r\n", 0); // TODO: Hardcoded state.
 }
 
 void comm_tx_barometric(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[1].message_id, &comm_payload, len);
+  printf("pres=%.3f,temp=%.3f,s=%u\r\n", bmp390_pressure, bmp390_temperature,
+         0); // TODO: Hardcoded state.
 }
 
 void comm_tx_gps1(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[2].message_id, &comm_payload, len);
+  printf("lat=%.3f,lon=%.3f\r\n", gps_data.latitude, gps_data.longitude);
 }
 
 void comm_tx_gps2(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[3].message_id, &comm_payload, len);
+  printf("sp=%.3f,cdeg=%.3f,pf=%u,sat=%u,hdop=%.3f\r\n", gps_data.speed_knots,
+         gps_data.course_deg, gps_data.position_fix, gps_data.satellites,
+         gps_data.hdop);
 }
 
 void comm_tx_gps3(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[4].message_id, &comm_payload, len);
+  printf("alt=%.3f,gid=%.3f,s=%u\r\n", gps_data.altitude_m,
+         gps_data.geoid_sep_m,
+         0); // TODO: Hardcoded state.
 }
 
 void comm_tx_imu1(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[5].message_id, &comm_payload, len);
+  printf("qi=%.3f,qj=%.3f,qk=%.3f,qr=%.3f\r\n", bno085_quaternion_i,
+         bno085_quaternion_j, bno085_quaternion_k, bno085_quaternion_real);
 }
 
 void comm_tx_imu2(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[6].message_id, &comm_payload, len);
+  printf("gx=%.3f,gy=%.3f,gz=%.3f\r\n", bno085_gyro_x, bno085_gyro_y,
+         bno085_gyro_z);
 }
 
 void comm_tx_imu3(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[7].message_id, &comm_payload, len);
+  printf("ax=%.3f,ay=%.3f,az=%.3f\r\n", bno085_accel_x, bno085_accel_y,
+         bno085_accel_z);
 }
 
 void comm_tx_imu4(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[8].message_id, &comm_payload, len);
+  printf("lax=%.3f,lay=%.3f,laz=%.3f\r\n", bno085_lin_accel_x,
+         bno085_lin_accel_y, bno085_lin_accel_z);
 }
 
 void comm_tx_imu5(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[9].message_id, &comm_payload, len);
+  printf("gvx=%.3f,gvy=%.3f,gvz=%.3f\r\n", bno085_gravity_x, bno085_gravity_y,
+         bno085_gravity_z);
 }
 
 void comm_tx_rtc(void) {
-  const uint8_t comm_payload = {0};
-  const uint8_t len = 0;
-  comm_send_packet(dbc_messages[11].message_id, &comm_payload, len);
+  // Get the date and time.
+  RTC_DateTypeDef date;
+  RTC_TimeTypeDef time;
+  HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
+  printf("s=%u,d=%u-%u-%u,wd=%u,t=%u:%u:%u\r\n", 0, 2000 + date.Year,
+         date.Month, date.Date, date.WeekDay, time.Hours, time.Minutes,
+         time.Seconds); // TODO: Hardcoded state.
 }
