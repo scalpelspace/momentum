@@ -9,7 +9,8 @@
 #include "bmp390_runner.h"
 
 #include "configuration.h"
-#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+#if defined(MOMENTUM_FULL_CAN_TELEMETRY) ||                                    \
+    defined(MOMENTUM_FULL_COMM_TELEMETRY)
 #include "telemetry.h"
 #endif
 
@@ -154,6 +155,9 @@ void bmp390_get_data(void) {
 
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
         can_tx_barometric();
+#endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+        comm_tx_barometric();
 #endif
 
         if (status.intr.fifo_full == BMP3_ENABLE) {

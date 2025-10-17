@@ -14,7 +14,8 @@
 #include <string.h>
 
 #include "configuration.h"
-#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+#if defined(MOMENTUM_FULL_CAN_TELEMETRY) ||                                    \
+    defined(MOMENTUM_FULL_COMM_TELEMETRY)
 #include "telemetry.h"
 #endif
 
@@ -356,6 +357,11 @@ static bool parse_gngga(const char *sentence) {
   can_tx_gps2();
   can_tx_gps3();
 #endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+  comm_tx_gps1();
+  comm_tx_gps2();
+  comm_tx_gps3();
+#endif
 
   return true;
 }
@@ -491,6 +497,11 @@ static bool parse_gnrmc(const char *sentence) {
   can_tx_gps1();
   can_tx_gps2();
   can_tx_gps3();
+#endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+  comm_tx_gps1();
+  comm_tx_gps2();
+  comm_tx_gps3();
 #endif
 
   return true;

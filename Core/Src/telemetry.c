@@ -10,6 +10,7 @@
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
 #include "can.h"
+#include "comm.h"
 #include "rtc.h"
 #include "ublox_hal_uart.h"
 
@@ -133,4 +134,70 @@ void can_tx_rtc(void) {
       0,          date.Year,    date.Month,  date.Date, date.WeekDay,
       time.Hours, time.Minutes, time.Seconds}; // TODO: Hardcoded state.
   can_send_message_raw32(&hcan1, &rtc_msg, rtc_sigs);
+}
+
+void comm_tx_state(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[0].message_id, &comm_payload, len);
+}
+
+void comm_tx_barometric(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[1].message_id, &comm_payload, len);
+}
+
+void comm_tx_gps1(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[2].message_id, &comm_payload, len);
+}
+
+void comm_tx_gps2(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[3].message_id, &comm_payload, len);
+}
+
+void comm_tx_gps3(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[4].message_id, &comm_payload, len);
+}
+
+void comm_tx_imu1(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[5].message_id, &comm_payload, len);
+}
+
+void comm_tx_imu2(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[6].message_id, &comm_payload, len);
+}
+
+void comm_tx_imu3(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[7].message_id, &comm_payload, len);
+}
+
+void comm_tx_imu4(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[8].message_id, &comm_payload, len);
+}
+
+void comm_tx_imu5(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[9].message_id, &comm_payload, len);
+}
+
+void comm_tx_rtc(void) {
+  const uint8_t comm_payload = {0};
+  const uint8_t len = 0;
+  comm_send_packet(dbc_messages[11].message_id, &comm_payload, len);
 }
