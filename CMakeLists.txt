@@ -108,3 +108,7 @@ add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
         $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
         ${CMAKE_PROJECT_NAME}.hex
 )
+
+# Linker configuration for `printf()` to allow float `"%f"` format usage.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O2 -ffunction-sections -fdata-sections")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections -u _printf_float")

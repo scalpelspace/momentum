@@ -22,8 +22,6 @@
 #include "stm32l4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "comm.h"
-#include "configuration.h"
 #include "ublox_hal_uart.h"
 /* USER CODE END Includes */
 
@@ -345,9 +343,7 @@ void CAN1_RX1_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-#ifdef MOMENTUM_COMM_ENABLE
-  USART1_IRQHandler_comm(&huart1);
-#endif
+
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
