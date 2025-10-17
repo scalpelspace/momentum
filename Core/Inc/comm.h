@@ -31,5 +31,6 @@ void USART1_IRQHandler_comm(UART_HandleTypeDef *huart);
 
 void comm_init(void);
 void comm_process_rx_data(void);
+void comm_send_packet(uint8_t command, const uint8_t *payload, uint16_t len);
 
 #endif
