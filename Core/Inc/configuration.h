@@ -13,6 +13,6 @@
 #define MOMENTUM_FULL_CAN_TELEMETRY
 
 // Full telemetry flood on UART intended for debug/development purposes.
-#define MOMENTUM_FULL_COMM_TELEMETRY
+// #define MOMENTUM_FULL_COMM_TELEMETRY
 
 #endif
