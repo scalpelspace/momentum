@@ -1,7 +1,13 @@
 /*******************************************************************************
- * @file    comm.h
- * @brief   USART1 Communication Interface: abstracting STM32 HAL: UART.
- *******************************************************************************/
+ * @file comm.h
+ * @brief USART1 Communication Interface: abstracting STM32 HAL: UART.
+ *******************************************************************************
+ * @note:
+ * USART1 (UART1) communication must be enabled via the `configuration.h` macro:
+ * `MOMENTUM_COMM_ENABLE`. Transmit functions should be handled via `stdio.h`
+ * `printf()` function. The `_write()` function is implemented in `comm.c`.
+ *******************************************************************************
+ */
 
 #ifndef MOMENTUM__COMM_H
 #define MOMENTUM__COMM_H
@@ -9,7 +15,6 @@
 /** Includes. *****************************************************************/
 
 #include "stm32l4xx_hal.h"
-#include <stdbool.h>
 
 /** STM32 port and pin configs. ***********************************************/
 
@@ -17,10 +22,6 @@ extern UART_HandleTypeDef huart1;
 
 // UART.
 #define COMM_HUART huart1
-
-/** Definitions. **************************************************************/
-
-#define FRAME_START 0x7E
 
 /** User implementations of STM32 NVIC HAL (overwriting HAL). *****************/
 
@@ -31,6 +32,5 @@ void USART1_IRQHandler_comm(UART_HandleTypeDef *huart);
 
 void comm_init(void);
 void comm_process_rx_data(void);
-void comm_send_packet(uint8_t command, const uint8_t *payload, uint16_t len);
 
 #endif
