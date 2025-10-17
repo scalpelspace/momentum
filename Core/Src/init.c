@@ -53,7 +53,7 @@ void momentum_init(void) {
   bno085_init();
 
 #ifdef MOMENTUM_COMM_ENABLE
-  // NVM communication via USB-to-UART(1) start.
+  // Initialize communication via USB-to-UART.
   comm_init();
 #endif
 }
