@@ -16,11 +16,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/** Definitions. **************************************************************/
-
-#define COMM_TX_BUFFER_SIZE 128
-#define COMM_RX_BUFFER_SIZE 128
-
 /** Private functions. ********************************************************/
 
 int _write(int file, char *ptr, int len) {
