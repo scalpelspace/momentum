@@ -33,7 +33,6 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
     * [4.4 Timer](#44-timer)
       * [4.4.1 Timer Prescaler Calculation](#441-timer-prescaler-calculation)
     * [4.5 Nested Vectored Interrupt Controller (NVIC)](#45-nested-vectored-interrupt-controller-nvic)
-      * [4.5.1 GPIO External Interrupt/Event Controller (EXTI)](#451-gpio-external-interruptevent-controller-exti)
     * [4.6 BNO086 Driver](#46-bno086-driver)
       * [4.6.1 SH2 Set Reorientation Quaternion](#461-sh2-set-reorientation-quaternion)
   * [5 BMP390 Barometric Pressure Sensor](#5-bmp390-barometric-pressure-sensor)
@@ -335,8 +334,6 @@ base. In other words, aiming for 1 tick = 1 µs.
 $$PSC = \frac{Source}{Target} - 1 = \frac{ 80 \space \mathrm{MHz} }{ 1 \space \mathrm{MHz} } - 1 = 79$$
 
 ### 4.5 Nested Vectored Interrupt Controller (NVIC)
-
-#### 4.5.1 GPIO External Interrupt/Event Controller (EXTI)
 
 `GPIO_EXTI0`is configured for the `INTN` pin of the BNO086 to trigger an MCU
 response:
