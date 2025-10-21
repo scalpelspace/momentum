@@ -11,7 +11,7 @@
 #include "stm32l4xx_hal.h"
 #include "ublox_hal_uart.h"
 
-/** Collection of user implementations of STM32 HAL (overwriting HAL). ********/
+/** Collection of user implementations into STM32 HAL (overwriting HAL). ******/
 
 /** GPIO. */
 

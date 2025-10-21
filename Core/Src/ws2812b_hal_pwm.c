@@ -19,7 +19,7 @@ ws2812b_led_data_t led_data[LED_COUNT];
 uint16_t dma_buffer[WS2812B_DMA_BUF_LEN];
 volatile uint8_t dma_complete_flag;
 
-/** User implementations of STM32 NVIC HAL (overwriting HAL). *****************/
+/** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
   if (htim == &WS2812B_TIM) {

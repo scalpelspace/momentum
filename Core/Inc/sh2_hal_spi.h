@@ -58,7 +58,7 @@ extern TIM_HandleTypeDef htim2;
 // Macros.
 #define ARRAY_LEN(a) ((sizeof(a)) / (sizeof(a[0])))
 
-/** User implementations of STM32 GPIO NVIC HAL (overwriting HAL). ************/
+/** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_GPIO_EXTI_Callback_sh2(uint16_t n);
 void HAL_SPI_TxRxCpltCallback_sh2(SPI_HandleTypeDef *hspi);

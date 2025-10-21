@@ -566,7 +566,7 @@ static void ublox_process_byte(uint8_t byte, size_t parse_index) {
   }
 }
 
-/** User implementations of STM32 UART HAL (overwriting HAL). *****************/
+/** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_UART_RxCpltCallback_ublox(UART_HandleTypeDef *huart) {
   if (huart == &UBLOX_HUART) {

@@ -220,7 +220,7 @@ void restart(void) {
   HAL_SPI_Receive_DMA(&MOMENTUM_HSPI, rx_buffer, 4);
 }
 
-/** User implementations of STM32 UART HAL (overwriting HAL). *****************/
+/** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
   if (hspi != &MOMENTUM_HSPI) {

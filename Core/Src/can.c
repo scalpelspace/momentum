@@ -57,7 +57,7 @@ void process_can_message(CAN_RxHeaderTypeDef *header, uint8_t *data) {
   }
 }
 
-/** User implementations of STM32 CAN NVIC HAL (overwriting HAL). *************/
+/** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
   CAN_RxHeaderTypeDef rx_header;

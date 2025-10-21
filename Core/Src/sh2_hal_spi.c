@@ -210,7 +210,7 @@ static void spi_completed(void) {
   }
 }
 
-/** User implementations of STM32 GPIO NVIC HAL (overwriting HAL). ************/
+/** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_GPIO_EXTI_Callback_sh2(uint16_t n) {
   if (n == SH2_INTN_PIN) {

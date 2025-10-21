@@ -90,7 +90,7 @@ typedef struct {
 
 extern ublox_data_t gps_data;
 
-/** User implementations of STM32 NVIC HAL (overwriting HAL). *****************/
+/** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_UART_RxCpltCallback_ublox(UART_HandleTypeDef *huart);
 void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart);

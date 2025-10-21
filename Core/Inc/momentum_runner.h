@@ -28,7 +28,7 @@ extern SPI_HandleTypeDef hspi3;
 #define MOMENTUM_HSPI hspi3
 // CS pin is handled by hardware NSS.
 
-/** User implementations of STM32 UART HAL (overwriting HAL). *****************/
+/** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi);
 
