@@ -139,15 +139,11 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 
 ```
 8 MHz High Speed External (HSE)
-↓
-Phase-Locked Loop Main (PLLM)
-↓
-80 MHz SYSCLK
-↓
-80 MHz HCLK
-↓
- → 80 MHz APB1 (Maxed) → 80 MHz APB1 Timer
- → 80 MHz APB2 (Maxed) → 80 MHz APB2 Timer
+ -> Phase-Locked Loop Main (PLLM)
+ -> 80 MHz SYSCLK
+ -> 80 MHz HCLK
+     -> 80 MHz APB1 (Maxed) -> 80 MHz APB1 Timer
+     -> 80 MHz APB2 (Maxed) -> 80 MHz APB2 Timer
 ```
 
 ---
@@ -322,14 +318,14 @@ pins are set for their own GPIO output pins.
 
 ### 4.4 Timer
 
-TIM2 is configured to be used for timing operations (1 µs time base) in the SH2
+TIM2 is configured to be used for timing operations (1 us time base) in the SH2
 SHTP drivers.
 
 #### 4.4.1 Timer Prescaler Calculation
 
 TIM2 runs based on the APB1 timer clocks which are set to 80 MHz. The
-prescaler (PSC) must be calculated accordingly to achieve a 1 µs (1 MHz) time
-base. In other words, aiming for 1 tick = 1 µs.
+prescaler (PSC) must be calculated accordingly to achieve a 1 us (1 MHz) time
+base. In other words, aiming for 1 tick = 1 us.
 
 $$PSC = \frac{Source}{Target} - 1 = \frac{ 80 \space \mathrm{MHz} }{ 1 \space \mathrm{MHz} } - 1 = 79$$
 
@@ -390,7 +386,7 @@ As specified by datasheets, I2C Fast Mode is used for the (fast mode standard)
 ### 5.3 Timer
 
 Similar to the BNO086's timer ([4.4 Timer](#44-timer)), TIM2 is configured to be
-used for timing operations (1 µs time base) in the BMP3 drivers.
+used for timing operations (1 us time base) in the BMP3 drivers.
 
 Since TIM2 is also on APB1, the prescaler calculations are the same as the
 BNO086,
@@ -532,7 +528,7 @@ channel.
 A Pulse Width Modulation (PWM) timer is utilized generate data signals to the
 WS2812B.
 
-`PA8` → Timer 1 Channel 1 → PWM Generation CH1.
+`PA8` -> Timer 1 Channel 1 -> PWM Generation CH1.
 
 ```c
 htim1.Instance = TIM1;
@@ -557,7 +553,7 @@ $$f_{PWM} = \frac{f_{TIM}}{ \left( ARR + 1 \right) \times \left( PSC + 1 \right)
       the translation of duty cycle percentages.
 - $f_{PWM} = 800 \space \mathrm{kHz}$
     - As specified by the WS2812B datasheet, the target data transfer time
-      period is 1.25 µs, or $1.25 \times 10 ^{-6} \space \mathrm{s}$.
+      period is 1.25 us, or $1.25 \times 10 ^{-6} \space \mathrm{s}$.
     - Calculating for required PWM frequency:
         - $f_{PWM} = \frac{1}{1.25 \times 10 ^{-6} \space \mathrm{s}} = 800 \space \mathrm{kHz}$
 
@@ -603,13 +599,10 @@ The WS2812B driver is made of 2 files:
 2. [ws2812b_hal_pwm.c](Core/Src/ws2812b_hal_pwm.c).
 
 ```
-ws2812b_init(): Initialize DMA, flags, timers, etc.
-↓
-ws2812b_set_colour(): Set struct values for (R, G, B) colours.
-↓
-ws2812b_update(): Initialize DMA buffer and trigger PWM DMA transfer.
-↓
-ws2812b_callback(): Called in ISR for end of PWM, stop DMA transfer.
+1. ws2812b_init(): Initialize DMA, flags, timers, etc.
+2. ws2812b_set_colour(): Set struct values for (R, G, B) colours.
+3. ws2812b_update(): Initialize DMA buffer and trigger PWM DMA transfer.
+4. ws2812b_callback(): Called in ISR for end of PWM, stop DMA transfer.
 ```
 
 #### 8.5.1 PWM Duty Cycle Calculations
@@ -623,18 +616,18 @@ $$Value = \frac{PW}{T} \times 25$$
 
 - $D$ = Duty cycle percentage, required calculation.
 - $PW$ = Pulse width (active time), as defined by the datasheet.
-- $T$ = Total signal time period, 1.25 µs, as defined by the datasheet.
+- $T$ = Total signal time period, 1.25 us, as defined by the datasheet.
 - $Value$ = Actual digital value to send representing the required duty cycle
   percentage.
 
-| Operation | $PW$   | Margin  | $D$ | Value |
-|-----------|--------|---------|-----|-------|
-| 0 code    | 0.4 µs | ±150 ns | 32% | 8     |
-| 1 code    | 0.8 µs | ±150 ns | 64% | 16    |
+| Operation | $PW$   | Margin   | $D$ | Value |
+|-----------|--------|----------|-----|-------|
+| 0 code    | 0.4 us | +-150 ns | 32% | 8     |
+| 1 code    | 0.8 us | +-150 ns | 64% | 16    |
 
 #### 8.5.2 Reset Code Time Periods Calculation
 
-The datasheet requires a low signal of > 50 µs. Thus, the minimum number of
+The datasheet requires a low signal of > 50 us. Thus, the minimum number of
 full (low) cycles is given by:
 
 $$50 \space \mathrm{\mu s} \div 1.25 \space \mathrm{\mu s} = 40$$
