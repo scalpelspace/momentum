@@ -21,7 +21,10 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
     * [1.4 Clock Configurations](#14-clock-configurations)
   * [2 USB Interface via CP2102N (USB-to-UART)](#2-usb-interface-via-cp2102n-usb-to-uart)
     * [2.1 Data Line Activity LEDs](#21-data-line-activity-leds)
+    * [2.2 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#22-universal-synchronousasynchronous-receivertransmitter-usart)
   * [3 Serial Peripheral Interface (SPI)](#3-serial-peripheral-interface-spi)
+    * [3.1 Direct Memory Access (DMA)](#31-direct-memory-access-dma)
+    * [3.2 Nested Vectored Interrupt Controller (NVIC)](#32-nested-vectored-interrupt-controller-nvic)
   * [4 BNO086 9-DOF IMU](#4-bno086-9-dof-imu)
     * [4.1 Background](#41-background)
     * [4.2 Serial Peripheral Interface (SPI)](#42-serial-peripheral-interface-spi)
@@ -165,11 +168,15 @@ Labs's [Simplicity Studio Software](https://www.silabs.com/developer-tools/simpl
 `GPIO0` and `GPIO1`'s `Alternative Function` need to be configured as
 `TX Toggle` and `RX Toggle` respectively as shown in the picture above.
 
+### 2.2 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)
+
+UART baud rate is set for 115200 bps.
+
 ---
 
 ## 3 Serial Peripheral Interface (SPI)
 
-SPI configurations:
+SPI Full-Duplex Slave configuration:
 
 - CPOL = 0.
 - CPHA = 0.
@@ -177,6 +184,32 @@ SPI configurations:
 
 Low level SPI communication drivers can be found
 here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
+
+### 3.1 Direct Memory Access (DMA)
+
+DMA is enabled for both SPI1 RX and TX in order to reduce interrupt utilization.
+
+`SPI3_RX` `DMA2 Stream1`:
+
+- Direction: `Peripheral to Memory`.
+- Mode: `Normal`.
+- Peripheral Increment Address: `Disabled`.
+- Memory Increment Address: `Enabled`.
+- (Both Peripheral and Memory) Data Width: `Byte`.
+- Use FIFO: `Disabled`.
+
+`SPI3_TX` `DMA2 Stream2`:
+
+- Direction: `Memory to Peripheral`.
+- Mode: `Normal`.
+- Peripheral Increment Address: `Disabled`.
+- Memory Increment Address: `Enabled`.
+- (Both Peripheral and Memory) Data Width: `Byte`.
+- Use FIFO: `Disabled`.
+
+### 3.2 Nested Vectored Interrupt Controller (NVIC)
+
+SPI3 global interrupted is enabled.
 
 ---
 
