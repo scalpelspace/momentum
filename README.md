@@ -20,8 +20,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
     * [1.3 Pin Configurations](#13-pin-configurations)
     * [1.4 Clock Configurations](#14-clock-configurations)
   * [2 USB Interface via CP2102N (USB-to-UART)](#2-usb-interface-via-cp2102n-usb-to-uart)
-    * [2.1 Data Line Activity LEDs](#21-data-line-activity-leds)
-    * [2.2 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#22-universal-synchronousasynchronous-receivertransmitter-usart)
+    * [2.1 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#21-universal-synchronousasynchronous-receivertransmitter-usart)
   * [3 Serial Peripheral Interface (SPI)](#3-serial-peripheral-interface-spi)
     * [3.1 Direct Memory Access (DMA)](#31-direct-memory-access-dma)
     * [3.2 Nested Vectored Interrupt Controller (NVIC)](#32-nested-vectored-interrupt-controller-nvic)
@@ -153,22 +152,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 
 ## 2 USB Interface via CP2102N (USB-to-UART)
 
-Utilizing the USB interface via the CP2102N requires Silicon
-Labs's [VCP CP210x USB to UART Bridge VCP Drivers](https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers).
-
-### 2.1 Data Line Activity LEDs
-
-Direct from the manufacturer/suppliers the CP2102N's LED GPIOs are not enabled.
-To enable the LED GPIOs, the CP2102N undergoes additional configuration
-programming via Silicon
-Labs's [Simplicity Studio Software](https://www.silabs.com/developer-tools/simplicity-studio).
-
-![cp2102n_leds_config.png](docs/cp2102n_leds_config.png)
-
-`GPIO0` and `GPIO1`'s `Alternative Function` need to be configured as
-`TX Toggle` and `RX Toggle` respectively as shown in the picture above.
-
-### 2.2 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)
+### 2.1 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)
 
 UART baud rate is set for 115200 bps.
 

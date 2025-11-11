@@ -31,4 +31,5 @@
     - Update `momentum_driver` for CAN bus logic and DBC definition upgrades.
     - Update scheduler to own and utilize `TIM2` instead of `DWT`.
     - Improve and update `README.md`.
+        - Reduce CP2102N USB-UART docs to centralize docs.
     - Rewrite UART-to-USB comm modules to a simple debug data transmit.
