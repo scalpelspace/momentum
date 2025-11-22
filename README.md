@@ -429,7 +429,7 @@ STM32 HAL abstraction and runner functions:
 CAN transceiver (MCU to 2-wire CAN bus) by NXP. 3V - 5V variant of TJA1057BTK.
 
 > Utilized reference documents:
-> 1. `TJA1051 Product data sheet Rev. 8`
+> 1. `TJA1057 Product data sheet Rev. 8`
 
 ### 6.1 Background
 
