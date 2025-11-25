@@ -29,6 +29,8 @@
     - Modernize `.ioc` file for CubeMX `v6.15.0`.
     - Restructure files for modernized CMake toolchain and workflow.
     - Update `momentum_driver` for CAN bus logic and DBC definition upgrades.
+        - CAN bus drivers now implemented by inner `can_driver` submodule.
+            - Update CMakeLists.txt.
     - Update scheduler to own and utilize `TIM2` instead of `DWT`.
     - Improve and update `README.md`.
         - Reduce CP2102N USB-UART docs to centralize docs.
