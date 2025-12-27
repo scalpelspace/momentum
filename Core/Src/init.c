@@ -10,6 +10,7 @@
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
 #include "can.h"
+#include "comm.h"
 #include "momentum_runner.h"
 #include "scheduler.h"
 #include "stm32l4xx_hal_rng.h"
@@ -29,6 +30,9 @@ extern RNG_HandleTypeDef hrng;
 void momentum_init(void) {
   // Low level peripherals.
   can_init();
+
+  // UART debug/developer interface.
+  comm_init();
 
   // On-board miscellaneous components.
   ws2812b_init();

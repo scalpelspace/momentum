@@ -6,6 +6,7 @@
 
 /** Includes. *****************************************************************/
 
+#include "comm.h"
 #include "momentum_runner.h"
 #include "sh2_hal_spi.h"
 #include "stm32l4xx_hal.h"
@@ -20,6 +21,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t n) { HAL_GPIO_EXTI_Callback_sh2(n); }
 /** UART. */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+  HAL_UART_RxCpltCallback_comm(huart);
   HAL_UART_RxCpltCallback_ublox(huart);
 }
 
