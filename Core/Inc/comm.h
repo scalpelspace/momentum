@@ -22,6 +22,10 @@ extern UART_HandleTypeDef huart1;
 // UART.
 #define COMM_HUART huart1
 
+/** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
+
+void HAL_UART_RxCpltCallback_comm(UART_HandleTypeDef *huart);
+
 /** Public functions. *********************************************************/
 
 void comm_init(void);
