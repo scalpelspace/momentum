@@ -11,7 +11,10 @@
 /** Includes. *****************************************************************/
 
 #include "comm.h"
+#include "bmp390_runner.h"
+#include "bno085_runner.h"
 #include "configuration.h"
+#include "ublox_hal_uart.h"
 #include "ws2812b_hal_pwm.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -43,11 +46,57 @@ static void comm_handle_line(const char *line) {
     printf("%s %u.%u.%u.%c\r\n", SCALPELSPACE_SHORT_NAME,
            MOMENTUM_VERSION_MAJOR, MOMENTUM_VERSION_MINOR,
            MOMENTUM_VERSION_PATCH, MOMENTUM_VERSION_IDENTIFIER);
-    return;
   }
 
-  if (*line) {
-    // Error: unknown command.
+  else if (strncmp(line, "rgb", 3) == 0) {
+    unsigned int r_raw, g_raw, b_raw;
+    // Accept formats like:
+    // "rgb 255,0,128"
+    // "rgb 255, 0, 128"
+    if (sscanf(line + 3, "%u , %u , %u", &r_raw, &g_raw, &b_raw) == 3) {
+      if (r_raw <= 255 && g_raw <= 255 && b_raw <= 255) {
+        uint8_t r = (uint8_t)r_raw;
+        uint8_t g = (uint8_t)g_raw;
+        uint8_t b = (uint8_t)b_raw;
+        ws2812b_set_colour(0, r, g, b);
+        ws2812b_update();
+      } else {
+        printf("Error: RGB values must be 0-255\r\n");
+      }
+    } else {
+      printf("Error: expected `rgb <R>, <G>, <B>`\r\n");
+    }
+  }
+
+  else if (strcmp(line, "imu") == 0) {
+    printf("%.3f i,%.3f j,%.3f k, %.3f r\r\n", bno085_quaternion_i,
+           bno085_quaternion_j, bno085_quaternion_k, bno085_quaternion_real);
+  }
+
+  else if (strcmp(line, "baro") == 0) {
+    printf("%.3f degC,%.3f Pa\r\n", bmp390_temperature, bmp390_pressure);
+  }
+
+  else if (strcmp(line, "gnss") == 0) {
+    printf("%u/%u/%u %u:%u:%u\r\n", gps_data.year + 2000, gps_data.month,
+           gps_data.day, gps_data.hour, gps_data.minute, gps_data.second);
+    printf("%.3f (%c),%.3f (%c), %.3f m\r\n", gps_data.latitude,
+           gps_data.lat_dir, gps_data.longitude, gps_data.lon_dir,
+           gps_data.altitude_m);
+  }
+
+  else if (strcmp(line, "report") == 0) {
+    printf("%.3f i,%.3f j,%.3f k, %.3f r\r\n", bno085_quaternion_i,
+           bno085_quaternion_j, bno085_quaternion_k, bno085_quaternion_real);
+    printf("%.3f degC,%.3f Pa\r\n", bmp390_temperature, bmp390_pressure);
+    printf("%u/%u/%u %u:%u:%u\r\n", gps_data.year + 2000, gps_data.month,
+           gps_data.day, gps_data.hour, gps_data.minute, gps_data.second);
+    printf("%.3f (%c),%.3f (%c), %.3f m\r\n", gps_data.latitude,
+           gps_data.lat_dir, gps_data.longitude, gps_data.lon_dir,
+           gps_data.altitude_m);
+  }
+
+  else { // Error: unknown command.
   }
 }
 
