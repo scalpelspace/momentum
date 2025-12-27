@@ -8,7 +8,7 @@
 <!-- TOC -->
 * [Changelog](#changelog)
   * [v0.1.0 (2025-08-21)](#v010--2025-08-21-)
-  * [v0.2.2 (WIP)](#v022-wip)
+  * [v0.2.2 (WIP)](#v022--wip-)
 <!-- TOC -->
 
 </details>
@@ -21,7 +21,7 @@
 
 ---
 
-## v0.2.2 (WIP)
+## [v0.2.2 (WIP)](https://github.com/scalpelspace/momentum/releases/tag/v0.2.2)
 
 - **Additions:**
     - Add `CHANGELOG.md`.
