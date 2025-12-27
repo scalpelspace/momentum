@@ -9,6 +9,7 @@
 #include "momentum_runner.h"
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
+#include "configuration.h"
 #include "momentum_driver.h"
 #include "ublox_hal_uart.h"
 #include "ws2812b_hal_pwm.h"
