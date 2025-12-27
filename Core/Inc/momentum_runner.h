@@ -12,14 +12,6 @@
 #include "momentum_driver.h"
 #include "stm32l4xx_hal.h"
 
-/** Definitions. **************************************************************/
-
-// Software version: `MAJOR.MINOR.PATCH-IDENTIFIER`.
-#define MOMENTUM_VERSION_MAJOR 0        // uint8_t number.
-#define MOMENTUM_VERSION_MINOR 1        // uint8_t number.
-#define MOMENTUM_VERSION_PATCH 0        // uint8_t number.
-#define MOMENTUM_VERSION_IDENTIFIER 'p' // ASCII character.
-
 /** STM32 port and pin configs. ***********************************************/
 
 extern SPI_HandleTypeDef hspi3;

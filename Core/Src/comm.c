@@ -11,14 +11,13 @@
 /** Includes. *****************************************************************/
 
 #include "comm.h"
+#include "configuration.h"
 #include "ws2812b_hal_pwm.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
 /** Definitions. **************************************************************/
-
-#define FW_VERSION_STR "v0.1.0-p"
 
 #define COMM_LINE_MAX 96
 
@@ -41,7 +40,9 @@ static void comm_handle_line(const char *line) {
     line++;
 
   if (strcmp(line, "version") == 0 || strcmp(line, "ver") == 0) {
-    printf("FW %s\r\n", FW_VERSION_STR);
+    printf("%s %u.%u.%u.%c\r\n", SCALPELSPACE_SHORT_NAME,
+           MOMENTUM_VERSION_MAJOR, MOMENTUM_VERSION_MINOR,
+           MOMENTUM_VERSION_PATCH, MOMENTUM_VERSION_IDENTIFIER);
     return;
   }
 

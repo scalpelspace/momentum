@@ -9,6 +9,15 @@
 
 /** Configuration definitions. ************************************************/
 
+// Centralized short name.
+#define SCALPELSPACE_SHORT_NAME "momentum" // Short name.
+
+// Software version: `MAJOR.MINOR.PATCH-IDENTIFIER`.
+#define MOMENTUM_VERSION_MAJOR 0        // uint8_t number.
+#define MOMENTUM_VERSION_MINOR 2        // uint8_t number.
+#define MOMENTUM_VERSION_PATCH 2        // uint8_t number.
+#define MOMENTUM_VERSION_IDENTIFIER 'p' // ASCII character.
+
 // Full telemetry flood on CAN bus intended for debug/development purposes.
 #define MOMENTUM_FULL_CAN_TELEMETRY
 
