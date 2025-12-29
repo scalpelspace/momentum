@@ -61,7 +61,7 @@ static void comm_handle_line(const char *line) {
         ws2812b_set_colour(0, r, g, b);
         ws2812b_update();
       } else {
-        printf("Error: RGB values must be 0-255\r\n");
+        printf("Error: RGB values must be [0,255]\r\n");
       }
     } else {
       printf("Error: expected `rgb <R>, <G>, <B>`\r\n");
