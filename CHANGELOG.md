@@ -8,7 +8,7 @@
 <!-- TOC -->
 * [Changelog](#changelog)
   * [v0.1.0 (2025-08-21)](#v010--2025-08-21-)
-  * [v0.2.2 (WIP)](#v022--wip-)
+  * [v0.2.2 (2025-12-29)](#v022--2025-12-29-)
 <!-- TOC -->
 
 </details>
@@ -21,11 +21,11 @@
 
 ---
 
-## [v0.2.2 (WIP)](https://github.com/scalpelspace/momentum/releases/tag/v0.2.2)
+## [v0.2.2 (2025-12-29)](https://github.com/scalpelspace/momentum/releases/tag/v0.2.2)
 
 - **Additions:**
     - Add `CHANGELOG.md`.
-    - Implement simple DMA driven USART1 interface for development/debug.
+    - Implement simple DMA driven `USART1` interface for development/debug.
 - **Modifications:**
     - Modernize `.ioc` file for CubeMX `v6.15.0`.
     - Restructure files for modernized CMake toolchain and workflow.
@@ -34,6 +34,4 @@
             - Update CMakeLists.txt.
     - Update scheduler to own and utilize `TIM2` instead of `DWT`.
     - Improve and update `README.md`.
-        - Reduce CP2102N USB-UART docs to centralize docs.
-    - Rewrite UART-to-USB comm modules to a simple debug data transmit.
     - Initialize GNSS data specific for clearer data interpretation.
