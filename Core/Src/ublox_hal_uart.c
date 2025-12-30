@@ -30,7 +30,28 @@
 static uint8_t ublox_rx_dma_buffer[UBLOX_RX_BUFFER_SIZE];
 
 // Latest GPS data.
-ublox_data_t gps_data = {0};
+ublox_data_t gps_data = {
+    FIX_TYPE_UNDETERMINED,
+    {' ', 0, ' '},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.0f,
+    ' ',
+    0.0f,
+    ' ',
+    0.0f,
+    0.0f,
+    0.0f,
+    0.0f,
+    0.0f,
+    ' ',
+    0,
+    0.0f,
+};
 
 // Rx buffer management for DMA based operation.
 static uint16_t ublox_rx_index = 0;
