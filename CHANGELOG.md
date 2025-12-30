@@ -36,3 +36,4 @@
     - Improve and update `README.md`.
         - Reduce CP2102N USB-UART docs to centralize docs.
     - Rewrite UART-to-USB comm modules to a simple debug data transmit.
+    - Initialize GNSS data specific for clearer data interpretation.
