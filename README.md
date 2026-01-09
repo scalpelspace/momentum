@@ -481,13 +481,14 @@ with it previously)_.
 
 #### 6.2.1 Bit Time Calculation
 
-CAN peripherals run on APB1 (80 MHz), the goal is for a 500 kHz CAN bus.
+CAN peripherals run on APB1 (80 MHz), the goal is for a 500 kHz CAN bus with an
+87.5% sample point.
 
 ```
-Prescaler                    = 16
-Time Quanta in Bit Segment 1 = 5     times
-Time Quanta in Bit Segment 2 = 4     times
-Time Quantum                 = 200.0 ns
+Prescaler                    = 10
+Time Quanta in Bit Segment 1 = 13       times
+Time Quanta in Bit Segment 2 = 2        times
+Time Quantum                 = 125.0    ns
 ```
 
 > Lots of resources and calculators online, example here:

@@ -2,12 +2,13 @@
 CAD.formats=
 CAD.pinconfig=
 CAD.provider=
-CAN1.BS1=CAN_BS1_5TQ
-CAN1.BS2=CAN_BS2_4TQ
+CAN1.BS1=CAN_BS1_13TQ
+CAN1.BS2=CAN_BS2_2TQ
 CAN1.CalculateBaudRate=500000
 CAN1.CalculateTimeBit=2000
-CAN1.CalculateTimeQuantum=200.0
-CAN1.IPParameters=CalculateTimeQuantum,CalculateTimeBit,CalculateBaudRate,BS1,BS2
+CAN1.CalculateTimeQuantum=125.0
+CAN1.IPParameters=CalculateTimeQuantum,CalculateTimeBit,CalculateBaudRate,BS1,BS2,Prescaler
+CAN1.Prescaler=10
 Dma.Request0=SPI1_RX
 Dma.Request1=SPI1_TX
 Dma.Request2=USART2_RX
