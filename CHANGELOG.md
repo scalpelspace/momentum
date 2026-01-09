@@ -9,6 +9,7 @@
 * [Changelog](#changelog)
   * [v0.1.0 (2025-08-21)](#v010--2025-08-21-)
   * [v0.2.2 (2025-12-29)](#v022--2025-12-29-)
+  * [v0.2.3 (TBD)](#v023--tbd-)
 <!-- TOC -->
 
 </details>
@@ -35,3 +36,10 @@
     - Update scheduler to own and utilize `TIM2` instead of `DWT`.
     - Improve and update `README.md`.
     - Initialize GNSS data specific for clearer data interpretation.
+
+---
+
+## [v0.2.3 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.2.3)
+
+- **Modifications:**
+    - Improve CAN bus time sample point to 87.5% (previously 60%).
