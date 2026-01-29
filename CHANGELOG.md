@@ -45,6 +45,10 @@
 - **Modifications:**
     - Fix CAN bus time sample point to 87.5% (previously 60%).
 
+> **Post Release Notes:**
+> - Error: Version macros were not properly updated, incorrectly left as
+    `v0.2.2`.
+
 ---
 
 ## [v0.2.4 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.2.4)
