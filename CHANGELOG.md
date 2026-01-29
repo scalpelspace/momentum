@@ -10,6 +10,7 @@
   * [v0.1.0 (2025-08-21)](#v010--2025-08-21-)
   * [v0.2.2 (2025-12-29)](#v022--2025-12-29-)
   * [v0.2.3 (2026-01-09)](#v023--2026-01-09-)
+  * [v0.2.4 (TBD)](#v024--tbd-)
 <!-- TOC -->
 
 </details>
@@ -43,3 +44,11 @@
 
 - **Modifications:**
     - Fix CAN bus time sample point to 87.5% (previously 60%).
+
+---
+
+## [v0.2.4 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.2.4)
+
+- **Modifications:**
+    - Update `momentum_driver` for tagged release `v0.1.0`.
+    - Cleanup block diagram.
