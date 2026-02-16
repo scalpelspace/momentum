@@ -11,6 +11,7 @@
   * [v0.2.2 (2025-12-29)](#v022--2025-12-29-)
   * [v0.2.3 (2026-01-09)](#v023--2026-01-09-)
   * [v0.2.4 (2026-01-29)](#v024--2026-01-29-)
+  * [v0.2.5 (TBD)](#v025--tbd-)
 <!-- TOC -->
 
 </details>
@@ -56,3 +57,10 @@
 - **Modifications:**
     - Update `momentum_driver` for tagged release `v0.1.0`.
     - Cleanup block diagram.
+
+---
+
+## [v0.2.5 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.2.5)
+
+- **Modifications:**
+    - Tighten typing in macros.
