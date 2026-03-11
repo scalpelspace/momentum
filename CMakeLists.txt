@@ -75,6 +75,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         Core/Src/sh2_hal_spi.c
         Core/Src/telemetry.c
         Core/Src/ublox_hal_uart.c
+        Core/Src/uid_hash48.c
         Core/Src/ws2812b_hal_pwm.c
 )
 
