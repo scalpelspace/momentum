@@ -61,17 +61,17 @@ typedef enum {
 } nmea_position_fix_t;
 
 /**
- * @brief Struct to store GPS data.
+ * @brief Struct to store GNSS data.
  */
 typedef struct {
   nmea_position_fix_t position_fix;
   nmea_fix_flags_t position_flags;
-  uint8_t year;       // RTC date, year from GPS satellite.
-  uint8_t month;      // RTC date, month from GPS satellite.
-  uint8_t day;        // RTC date, day from GPS satellite.
-  uint8_t hour;       // RTC time, hour from GPS satellite.
-  uint8_t minute;     // RTC time, minute from GPS satellite.
-  uint8_t second;     // RTC time, second from GPS satellite.
+  uint8_t year;       // RTC date, year from GNSS satellite.
+  uint8_t month;      // RTC date, month from GNSS satellite.
+  uint8_t day;        // RTC date, day from GNSS satellite.
+  uint8_t hour;       // RTC time, hour from GNSS satellite.
+  uint8_t minute;     // RTC time, minute from GNSS satellite.
+  uint8_t second;     // RTC time, second from GNSS satellite.
   float latitude;     // Latitude in decimal degrees.
   char lat_dir;       // Latitude direction (N/S).
   float longitude;    // Longitude in decimal degrees.
@@ -88,7 +88,7 @@ typedef struct {
 
 /** Public variables. *********************************************************/
 
-extern ublox_data_t gps_data;
+extern ublox_data_t gnss_data;
 
 /** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 

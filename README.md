@@ -518,8 +518,8 @@ here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
 
 ## 7 SAM-M10Q RF Receiver Galileo, GLONASS, GPS
 
-Multi-constellation GPS module by u-blox. GPS, GLONASS, Galileo capable at 18Hz
-individually or dual (GPS and GLONASS) at 10 Hz. Supports both UART and I2C.
+Multi-constellation GNSS module by u-blox. GPS, GLONASS, Galileo capable at 18
+Hz individually or dual (GPS and GLONASS) at 10 Hz. Supports both UART and I2C.
 
 > Utilized reference documents:
 > 1. `SAM-M10Q Data sheet 14-May-2024`
@@ -537,7 +537,7 @@ UART baud rate is set for 9600 bps (default baud rate of u-blox module).
 
 #### 7.2.1 Direct Memory Access (DMA)
 
-DMA is used configured to allow continuous GPS receive in hardware:
+DMA is used configured to allow continuous GNSS receive in hardware:
 
 `USART2_RX` `DMA1 Stream6`:
 

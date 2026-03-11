@@ -71,25 +71,25 @@ void prep_momentum_response_tx(momentum_frame_t request) {
                         bno085_gravity_z,
                         bmp390_temperature,
                         bmp390_pressure,
-                        gps_data.position_fix,
-                        gps_data.year,
-                        gps_data.month,
-                        gps_data.day,
-                        gps_data.hour,
-                        gps_data.minute,
-                        gps_data.second,
-                        gps_data.latitude,
-                        gps_data.lat_dir,
-                        gps_data.longitude,
-                        gps_data.lon_dir,
-                        gps_data.altitude_m,
-                        gps_data.geoid_sep_m,
-                        gps_data.speed_knots,
-                        gps_data.course_deg,
-                        gps_data.magnetic_deg,
-                        gps_data.mag_dir,
-                        gps_data.satellites,
-                        gps_data.hdop};
+                        gnss_data.position_fix,
+                        gnss_data.year,
+                        gnss_data.month,
+                        gnss_data.day,
+                        gnss_data.hour,
+                        gnss_data.minute,
+                        gnss_data.second,
+                        gnss_data.latitude,
+                        gnss_data.lat_dir,
+                        gnss_data.longitude,
+                        gnss_data.lon_dir,
+                        gnss_data.altitude_m,
+                        gnss_data.geoid_sep_m,
+                        gnss_data.speed_knots,
+                        gnss_data.course_deg,
+                        gnss_data.magnetic_deg,
+                        gnss_data.mag_dir,
+                        gnss_data.satellites,
+                        gnss_data.hdop};
 
   version_t version = {MOMENTUM_VERSION_MAJOR, MOMENTUM_VERSION_MINOR,
                        MOMENTUM_VERSION_PATCH, MOMENTUM_VERSION_IDENTIFIER};
@@ -125,20 +125,20 @@ void prep_momentum_response_tx(momentum_frame_t request) {
   case MOMENTUM_FRAME_TYPE_BAR_ENV:
     len = build_pressure_temp_payload(&frame, &data);
     break;
-  case MOMENTUM_FRAME_TYPE_GPS_DATETIME:
-    len = build_gps_datetime_payload(&frame, &data);
+  case MOMENTUM_FRAME_TYPE_GNSS_DATETIME:
+    len = build_gnss_datetime_payload(&frame, &data);
     break;
-  case MOMENTUM_FRAME_TYPE_GPS_COORD:
-    len = build_gps_coord_payload(&frame, &data);
+  case MOMENTUM_FRAME_TYPE_GNSS_COORD:
+    len = build_gnss_coord_payload(&frame, &data);
     break;
-  case MOMENTUM_FRAME_TYPE_GPS_ALT_SPEED:
-    len = build_gps_altitude_speed_payload(&frame, &data);
+  case MOMENTUM_FRAME_TYPE_GNSS_ALT_SPEED:
+    len = build_gnss_altitude_speed_payload(&frame, &data);
     break;
-  case MOMENTUM_FRAME_TYPE_GPS_HEAD:
-    len = build_gps_heading_payload(&frame, &data);
+  case MOMENTUM_FRAME_TYPE_GNSS_HEAD:
+    len = build_gnss_heading_payload(&frame, &data);
     break;
-  case MOMENTUM_FRAME_TYPE_GPS_STATS:
-    len = build_gps_stats_payload(&frame, &data);
+  case MOMENTUM_FRAME_TYPE_GNSS_STATS:
+    len = build_gnss_stats_payload(&frame, &data);
     break;
   default:
     len = 0;

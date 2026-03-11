@@ -66,3 +66,4 @@
     - Tighten typing in macros.
     - Update `momentum_driver` for tagged release `v0.2.0`.
         - Implements the new CAN ID scheme, `can_driver`, release `v0.3.0`.
+    - Correct all incorrect references of "gps" to "gnss".

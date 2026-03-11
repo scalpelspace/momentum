@@ -29,8 +29,8 @@
 // Buffer for UART reception.
 static uint8_t ublox_rx_dma_buffer[UBLOX_RX_BUFFER_SIZE];
 
-// Latest GPS data.
-ublox_data_t gps_data = {
+// Latest GNSS data.
+ublox_data_t gnss_data = {
     FIX_TYPE_UNDETERMINED,
     {' ', 0, ' '},
     0,
@@ -278,7 +278,7 @@ static int nmea_split_preserve_empty(char *sentence, char *tokens[],
  * @retval == true -> All values seem valid.
  * @retval == false -> At least 1 value seems invalid.
  *
- * @note GPS data is still updated on failure using information processed up to
+ * @note GNSS data is still updated on failure using information processed up to
  *       (but not including) the invalid information.
  *
  *  tokens[0] = xxGGA         (string).
@@ -335,53 +335,53 @@ static bool parse_gngga(const char *sentence) {
   uint8_t mm = (uint8_t)((utc_raw - ((float)hh * 10000.0f)) / 100.0f);
   uint8_t ss =
       (uint8_t)(utc_raw - ((float)hh * 10000.0f) - ((float)mm * 100.0f));
-  gps_data.hour = hh;
-  gps_data.minute = mm;
-  gps_data.second = ss;
+  gnss_data.hour = hh;
+  gnss_data.minute = mm;
+  gnss_data.second = ss;
 
   // 5) Latitude.
   //    tokens[2] = ddmm.mmmmm (string).
   //    tokens[3] = 'N' or 'S'.
-  gps_data.latitude = to_decimal_deg(tokens[2], tokens[3][0]);
-  gps_data.lat_dir = tokens[3][0];
+  gnss_data.latitude = to_decimal_deg(tokens[2], tokens[3][0]);
+  gnss_data.lat_dir = tokens[3][0];
 
   // 6) Longitude.
   //    tokens[4] = dddmm.mmmmm (string).
   //    tokens[5] = 'E' or 'W'.
-  gps_data.longitude = to_decimal_deg(tokens[4], tokens[5][0]);
-  gps_data.lon_dir = tokens[5][0];
+  gnss_data.longitude = to_decimal_deg(tokens[4], tokens[5][0]);
+  gnss_data.lon_dir = tokens[5][0];
 
   // 7) Fix quality.
-  gps_data.position_flags.quality = (unsigned)strtoul(tokens[6], &endptr, 10);
+  gnss_data.position_flags.quality = (unsigned)strtoul(tokens[6], &endptr, 10);
   if (endptr == tokens[6])
     return false;
 
   // 8) Number of satellites.
-  gps_data.satellites = (unsigned)strtoul(tokens[7], &endptr, 10);
+  gnss_data.satellites = (unsigned)strtoul(tokens[7], &endptr, 10);
   if (endptr == tokens[7])
     return false;
 
   // 9) Horizontal Dilution of Precision (HDOP).
-  gps_data.hdop = strtof(tokens[8], &endptr);
+  gnss_data.hdop = strtof(tokens[8], &endptr);
 
   // 10) Altitude (m).
-  gps_data.altitude_m = strtof(tokens[9], &endptr);
+  gnss_data.altitude_m = strtof(tokens[9], &endptr);
 
   // 11) Geoid separation (m).
-  gps_data.geoid_sep_m = strtof(tokens[11], &endptr);
+  gnss_data.geoid_sep_m = strtof(tokens[11], &endptr);
 
   // 12) Update position fix classification.
-  gps_data.position_fix = classify_position_fix(&gps_data.position_flags);
+  gnss_data.position_fix = classify_position_fix(&gnss_data.position_flags);
 
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
-  can_tx_gps1();
-  can_tx_gps2();
-  can_tx_gps3();
+  can_tx_gnss1();
+  can_tx_gnss2();
+  can_tx_gnss3();
 #endif
 #ifdef MOMENTUM_FULL_COMM_TELEMETRY
-  comm_tx_gps1();
-  comm_tx_gps2();
-  comm_tx_gps3();
+  comm_tx_gnss1();
+  comm_tx_gnss2();
+  comm_tx_gnss3();
 #endif
 
   return true;
@@ -395,7 +395,7 @@ static bool parse_gngga(const char *sentence) {
  * @return == true -> All values seem valid.
  * @return == false -> At least 1 value seems invalid.
  *
- * @note GPS data is still updated on failure using information processed up to
+ * @note GNSS data is still updated on failure using information processed up to
  *       (but not including) the invalid information.
  *
  *  tokens[0] = xxRMC         (string).
@@ -452,13 +452,13 @@ static bool parse_gnrmc(const char *sentence) {
   uint8_t mm = (uint8_t)((utc_raw - ((float)hh * 10000.0f)) / 100.0f);
   uint8_t ss =
       (uint8_t)(utc_raw - ((float)hh * 10000.0f) - ((float)mm * 100.0f));
-  gps_data.hour = hh;
-  gps_data.minute = mm;
-  gps_data.second = ss;
+  gnss_data.hour = hh;
+  gnss_data.minute = mm;
+  gnss_data.second = ss;
 
   // 5) Status.
   char status = tokens[2][0];
-  gps_data.position_flags.status = status;
+  gnss_data.position_flags.status = status;
   if (status != 'A' && status != 'V') {
     return false;
   }
@@ -466,26 +466,26 @@ static bool parse_gnrmc(const char *sentence) {
   // 6) Latitude.
   //    tokens[3] = ddmm.mmmmm (string).
   //    tokens[4] = 'N' or 'S'.
-  gps_data.latitude = to_decimal_deg(tokens[3], tokens[4][0]);
-  gps_data.lat_dir = tokens[4][0];
+  gnss_data.latitude = to_decimal_deg(tokens[3], tokens[4][0]);
+  gnss_data.lat_dir = tokens[4][0];
 
   // 7) Longitude.
   //    tokens[5] = dddmm.mmmmm (string).
   //    tokens[6] = 'E' or 'W'.
-  gps_data.longitude = to_decimal_deg(tokens[5], tokens[6][0]);
-  gps_data.lon_dir = tokens[6][0];
+  gnss_data.longitude = to_decimal_deg(tokens[5], tokens[6][0]);
+  gnss_data.lon_dir = tokens[6][0];
 
   // 8) Speed over ground (knots).
   float speed_kn = strtof(tokens[7], &endptr);
   if (endptr == tokens[7]) {
     return false;
   }
-  gps_data.speed_knots = speed_kn;
+  gnss_data.speed_knots = speed_kn;
 
   // 9) Course over ground (degrees).
   float course_deg = strtof(tokens[8], &endptr);
   if (endptr != tokens[8]) {
-    gps_data.course_deg = course_deg;
+    gnss_data.course_deg = course_deg;
   }
 
   // 10) Date "ddmmyy".
@@ -496,33 +496,33 @@ static bool parse_gnrmc(const char *sentence) {
   uint8_t day = (uint8_t)(date_raw / 10000);
   uint8_t month = (uint8_t)((date_raw - (day * 10000)) / 100);
   uint8_t year = (uint8_t)(date_raw - (day * 10000) - (month * 100));
-  gps_data.day = day;
-  gps_data.month = month;
-  gps_data.year = year; // 2 digit year ("00" = 2000, "23" = 2023, etc).
+  gnss_data.day = day;
+  gnss_data.month = month;
+  gnss_data.year = year; // 2 digit year ("00" = 2000, "23" = 2023, etc).
 
   // 11) Position mode indicator (optional-only NMEA 2.3+).
   if (tokens[12]) {
-    gps_data.position_flags.pos_mode = tokens[12][0];
+    gnss_data.position_flags.pos_mode = tokens[12][0];
   }
 
   // 12) Navigation status (optional-only NMEA 4.10+).
   // TODO: Skipped implementation.
   //  if (tokens[13]) {
-  //    gps_data.nav_status = tokens[13][0];
+  //    gnss_data.nav_status = tokens[13][0];
   //  }
 
   // 13) Update position fix classification.
-  gps_data.position_fix = classify_position_fix(&gps_data.position_flags);
+  gnss_data.position_fix = classify_position_fix(&gnss_data.position_flags);
 
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
-  can_tx_gps1();
-  can_tx_gps2();
-  can_tx_gps3();
+  can_tx_gnss1();
+  can_tx_gnss2();
+  can_tx_gnss3();
 #endif
 #ifdef MOMENTUM_FULL_COMM_TELEMETRY
-  comm_tx_gps1();
-  comm_tx_gps2();
-  comm_tx_gps3();
+  comm_tx_gnss1();
+  comm_tx_gnss2();
+  comm_tx_gnss3();
 #endif
 
   return true;

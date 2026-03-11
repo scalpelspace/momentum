@@ -78,22 +78,22 @@ static void comm_handle_line(const char *line) {
   }
 
   else if (strcmp(line, "gnss") == 0) {
-    printf("%u/%u/%u %u:%u:%u\r\n", gps_data.year + 2000, gps_data.month,
-           gps_data.day, gps_data.hour, gps_data.minute, gps_data.second);
-    printf("%.3f (%c),%.3f (%c), %.3f m\r\n", gps_data.latitude,
-           gps_data.lat_dir, gps_data.longitude, gps_data.lon_dir,
-           gps_data.altitude_m);
+    printf("%u/%u/%u %u:%u:%u\r\n", gnss_data.year + 2000, gnss_data.month,
+           gnss_data.day, gnss_data.hour, gnss_data.minute, gnss_data.second);
+    printf("%.3f (%c),%.3f (%c), %.3f m\r\n", gnss_data.latitude,
+           gnss_data.lat_dir, gnss_data.longitude, gnss_data.lon_dir,
+           gnss_data.altitude_m);
   }
 
   else if (strcmp(line, "report") == 0) {
     printf("%.3f i,%.3f j,%.3f k, %.3f r\r\n", bno085_quaternion_i,
            bno085_quaternion_j, bno085_quaternion_k, bno085_quaternion_real);
     printf("%.3f degC,%.3f Pa\r\n", bmp390_temperature, bmp390_pressure);
-    printf("%u/%u/%u %u:%u:%u\r\n", gps_data.year + 2000, gps_data.month,
-           gps_data.day, gps_data.hour, gps_data.minute, gps_data.second);
-    printf("%.3f (%c),%.3f (%c), %.3f m\r\n", gps_data.latitude,
-           gps_data.lat_dir, gps_data.longitude, gps_data.lon_dir,
-           gps_data.altitude_m);
+    printf("%u/%u/%u %u:%u:%u\r\n", gnss_data.year + 2000, gnss_data.month,
+           gnss_data.day, gnss_data.hour, gnss_data.minute, gnss_data.second);
+    printf("%.3f (%c),%.3f (%c), %.3f m\r\n", gnss_data.latitude,
+           gnss_data.lat_dir, gnss_data.longitude, gnss_data.lon_dir,
+           gnss_data.altitude_m);
   }
 
   else { // Error: unknown command.
