@@ -11,7 +11,7 @@
   * [v0.2.2 (2025-12-29)](#v022--2025-12-29-)
   * [v0.2.3 (2026-01-09)](#v023--2026-01-09-)
   * [v0.2.4 (2026-01-29)](#v024--2026-01-29-)
-  * [v0.3.1 (TBD)](#v031--tbd-)
+  * [v0.3.1 (2026-03-11)](#v031--2026-03-11-)
 <!-- TOC -->
 
 </details>
@@ -60,7 +60,7 @@
 
 ---
 
-## [v0.3.1 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.3.1)
+## [v0.3.1 (2026-03-11)](https://github.com/scalpelspace/momentum/releases/tag/v0.3.1)
 
 - **Modifications:**
     - Tighten typing in macros.
