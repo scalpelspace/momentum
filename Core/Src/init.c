@@ -31,6 +31,7 @@ extern RNG_HandleTypeDef hrng;
 void momentum_init(void) {
   // Low level peripherals.
   can_init();
+  can_db_init();
 
   // UART debug/developer interface.
   comm_init();

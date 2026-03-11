@@ -36,6 +36,11 @@ extern can_node_id_t can_node_id;
 void can_init(void);
 
 /**
+ * @brief Initialize CAN DBC.
+ */
+void can_db_init(void);
+
+/**
  * @brief Send uint32_t data CAN message on h_can_x with can_message_t
  * reference.
  *
