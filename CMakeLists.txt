@@ -50,6 +50,10 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         # Add user sources here
         Core/BMP3_SensorAPI/bmp3.c
         Core/momentum_driver/can_driver/can_driver.c
+        Core/momentum_driver/can_driver/can_id.c
+        Core/momentum_driver/can_driver/can_id_allocatee.c
+        Core/momentum_driver/can_driver/can_id_allocation_dbc.c
+        Core/momentum_driver/can_driver/can_id_allocator.c
         Core/momentum_driver/momentum_can_dbc.c
         Core/momentum_driver/momentum_spi_driver.c
         Core/sh2/euler.c
@@ -79,6 +83,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         # Add user defined include paths
         Core/BMP3_SensorAPI
         Core/momentum_driver
+        Core/momentum_driver/can_driver
         Core/sh2
 )
 

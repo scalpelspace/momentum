@@ -7,6 +7,10 @@
 /** Includes. *****************************************************************/
 
 #include "can.h"
+#include "configuration.h"
+#include "rtc.h"
+#include <stdint.h>
+#include <string.h>
 
 /** Private variables. ********************************************************/
 
@@ -14,6 +18,12 @@
 CAN_TxHeaderTypeDef tx_header;
 uint8_t tx_buffer[8];
 uint32_t tx_mailbox;
+
+/** Public variables. *********************************************************/
+
+// Mutable runtime copy.
+can_message_t mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_COUNT];
+can_node_id_t can_node_id = DEFAULT_CAN_NODE_ID;
 
 /** Private functions. ********************************************************/
 
@@ -28,26 +38,35 @@ uint32_t tx_mailbox;
  * @param data Pointer to the raw data of the CAN message.
  */
 void process_can_message(CAN_RxHeaderTypeDef *header, uint8_t *data) {
-  for (int i = 0; i < dbc_message_count; i++) {
+  // CAN ID allocatee callbacks.
+  // TODO: Overhead here, reduce via control flag or extended state variable?
+  const can_header_t l_header = {
+      header->StdId, header->ExtId, 0, header->DLC, header->RTR,
+  };
+  can_rx_can_id_allocatee_discovery(&l_header, data);
+  can_rx_can_id_allocatee_assignment(&l_header, data);
+
+  // CAN PWM Node DBC written callbacks.
+  for (int i = 0; i < MOMENTUM_CAN_DBC_IDX_COUNT; i++) {
     // Check if the message ID matches.
-    if ((header->StdId & dbc_messages[i].id_mask) ==
-        dbc_messages[i].message_id) {
+    if ((header->StdId & mod_dbc_messages[i].id_mask) ==
+        mod_dbc_messages[i].message_id) {
 
       // Check if the message DLC matches, or if no check required (dlc == 0).
-      if (dbc_messages[i].dlc == 0 || header->DLC == dbc_messages[i].dlc) {
+      if (mod_dbc_messages[i].dlc == 0 ||
+          header->DLC == mod_dbc_messages[i].dlc) {
 
         // Call the rx_handler if it exists.
         // TODO: Use of function pointers as CAN Rx and Tx handlers need to be
         //  fully evaluated.
         //  TODO: Use of the reduced CAN header type `can_header_t` (made to
         //   remove dependency on CAN_RxHeaderTypeDef (STM32 HAL) within
-        //   momentum_driver) needs to be further evaluated.
-        if (dbc_messages[i].rx_handler) {
+        //   pwm_node_driver) needs to be further evaluated.
+        if (mod_dbc_messages[i].rx_handler) {
           can_header_t reduced_header = {header->StdId, header->ExtId,
                                          header->IDE, header->DLC, header->RTR};
-          dbc_messages[i].rx_handler(&reduced_header, data);
+          mod_dbc_messages[i].rx_handler(&reduced_header, data);
         }
-
       } else {
         // Handle ID/DLC mismatch fault.
         // can_fault(); // TODO: IMPLEMENT.
@@ -117,6 +136,50 @@ void can_init(void) {
   // Remaining members (DLC and StdId) are configured per message on transmit.
 }
 
+void can_rx_datetime_get(can_header_t *header, uint8_t *data) {
+  RTC_DateTypeDef sDate = {0};
+  RTC_TimeTypeDef sTime = {0};
+
+  // NOTE: Time must be read before date on STM32 HAL to unlock the shadow
+  // registers correctly — reading date first can latch stale values.
+  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_DATETIME_GET_RESPONSE];
+  const uint32_t values[] = {
+      sDate.Year,  sDate.Month,   sDate.Date,    sDate.WeekDay,
+      sTime.Hours, sTime.Minutes, sTime.Seconds,
+  };
+
+  can_send_message_raw32(&HCAN, msg, values);
+}
+
+void can_rx_version_get(can_header_t *header, uint8_t *data) {
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_GET_RESPONSE];
+  const uint32_t values[] = {
+      MOMENTUM_VERSION_MAJOR,
+      MOMENTUM_VERSION_MINOR,
+      MOMENTUM_VERSION_PATCH,
+      MOMENTUM_VERSION_IDENTIFIER,
+  };
+
+  can_send_message_raw32(&HCAN, msg, values);
+}
+
+void can_db_init(void) {
+  // Create the mutable copy of the DBC into RAM.
+  memcpy(mod_dbc_messages, dbc_messages,
+         MOMENTUM_CAN_DBC_IDX_COUNT * sizeof(dbc_messages[0]));
+
+  // Custom overrides.
+  mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_DATETIME_GET].rx_handler =
+      (can_rx_handler_t)can_rx_datetime_get;
+  mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_GET].rx_handler =
+      (can_rx_handler_t)can_rx_version_get;
+}
+
 HAL_StatusTypeDef can_send_message_raw32(CAN_HandleTypeDef *h_can_x,
                                          const can_message_t *msg,
                                          const uint32_t signal_values[]) {
@@ -133,4 +196,36 @@ HAL_StatusTypeDef can_send_message_raw32(CAN_HandleTypeDef *h_can_x,
   tx_header.DLC = msg->dlc;
 
   return HAL_CAN_AddTxMessage(h_can_x, &tx_header, data, &tx_mailbox);
+}
+
+bool can_tx_direct(const can_message_t *msg, const uint8_t data[8]) {
+  // Prepare the CAN transmit header.
+  tx_header.StdId = msg->message_id;
+  tx_header.IDE = CAN_ID_STD;
+  tx_header.RTR = CAN_RTR_DATA;
+  tx_header.DLC = msg->dlc;
+
+  // Transmit.
+  const HAL_StatusTypeDef status =
+      HAL_CAN_AddTxMessage(&HCAN, &tx_header, data, &tx_mailbox);
+  if (status == HAL_OK) {
+    return true;
+  }
+  return false;
+}
+
+void allocatee_complete(const can_node_id_t node_id) {
+  if (node_id == CAN_ID_NODE_ID_UNASSIGNED ||
+      node_id == CAN_ID_NODE_ID_BROADCAST) {
+    return;
+  }
+
+  can_node_id = node_id; // Update CAN node ID.
+
+  // Patch all DBC message IDs with the assigned node_id.
+  for (int i = 0; i < MOMENTUM_CAN_DBC_IDX_COUNT; i++) {
+    can_message_id_t msg_id;
+    can_id_unpack(mod_dbc_messages[i].message_id, &msg_id, NULL);
+    can_id_pack(msg_id, node_id, (can_id_t *)&mod_dbc_messages[i].message_id);
+  }
 }

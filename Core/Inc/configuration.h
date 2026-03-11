@@ -13,10 +13,13 @@
 #define SCALPELSPACE_SHORT_NAME "momentum" // Short name.
 
 // Software version: `MAJOR.MINOR.PATCH-IDENTIFIER`.
-#define MOMENTUM_VERSION_MAJOR (0U)     // uint8_t number.
-#define MOMENTUM_VERSION_MINOR (2U)     // uint8_t number.
-#define MOMENTUM_VERSION_PATCH (4U)     // uint8_t number.
+#define MOMENTUM_VERSION_MAJOR (0u)     // uint8_t number.
+#define MOMENTUM_VERSION_MINOR (3u)     // uint8_t number.
+#define MOMENTUM_VERSION_PATCH (1u)     // uint8_t number.
 #define MOMENTUM_VERSION_IDENTIFIER 'p' // ASCII character.
+
+// CAN ID standard.
+#define DEFAULT_CAN_NODE_ID (0u) // Unassigned.
 
 // Full telemetry flood on CAN bus intended for debug/development purposes.
 #define MOMENTUM_FULL_CAN_TELEMETRY

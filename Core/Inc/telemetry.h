@@ -19,7 +19,6 @@ void can_tx_imu2(void);
 void can_tx_imu3(void);
 void can_tx_imu4(void);
 void can_tx_imu5(void);
-void can_tx_rtc(void);
 void comm_tx_state(void);
 void comm_tx_barometric(void);
 void comm_tx_gps1(void);
