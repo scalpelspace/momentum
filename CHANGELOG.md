@@ -12,6 +12,7 @@
   * [v0.2.3 (2026-01-09)](#v023--2026-01-09-)
   * [v0.2.4 (2026-01-29)](#v024--2026-01-29-)
   * [v0.3.1 (2026-03-11)](#v031--2026-03-11-)
+  * [v0.3.2 (TBD)](#v032--tbd-)
 <!-- TOC -->
 
 </details>
@@ -67,3 +68,10 @@
     - Update `momentum_driver` for tagged release `v0.2.0`.
         - Implements the new CAN ID scheme, `can_driver`, release `v0.3.0`.
     - Correct all incorrect references of "gps" to "gnss".
+
+---
+
+## [v0.3.2 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.3.2)
+
+- **Modifications:**
+    - Minor documentation and code cleanup.

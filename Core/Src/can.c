@@ -138,7 +138,7 @@ void can_rx_datetime_get(can_header_t *header, uint8_t *data) {
   RTC_TimeTypeDef sTime = {0};
 
   // NOTE: Time must be read before date on STM32 HAL to unlock the shadow
-  // registers correctly — reading date first can latch stale values.
+  // registers correctly - reading date first can latch stale values.
   HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
   HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 
