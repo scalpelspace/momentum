@@ -4,8 +4,8 @@
  *******************************************************************************
  */
 
-#ifndef PWM_NODE__UID_HASH48_H
-#define PWM_NODE__UID_HASH48_H
+#ifndef MOMENTUM__UID_HASH48_H
+#define MOMENTUM__UID_HASH48_H
 
 /** Includes. *****************************************************************/
 
