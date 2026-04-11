@@ -75,3 +75,5 @@
 
 - **Modifications:**
     - Minor documentation and code cleanup.
+    - Move `can_id_allocatee_state_machine()` to scheduler task rather than
+      direct superloop call.

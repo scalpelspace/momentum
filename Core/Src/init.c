@@ -10,6 +10,7 @@
 #include "bmp390_runner.h"
 #include "bno085_runner.h"
 #include "can.h"
+#include "can_id_allocatee.h"
 #include "comm.h"
 #include "momentum_runner.h"
 #include "scheduler.h"
@@ -55,6 +56,7 @@ void momentum_init(void) {
   // Scheduler.
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(bmp390_get_data, 10);
+  scheduler_add_task(can_id_allocatee_state_machine, 20);
 
   // Sensors.
   // TODO: DEV NOTE: Timer initialization completed by scheduler (TIM owner).
