@@ -81,4 +81,4 @@
         - Updates `can_driver` to tagged release `v0.3.6` which has a minor CAN
           bus data decode fixes.
     - Update `arm_gcc_build.yaml` to run on updates to submodules.
-      - All submodules included (`BMP3_SensorAPI`, `momentum_driver`, `sh2`).
+        - All submodules included (`BMP3_SensorAPI`, `momentum_driver`, `sh2`).
