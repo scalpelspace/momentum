@@ -12,7 +12,7 @@
   * [v0.2.3 (2026-01-09)](#v023--2026-01-09-)
   * [v0.2.4 (2026-01-29)](#v024--2026-01-29-)
   * [v0.3.1 (2026-03-11)](#v031--2026-03-11-)
-  * [v0.3.2 (TBD)](#v032--tbd-)
+  * [v0.3.2 (2026-04-22)](#v032--2026-04-22-)
 <!-- TOC -->
 
 </details>
@@ -71,9 +71,12 @@
 
 ---
 
-## [v0.3.2 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.3.2)
+## [v0.3.2 (2026-04-22)](https://github.com/scalpelspace/momentum/releases/tag/v0.3.2)
 
 - **Modifications:**
     - Minor documentation and code cleanup.
     - Move `can_id_allocatee_state_machine()` to scheduler task rather than
       direct superloop call.
+    - Update `momentum_driver` for tagged release `v0.2.1`.
+        - Updates `can_driver` to tagged release `v0.3.6` which has a minor CAN
+          bus data decode fixes.
