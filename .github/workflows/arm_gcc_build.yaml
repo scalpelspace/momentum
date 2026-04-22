@@ -17,6 +17,9 @@ on:
       - "**/CMakeLists.txt"                    # Any subdirectory CMake.
       - "cmake/**"                             # Toolchain/cmake modules.
       - ".github/workflows/arm_gcc_build.yaml" # Workflow file.
+      - "Core/BMP3_SensorAPI"                  # Submodule pointer update.
+      - "Core/momentum_driver"                 # Submodule pointer update.
+      - "Core/sh2"                             # Submodule pointer update.
     branches:
       - main
   pull_request:
@@ -29,6 +32,9 @@ on:
       - "**/CMakeLists.txt"                    # Any subdirectory CMake.
       - "cmake/**"                             # Toolchain/cmake modules.
       - ".github/workflows/arm_gcc_build.yaml" # Workflow file.
+      - "Core/BMP3_SensorAPI"                  # Submodule pointer update.
+      - "Core/momentum_driver"                 # Submodule pointer update.
+      - "Core/sh2"                             # Submodule pointer update.
     branches:
       - main
 
