@@ -72,77 +72,80 @@ void can_tx_gnss3(void) {
   can_send_message_raw32(&hcan1, &gnss3_msg, gnss3_sigs);
 }
 
-void can_tx_imu1(void) {
-  const can_message_t imu1_msg =
+void can_tx_quaternion(void) {
+  const can_message_t quaternion_msg =
       mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_QUATERNION];
-  uint32_t imu1_sigs[4] = {0};
-  const float imu1_source_sigs[4] = {bno085_quaternion_i, bno085_quaternion_j,
-                                     bno085_quaternion_k,
-                                     bno085_quaternion_real};
-  for (int i = 0; i < imu1_msg.signal_count; ++i) {
-    imu1_sigs[i] = physical_to_raw(imu1_source_sigs[i], &imu1_msg.signals[i]);
+  uint32_t quaternion_sigs[4] = {0};
+  const float quaternion_source_sigs[4] = {
+      bno085_quaternion_i, bno085_quaternion_j, bno085_quaternion_k,
+      bno085_quaternion_real};
+  for (int i = 0; i < quaternion_msg.signal_count; ++i) {
+    quaternion_sigs[i] =
+        physical_to_raw(quaternion_source_sigs[i], &quaternion_msg.signals[i]);
   }
-  can_send_message_raw32(&hcan1, &imu1_msg, imu1_sigs);
+  can_send_message_raw32(&hcan1, &quaternion_msg, quaternion_sigs);
 }
 
-void can_tx_magnetometer(void) {
-  const can_message_t magnetometer_msg =
+void can_tx_mag(void) {
+  const can_message_t mag_msg =
       mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_MAGNETOMETER];
-  uint32_t magnetometer_sigs[3] = {0};
+  uint32_t mag_sigs[3] = {0};
   const float mag_source_sigs[3] = {bno085_mag_x, bno085_mag_y, bno085_mag_z};
-  for (int i = 0; i < magnetometer_msg.signal_count; ++i) {
-    magnetometer_sigs[i] =
-        physical_to_raw(mag_source_sigs[i], &magnetometer_msg.signals[i]);
+  for (int i = 0; i < mag_msg.signal_count; ++i) {
+    mag_sigs[i] = physical_to_raw(mag_source_sigs[i], &mag_msg.signals[i]);
   }
-  can_send_message_raw32(&hcan1, &magnetometer_msg, magnetometer_sigs);
+  can_send_message_raw32(&hcan1, &mag_msg, mag_sigs);
 }
 
-void can_tx_imu2(void) {
-  const can_message_t imu2_msg =
+void can_tx_gyro(void) {
+  const can_message_t gyro_msg =
       mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GYROSCOPE];
-  uint32_t imu2_sigs[3] = {0};
-  const float imu2_source_sigs[3] = {bno085_gyro_x, bno085_gyro_y,
+  uint32_t gyro_sigs[3] = {0};
+  const float gyro_source_sigs[3] = {bno085_gyro_x, bno085_gyro_y,
                                      bno085_gyro_z};
-  for (int i = 0; i < imu2_msg.signal_count; ++i) {
-    imu2_sigs[i] = physical_to_raw(imu2_source_sigs[i], &imu2_msg.signals[i]);
+  for (int i = 0; i < gyro_msg.signal_count; ++i) {
+    gyro_sigs[i] = physical_to_raw(gyro_source_sigs[i], &gyro_msg.signals[i]);
   }
-  can_send_message_raw32(&hcan1, &imu2_msg, imu2_sigs);
+  can_send_message_raw32(&hcan1, &gyro_msg, gyro_sigs);
 }
 
-void can_tx_imu3(void) {
-  const can_message_t imu3_msg =
+void can_tx_accel(void) {
+  const can_message_t accel_msg =
       mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_ACCELEROMETER];
-  uint32_t imu3_sigs[3] = {0};
-  const float imu3_source_sigs[3] = {bno085_accel_x, bno085_accel_y,
-                                     bno085_accel_z};
-  for (int i = 0; i < imu3_msg.signal_count; ++i) {
-    imu3_sigs[i] = physical_to_raw(imu3_source_sigs[i], &imu3_msg.signals[i]);
+  uint32_t accel_sigs[3] = {0};
+  const float accel_source_sigs[3] = {bno085_accel_x, bno085_accel_y,
+                                      bno085_accel_z};
+  for (int i = 0; i < accel_msg.signal_count; ++i) {
+    accel_sigs[i] =
+        physical_to_raw(accel_source_sigs[i], &accel_msg.signals[i]);
   }
-  can_send_message_raw32(&hcan1, &imu3_msg, imu3_sigs);
+  can_send_message_raw32(&hcan1, &accel_msg, accel_sigs);
 }
 
-void can_tx_imu4(void) {
-  const can_message_t imu4_msg =
+void can_tx_lin_accel(void) {
+  const can_message_t lin_accel_msg =
       mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_LINEAR_ACCELEROMETER];
-  uint32_t imu4_sigs[3] = {0};
-  const float imu4_source_sigs[3] = {bno085_lin_accel_x, bno085_lin_accel_y,
-                                     bno085_lin_accel_z};
-  for (int i = 0; i < imu4_msg.signal_count; ++i) {
-    imu4_sigs[i] = physical_to_raw(imu4_source_sigs[i], &imu4_msg.signals[i]);
+  uint32_t lin_accel_sigs[3] = {0};
+  const float lin_accel_source_sigs[3] = {
+      bno085_lin_accel_x, bno085_lin_accel_y, bno085_lin_accel_z};
+  for (int i = 0; i < lin_accel_msg.signal_count; ++i) {
+    lin_accel_sigs[i] =
+        physical_to_raw(lin_accel_source_sigs[i], &lin_accel_msg.signals[i]);
   }
-  can_send_message_raw32(&hcan1, &imu4_msg, imu4_sigs);
+  can_send_message_raw32(&hcan1, &lin_accel_msg, lin_accel_sigs);
 }
 
-void can_tx_imu5(void) {
-  const can_message_t imu5_msg =
+void can_tx_gravity(void) {
+  const can_message_t gravity_msg =
       mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GRAVITY_ACCELEROMETER];
-  uint32_t imu5_sigs[3] = {0};
-  const float imu5_source_sigs[3] = {bno085_gravity_x, bno085_gravity_y,
-                                     bno085_gravity_z};
-  for (int i = 0; i < imu5_msg.signal_count; ++i) {
-    imu5_sigs[i] = physical_to_raw(imu5_source_sigs[i], &imu5_msg.signals[i]);
+  uint32_t gravity_sigs[3] = {0};
+  const float gravity_source_sigs[3] = {bno085_gravity_x, bno085_gravity_y,
+                                        bno085_gravity_z};
+  for (int i = 0; i < gravity_msg.signal_count; ++i) {
+    gravity_sigs[i] =
+        physical_to_raw(gravity_source_sigs[i], &gravity_msg.signals[i]);
   }
-  can_send_message_raw32(&hcan1, &imu5_msg, imu5_sigs);
+  can_send_message_raw32(&hcan1, &gravity_msg, gravity_sigs);
 }
 
 void comm_tx_state(void) {
@@ -169,32 +172,32 @@ void comm_tx_gnss3(void) {
          gnss_data.geoid_sep_m, 0); // TODO: Hardcoded state.
 }
 
-void comm_tx_imu1(void) {
+void comm_tx_quaternion(void) {
   printf("qi=%.3f,qj=%.3f,qk=%.3f,qr=%.3f\r\n", bno085_quaternion_i,
          bno085_quaternion_j, bno085_quaternion_k, bno085_quaternion_real);
 }
 
-void comm_tx_imu2(void) {
+void comm_tx_gyro(void) {
   printf("gx=%.3f,gy=%.3f,gz=%.3f\r\n", bno085_gyro_x, bno085_gyro_y,
          bno085_gyro_z);
 }
 
-void comm_tx_magnetometer(void) {
+void comm_tx_mag(void) {
   printf("mx=%.3f,my=%.3f,mz=%.3f\r\n", bno085_mag_x, bno085_mag_y,
          bno085_mag_z);
 }
 
-void comm_tx_imu3(void) {
+void comm_tx_accel(void) {
   printf("ax=%.3f,ay=%.3f,az=%.3f\r\n", bno085_accel_x, bno085_accel_y,
          bno085_accel_z);
 }
 
-void comm_tx_imu4(void) {
+void comm_tx_lin_accel(void) {
   printf("lax=%.3f,lay=%.3f,laz=%.3f\r\n", bno085_lin_accel_x,
          bno085_lin_accel_y, bno085_lin_accel_z);
 }
 
-void comm_tx_imu5(void) {
+void comm_tx_gravity(void) {
   printf("gvx=%.3f,gvy=%.3f,gvz=%.3f\r\n", bno085_gravity_x, bno085_gravity_y,
          bno085_gravity_z);
 }
