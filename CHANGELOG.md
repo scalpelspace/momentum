@@ -13,7 +13,7 @@
   * [v0.2.4 (2026-01-29)](#v024--2026-01-29-)
   * [v0.3.1 (2026-03-11)](#v031--2026-03-11-)
   * [v0.3.2 (2026-04-22)](#v032--2026-04-22-)
-  * [v0.4.0 (WIP)](#v040--wip-)
+  * [v0.4.0 (2026-04-28)](#v040--2026-04-28-)
 <!-- TOC -->
 
 </details>
@@ -87,9 +87,11 @@
 
 ---
 
-## [v0.4.0 (WIP)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.0)
+## [v0.4.0 (2026-04-28)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.0)
 
 - **Modifications:**
     - Add new BNO085 magnetometer data collection and reporting.
         - Update `momentum_driver` for tagged release `v0.3.0`.
             - Improve naming of IMU messages following DBC changes.
+            - DBC refactors present for signal encoding format (now using
+              signed).
