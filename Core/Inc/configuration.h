@@ -14,8 +14,8 @@
 
 // Software version: `MAJOR.MINOR.PATCH-IDENTIFIER`.
 #define MOMENTUM_VERSION_MAJOR (0u)     // uint8_t number.
-#define MOMENTUM_VERSION_MINOR (3u)     // uint8_t number.
-#define MOMENTUM_VERSION_PATCH (2u)     // uint8_t number.
+#define MOMENTUM_VERSION_MINOR (4u)     // uint8_t number.
+#define MOMENTUM_VERSION_PATCH (0u)     // uint8_t number.
 #define MOMENTUM_VERSION_IDENTIFIER 'p' // ASCII character.
 
 // CAN ID standard.

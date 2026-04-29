@@ -73,7 +73,8 @@ void can_tx_gnss3(void) {
 }
 
 void can_tx_imu1(void) {
-  const can_message_t imu1_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_IMU1];
+  const can_message_t imu1_msg =
+      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_QUATERNION];
   uint32_t imu1_sigs[4] = {0};
   const float imu1_source_sigs[4] = {bno085_quaternion_i, bno085_quaternion_j,
                                      bno085_quaternion_k,
@@ -84,8 +85,21 @@ void can_tx_imu1(void) {
   can_send_message_raw32(&hcan1, &imu1_msg, imu1_sigs);
 }
 
+void can_tx_magnetometer(void) {
+  const can_message_t magnetometer_msg =
+      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_MAGNETOMETER];
+  uint32_t magnetometer_sigs[3] = {0};
+  const float mag_source_sigs[3] = {bno085_mag_x, bno085_mag_y, bno085_mag_z};
+  for (int i = 0; i < magnetometer_msg.signal_count; ++i) {
+    magnetometer_sigs[i] =
+        physical_to_raw(mag_source_sigs[i], &magnetometer_msg.signals[i]);
+  }
+  can_send_message_raw32(&hcan1, &magnetometer_msg, magnetometer_sigs);
+}
+
 void can_tx_imu2(void) {
-  const can_message_t imu2_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_IMU2];
+  const can_message_t imu2_msg =
+      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GYROSCOPE];
   uint32_t imu2_sigs[3] = {0};
   const float imu2_source_sigs[3] = {bno085_gyro_x, bno085_gyro_y,
                                      bno085_gyro_z};
@@ -96,7 +110,8 @@ void can_tx_imu2(void) {
 }
 
 void can_tx_imu3(void) {
-  const can_message_t imu3_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_IMU3];
+  const can_message_t imu3_msg =
+      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_ACCELEROMETER];
   uint32_t imu3_sigs[3] = {0};
   const float imu3_source_sigs[3] = {bno085_accel_x, bno085_accel_y,
                                      bno085_accel_z};
@@ -107,7 +122,8 @@ void can_tx_imu3(void) {
 }
 
 void can_tx_imu4(void) {
-  const can_message_t imu4_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_IMU4];
+  const can_message_t imu4_msg =
+      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_LINEAR_ACCELEROMETER];
   uint32_t imu4_sigs[3] = {0};
   const float imu4_source_sigs[3] = {bno085_lin_accel_x, bno085_lin_accel_y,
                                      bno085_lin_accel_z};
@@ -118,7 +134,8 @@ void can_tx_imu4(void) {
 }
 
 void can_tx_imu5(void) {
-  const can_message_t imu5_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_IMU5];
+  const can_message_t imu5_msg =
+      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GRAVITY_ACCELEROMETER];
   uint32_t imu5_sigs[3] = {0};
   const float imu5_source_sigs[3] = {bno085_gravity_x, bno085_gravity_y,
                                      bno085_gravity_z};
@@ -160,6 +177,11 @@ void comm_tx_imu1(void) {
 void comm_tx_imu2(void) {
   printf("gx=%.3f,gy=%.3f,gz=%.3f\r\n", bno085_gyro_x, bno085_gyro_y,
          bno085_gyro_z);
+}
+
+void comm_tx_magnetometer(void) {
+  printf("mx=%.3f,my=%.3f,mz=%.3f\r\n", bno085_mag_x, bno085_mag_y,
+         bno085_mag_z);
 }
 
 void comm_tx_imu3(void) {
