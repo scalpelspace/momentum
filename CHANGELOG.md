@@ -13,6 +13,7 @@
   * [v0.2.4 (2026-01-29)](#v024--2026-01-29-)
   * [v0.3.1 (2026-03-11)](#v031--2026-03-11-)
   * [v0.3.2 (2026-04-22)](#v032--2026-04-22-)
+  * [v0.4.0 (WIP)](#v040--wip-)
 <!-- TOC -->
 
 </details>
@@ -83,3 +84,12 @@
         - Critical DBC fixes.
     - Update `arm_gcc_build.yaml` to run on updates to submodules.
         - All submodules included (`BMP3_SensorAPI`, `momentum_driver`, `sh2`).
+
+---
+
+## [v0.4.0 (WIP)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.0)
+
+- **Modifications:**
+    - Add new BNO085 magnetometer data collection and reporting.
+        - Update `momentum_driver` for tagged release `v0.3.0`.
+            - Improve naming of IMU messages following DBC changes.

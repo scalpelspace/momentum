@@ -28,6 +28,10 @@ sensor_config_t sensor_config[SH2_MAX_SENSOR_ID] = {
     // 200 Hz.
     {SH2_GYROSCOPE_CALIBRATED, {.reportInterval_us = 5000}},
 
+    // Calibrated magnetometer data.
+    // 50 Hz.
+    {SH2_MAGNETIC_FIELD_CALIBRATED, {.reportInterval_us = 20000}},
+
     // Linear acceleration minus/isolated from the gravitational component.
     // 200 Hz.
     {SH2_LINEAR_ACCELERATION, {.reportInterval_us = 5000}},
@@ -50,6 +54,9 @@ float bno085_quaternion_accuracy_deg = 0;
 float bno085_gyro_x = 0;
 float bno085_gyro_y = 0;
 float bno085_gyro_z = 0;
+float bno085_mag_x = 0;
+float bno085_mag_y = 0;
+float bno085_mag_z = 0;
 float bno085_accel_x = 0;
 float bno085_accel_y = 0;
 float bno085_accel_z = 0;
@@ -173,6 +180,19 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
 #endif
 #ifdef MOMENTUM_FULL_COMM_TELEMETRY
     comm_tx_imu2();
+#endif
+
+    break;
+  case SH2_MAGNETIC_FIELD_CALIBRATED:
+    bno085_mag_x = value.un.magneticField.x;
+    bno085_mag_y = value.un.magneticField.y;
+    bno085_mag_z = value.un.magneticField.z;
+
+#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+    can_tx_magnetometer();
+#endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+    comm_tx_magnetometer();
 #endif
 
     break;
