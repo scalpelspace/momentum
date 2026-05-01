@@ -9,6 +9,7 @@
 #include "can.h"
 #include "configuration.h"
 #include "rtc.h"
+#include "ublox_hal_uart.h"
 #include "ws2812b_hal_pwm.h"
 #include <stdint.h>
 #include <string.h>
@@ -153,6 +154,17 @@ void can_rx_datetime_get(can_header_t *header, uint8_t *data) {
   can_send_message_raw32(&HCAN, msg, values);
 }
 
+void can_rx_gnss_utc_get(can_header_t *header, uint8_t *data) {
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS_UTC_GET_RESPONSE];
+  const uint32_t values[] = {
+      gnss_data.year, gnss_data.month,  gnss_data.day,
+      gnss_data.hour, gnss_data.minute, gnss_data.second,
+  };
+
+  can_send_message_raw32(&HCAN, msg, values);
+}
+
 void can_rx_rgb_led_set(can_header_t *header, uint8_t *data) {
   const can_message_t *msg =
       &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_RGB_LED_SET];
@@ -184,6 +196,8 @@ void can_db_init(void) {
   // Custom overrides.
   mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_DATETIME_GET].rx_handler =
       (can_rx_handler_t)can_rx_datetime_get;
+  mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS_UTC_GET].rx_handler =
+      (can_rx_handler_t)can_rx_gnss_utc_get;
   mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_RGB_LED_SET].rx_handler =
       (can_rx_handler_t)can_rx_rgb_led_set;
   mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_GET].rx_handler =

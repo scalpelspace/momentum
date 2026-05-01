@@ -102,5 +102,8 @@
 ## [v0.4.1 (WIP)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.0)
 
 - **Modifications:**
-    - Implement `WS2812B` RGB set via CAN bus.
-        - Update `momentum_driver` for tagged release `v0.3.1`.
+    - Update `momentum_driver` for tagged release `v0.3.1` and implement new CAN
+      bus messages.
+        - `gnss_utc_get`.
+        - `gnss_utc_get_response`.
+        - `rgb_led_set`.
