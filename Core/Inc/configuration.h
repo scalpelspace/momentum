@@ -19,7 +19,8 @@
 #define MOMENTUM_VERSION_IDENTIFIER 'p' // ASCII character.
 
 // CAN ID standard.
-#define DEFAULT_CAN_NODE_ID (0u) // Unassigned.
+#define DEFAULT_CAN_NODE_ID (0u)       // Unassigned.
+#define ALLOW_CAN_NODE_ID_REASSIGNMENT // Allow node ID reassignment always.
 
 // Full telemetry flood on CAN bus intended for debug/development purposes.
 #define MOMENTUM_FULL_CAN_TELEMETRY

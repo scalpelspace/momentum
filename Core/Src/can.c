@@ -10,6 +10,7 @@
 #include "configuration.h"
 #include "rtc.h"
 #include "ublox_hal_uart.h"
+#include "uid_hash48.h"
 #include "ws2812b_hal_pwm.h"
 #include <stdint.h>
 #include <string.h>
@@ -238,6 +239,18 @@ bool can_tx_direct(const can_message_t *msg, const uint8_t data[8]) {
   return false;
 }
 
+void auto_can_id_allocatee_start(void) {
+#ifndef ALLOW_CAN_NODE_ID_REASSIGNMENT
+  return;
+#endif
+  const allocatee_config_t l_config = {
+      can_tx_direct,
+      get_uid_hash48_parts,
+      allocatee_complete,
+  };
+  can_id_allocatee_start(l_config);
+}
+
 void allocatee_complete(const can_node_id_t node_id) {
   if (node_id == CAN_ID_NODE_ID_UNASSIGNED ||
       node_id == CAN_ID_NODE_ID_BROADCAST) {
@@ -252,4 +265,7 @@ void allocatee_complete(const can_node_id_t node_id) {
     can_id_unpack(mod_dbc_messages[i].message_id, &msg_id, NULL);
     can_id_pack(msg_id, node_id, (can_id_t *)&mod_dbc_messages[i].message_id);
   }
+
+  // Restart allocatee state machine to permit Node ID reassignment.
+  auto_can_id_allocatee_start();
 }

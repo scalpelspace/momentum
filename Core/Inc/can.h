@@ -85,6 +85,11 @@ HAL_StatusTypeDef can_send_message_raw32(CAN_HandleTypeDef *h_can_x,
 bool can_tx_direct(const can_message_t *msg, const uint8_t data[8]);
 
 /**
+ * @brief Initialize an instance of allocatee_config_t and begin state machine.
+ */
+void auto_can_id_allocatee_start(void);
+
+/**
  * @brief General node ID completion callback for CAN ID implementation.
  *
  * @param node_id

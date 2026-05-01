@@ -16,7 +16,6 @@
 #include "scheduler.h"
 #include "stm32l4xx_hal_rng.h"
 #include "ublox_hal_uart.h"
-#include "uid_hash48.h"
 #include "ws2812b_hal_pwm.h"
 
 /** STM32 port and pin configs. ***********************************************/
@@ -45,13 +44,8 @@ void momentum_init(void) {
   // Momentum runner SPI communication start.
   momentum_spi_start();
 
-  // CAN allocatee begin.
-  const allocatee_config_t l_config = {
-      can_tx_direct,
-      get_uid_hash48_parts,
-      allocatee_complete,
-  };
-  can_id_allocatee_start(l_config);
+  // CAN allocatee begin (configuration check internally).
+  auto_can_id_allocatee_start();
 
   // Scheduler.
   scheduler_init(); // Initialize scheduler.

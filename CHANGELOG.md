@@ -14,7 +14,7 @@
   * [v0.3.1 (2026-03-11)](#v031--2026-03-11-)
   * [v0.3.2 (2026-04-22)](#v032--2026-04-22-)
   * [v0.4.0 (2026-04-28)](#v040--2026-04-28-)
-  * [v0.4.1 (WIP)](#v041--wip-)
+  * [v0.4.1 (2026-05-01)](#v041--2026-05-01-)
 <!-- TOC -->
 
 </details>
@@ -99,11 +99,13 @@
 
 ---
 
-## [v0.4.1 (WIP)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.0)
+## [v0.4.1 (2026-05-01)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.1)
 
 - **Modifications:**
-    - Update `momentum_driver` for tagged release `v0.3.1` and implement new CAN
-      bus messages.
-        - `gnss_utc_get`.
-        - `gnss_utc_get_response`.
-        - `rgb_led_set`.
+    - Update `momentum_driver` for tagged release `v0.3.2`.
+        - Implement new CAN bus messages (`gnss_utc_get`,
+          `gnss_utc_get_response`, `rgb_led_set`).
+        - Implement automatic allocatee state machine initialization and
+          re-initialization.
+            - Add new configuration macro `ALLOW_CAN_NODE_ID_REASSIGNMENT` for
+              Node ID reassignment permission.
