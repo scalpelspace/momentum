@@ -9,6 +9,7 @@
 #include "can.h"
 #include "configuration.h"
 #include "rtc.h"
+#include "ws2812b_hal_pwm.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -152,6 +153,16 @@ void can_rx_datetime_get(can_header_t *header, uint8_t *data) {
   can_send_message_raw32(&HCAN, msg, values);
 }
 
+void can_rx_rgb_led_set(can_header_t *header, uint8_t *data) {
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_RGB_LED_SET];
+  const uint8_t r = (uint8_t)decode_signal(&msg->signals[0], data);
+  const uint8_t g = (uint8_t)decode_signal(&msg->signals[1], data);
+  const uint8_t b = (uint8_t)decode_signal(&msg->signals[2], data);
+  ws2812b_set_colour(0, r, g, b);
+  ws2812b_update();
+}
+
 void can_rx_version_get(can_header_t *header, uint8_t *data) {
   const can_message_t *msg =
       &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_GET_RESPONSE];
@@ -173,6 +184,8 @@ void can_db_init(void) {
   // Custom overrides.
   mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_DATETIME_GET].rx_handler =
       (can_rx_handler_t)can_rx_datetime_get;
+  mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_RGB_LED_SET].rx_handler =
+      (can_rx_handler_t)can_rx_rgb_led_set;
   mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_GET].rx_handler =
       (can_rx_handler_t)can_rx_version_get;
 }
