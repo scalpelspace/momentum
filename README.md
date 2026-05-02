@@ -89,7 +89,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 | BMP390                   | Bosch Sensortec         | Barometric Pressure Sensor        |        1 |       |
 | TJA1057BTK               | NXP USA Inc.            | CAN Bus Transceiver               |        1 |       |
 | SAM-M10Q                 | u-blox                  | RF Receiver Galileo, GLONASS, GPS |        1 |       |
-| WS2812B                  | (Various)               | PWM Addressable RGB LED           |        1 |       |
+| WS2812B/WS2812B-2020     | (Various)               | PWM Addressable RGB LED           |        1 |       |
 
 ### 1.2 Block Diagram
 
