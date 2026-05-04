@@ -60,6 +60,9 @@ void prep_momentum_response_tx(momentum_frame_t request) {
                         bno085_gyro_x,
                         bno085_gyro_y,
                         bno085_gyro_z,
+                        bno085_mag_x,
+                        bno085_mag_y,
+                        bno085_mag_z,
                         bno085_accel_x,
                         bno085_accel_y,
                         bno085_accel_z,
@@ -112,6 +115,9 @@ void prep_momentum_response_tx(momentum_frame_t request) {
     break;
   case MOMENTUM_FRAME_TYPE_IMU_GYRO:
     len = build_gyro_payload(&frame, &data);
+    break;
+  case MOMENTUM_FRAME_TYPE_IMU_MAG:
+    len = build_mag_payload(&frame, &data);
     break;
   case MOMENTUM_FRAME_TYPE_IMU_ACCEL:
     len = build_accel_payload(&frame, &data);
