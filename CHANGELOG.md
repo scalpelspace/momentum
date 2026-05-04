@@ -15,7 +15,7 @@
   * [v0.3.2 (2026-04-22)](#v032--2026-04-22-)
   * [v0.4.0 (2026-04-28)](#v040--2026-04-28-)
   * [v0.4.1 (2026-05-01)](#v041--2026-05-01-)
-  * [v0.4.2 (2026-05-03)](#v042--2026-05-03-)
+  * [v0.4.2 (2026-05-04)](#v042--2026-05-04-)
 <!-- TOC -->
 
 </details>
@@ -113,7 +113,7 @@
 
 ---
 
-## [v0.4.2 (2026-05-03)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.3)
+## [v0.4.2 (2026-05-04)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.2)
 
 - **Modifications:**
     - Implement magnetometer data for Momentum SPI interface.
