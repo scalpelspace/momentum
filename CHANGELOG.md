@@ -16,7 +16,7 @@
   * [v0.4.0 (2026-04-28)](#v040--2026-04-28-)
   * [v0.4.1 (2026-05-01)](#v041--2026-05-01-)
   * [v0.4.2 (2026-05-04)](#v042--2026-05-04-)
-  * [v0.4.3 (WIP)](#v043--wip-)
+  * [v0.4.5 (2026-05-13)](#v045--2026-05-13-)
 <!-- TOC -->
 
 </details>
@@ -122,11 +122,12 @@
 
 ---
 
-## [v0.4.3 (WIP)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.3)
+## [v0.4.5 (2026-05-13)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.4)
 
 - **Additions:**
     - Add sub-second UTC sync using `SAM-M10Q` `TIMEPULSE` on PC14 EXTI.
     - Add `ublox_get_utc_ms_now()` returning UTC milliseconds since midnight.
+    - Add LED task for `SAM-M10Q` GNSS status.
 - **Modifications:**
     - Seed UTC seconds from parsed GGA/RMC NMEA hh:mm:ss timestamps.
     - Tick `gnss_data.hour/minute/second` at the PPS edge instead of at NMEA
