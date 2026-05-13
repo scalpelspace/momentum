@@ -10,8 +10,7 @@
 /** Includes. *****************************************************************/
 
 #include "stm32l4xx_hal.h"
-#include "stm32l4xx_hal_i2c.h"
-#include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 
 /** STM32 port and pin configs. ***********************************************/
@@ -26,6 +25,11 @@ extern UART_HandleTypeDef huart2;
 #define UBLOX_RESETN_PORT GPIOC
 #define UBLOX_RESETN_PIN GPIO_PIN_15
 
+// GPIO_EXTI for TIMEPULSE.
+// PC14 is routed to the EXTI15_10 vector (no per-line EXTI14_IRQn).
+#define UBLOX_TIMEPULSE_PORT GPIOC
+#define UBLOX_TIMEPULSE_PIN GPIO_PIN_14
+
 /** Definitions. **************************************************************/
 
 #define UBLOX_RX_BUFFER_SIZE 128 // Based on NEMA specifications.
@@ -34,8 +38,8 @@ extern UART_HandleTypeDef huart2;
 /** Public types. *************************************************************/
 
 /**
- * @brief A compact struct containing exactly the three NMEA‐fields used for
- *        deciding which of the nine position‐fix types is most accurate.
+ * @brief A compact struct containing exactly the three NMEA-fields used for
+ *        deciding which of the nine position-fix types is most accurate.
  *
  * Once these three values are determined, a higher precision
  * nmea_position_fix_t classification can be made (see classify_position_fix).
@@ -94,6 +98,7 @@ extern ublox_data_t gnss_data;
 
 void HAL_UART_RxCpltCallback_ublox(UART_HandleTypeDef *huart);
 void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart);
+void HAL_GPIO_EXTI_Callback_ublox(uint16_t n);
 
 /** Public functions. *********************************************************/
 
@@ -108,6 +113,20 @@ void ublox_init(void);
  * @note Only for critical situations for recovery, triggers cold start.
  */
 void ublox_reset(void);
+
+/**
+ * @brief Get the current UTC time-of-day in milliseconds since UTC midnight.
+ *
+ * Combines the TIMEPULSE rising-edge tick with the most recent NMEA-parsed
+ * UTC seconds-of-day to produce a sub-second-resolution UTC reading.
+ *
+ * @param utc_ms_out UTC millisecond value pointer to update. Range [0, 86400000).
+ *
+ * @return UTC MS count validity.
+ * @retval == true -> Success: TIMEPULSE has been seen and NMEA reports a valid fix.
+ * @retval == false -> Invalid: no edge yet, NMEA invalid, or edge stale (>2 s).
+ */
+bool ublox_get_utc_ms_now(uint64_t *utc_ms_out);
 
 /**
  * @brief Build and send a PUBX,41 message to reconfigure the UART Baud-rate.

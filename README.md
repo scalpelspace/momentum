@@ -127,6 +127,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 | PA3         | `USART2_RX`             | 9600 bps (-> 115200 in software) | SAM-M10Q Pin 13: `TXD`            | Starts as 9600 bps to match the u-blox default. |
 | PA2         | `USART2_TX`             | 9600 bps (-> 115200 in software) | SAM-M10Q Pin 14: `RXD`            | Starts as 9600 bps to match the u-blox default. |
 | PC15        | `GPIO_Output`           |                                  | SAM-M10Q Pin 18: `RESET_N`        | Pull low to reset (>= 1 ms).                    |
+| PC14        | `GPIO_EXTI14`           | Rising edge                      | SAM-M10Q Pin 7: `TIMEPULSE`       |                                                 |
 | PA10        | `USART1_RX`             | 115200 bps                       | CP2102N-A02-GQFN24R Pin 20: `TXD` |                                                 |
 | PA9         | `USART1_TX`             | 115200 bps                       | CP2102N-A02-GQFN24R Pin 21: `RXD` |                                                 |
 | PA11        | `CAN1_RX`               |                                  | TJA1057BTK Pin 1: `TXD`           |                                                 |
