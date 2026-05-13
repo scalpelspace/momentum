@@ -16,6 +16,7 @@
   * [v0.4.0 (2026-04-28)](#v040--2026-04-28-)
   * [v0.4.1 (2026-05-01)](#v041--2026-05-01-)
   * [v0.4.2 (2026-05-04)](#v042--2026-05-04-)
+  * [v0.4.3 (WIP)](#v043--wip-)
 <!-- TOC -->
 
 </details>
@@ -118,3 +119,20 @@
 - **Modifications:**
     - Implement magnetometer data for Momentum SPI interface.
         - Update `momentum_driver` for tagged release `v0.3.3`.
+
+---
+
+## [v0.4.3 (WIP)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.3)
+
+- **Additions:**
+    - Add sub-second UTC sync using `SAM-M10Q` `TIMEPULSE` on PC14 EXTI.
+    - Add ublox_get_utc_ms_now() returning UTC milliseconds since midnight.
+- **Modifications:**
+    - Seed UTC seconds from parsed GGA/RMC NMEA hh:mm:ss timestamps.
+    - Reject spurious PPS edges via 1 Hz cadence gate.
+        - Older variants of Momentum PCB do not have `TIMEPULSE` wired (floating
+          pin) cannot trip the validity flag from stray noise.
+        - Invalidate UTC reading when no `TIMEPULSE` edge has arrived for over 2
+          seconds.
+        - Snapshot sync state with IRQs disabled in getter to avoid tearing
+          across EXTI preemption between the `utc_seconds` and `edge_ms` reads.
