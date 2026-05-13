@@ -63,10 +63,15 @@ static uint8_t sentence_end_index = 0;
 // utc_seconds is "seconds since UTC midnight" at the most recent TIMEPULSE
 // rising edge. NMEA seeds the absolute value; the EXTI ISR then dead-reckons
 // each subsequent edge. time_valid is only latched true inside the EXTI ISR
-// after NMEA has reported a valid fix, so we never expose a baseline that
-// pre-dates the first edge tick.
+// after NMEA has reported a valid fix AND a pair of edges has been observed
+// at the expected 1 Hz cadence, so an unconnected/floating TIMEPULSE pin
+// picking up stray noise cannot fool the getter into reporting bad UTC.
+#define UBLOX_PPS_CADENCE_MIN_MS 900u  // Accept edges 100 ms either side of
+#define UBLOX_PPS_CADENCE_MAX_MS 1100u // the 1 Hz PPS default (TP5 default).
 static volatile uint32_t utc_seconds = 0;
-static volatile uint32_t edge_ms = 0;
+static volatile uint32_t edge_ms = 0;      // Last in-cadence edge tick.
+static volatile uint32_t prev_edge_ms = 0; // Baseline for cadence check.
+static volatile bool edge_seen = false;    // prev_edge_ms has been seeded.
 static volatile bool time_valid = false;
 static volatile bool nmea_seen_valid = false;
 
@@ -651,13 +656,39 @@ void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart) {
 }
 
 void HAL_GPIO_EXTI_Callback_ublox(uint16_t n) {
-  if (n == UBLOX_TIMEPULSE_PIN) {
-    edge_ms = HAL_GetTick();
-    utc_seconds++; // Dead-reckon next top-of-second, NMEA confirms shortly.
-    // Only expose validity after at least one edge AND a valid NMEA preventing
-    // a pre-first-edge NMEA from yielding a bogus edge_ms=0 result.
-    time_valid = nmea_seen_valid;
+  if (n != UBLOX_TIMEPULSE_PIN) {
+    return;
   }
+
+  const uint32_t now = HAL_GetTick();
+
+  // First edge ever: no prior tick to measure cadence against. Seed the
+  // baseline and bail. The next edge will confirm the 1 Hz cadence.
+  if (!edge_seen) {
+    prev_edge_ms = now;
+    edge_seen = true;
+    return;
+  }
+
+  const uint32_t delta = now - prev_edge_ms;
+
+  if (delta >= UBLOX_PPS_CADENCE_MIN_MS && delta <= UBLOX_PPS_CADENCE_MAX_MS) {
+    // In-cadence edge: treat as a real 1 Hz PPS top-of-second.
+    prev_edge_ms = now;
+    edge_ms = now;
+    utc_seconds++; // Dead-reckon, NMEA confirms shortly.
+    time_valid = nmea_seen_valid;
+  } else if (delta > UBLOX_PPS_CADENCE_MAX_MS) {
+    // Gap longer than expected: lost lock, PPS disabled, or recovering after a
+    // noise-suppressed cycle. Re-baseline and invalidate. The next edge
+    // arriving on cadence will re-latch validity.
+    prev_edge_ms = now;
+    time_valid = false;
+  }
+  // else delta < UBLOX_PPS_CADENCE_MIN_MS: edge arrived too soon to be a real
+  // PPS pulse (floating-pin glitch, ESD, switching noise, etc.). Drop it
+  // silently and crucially do NOT touch prev_edge_ms, so the next genuine edge
+  // still measures cadence from the last good tick.
 }
 
 /** Public functions. *********************************************************/
