@@ -678,6 +678,24 @@ void HAL_GPIO_EXTI_Callback_ublox(uint16_t n) {
     edge_ms = now;
     utc_seconds++; // Dead-reckon, NMEA confirms shortly.
     time_valid = nmea_seen_valid;
+
+    // Advance the integer-second wallclock fields in lockstep with the PPS edge
+    // so CAN/UART consumers tick at the actual UTC second boundary instead of
+    // waiting ~100-300 ms for the next NMEA sentence. NMEA writes overwrite
+    // these with the same value shortly after. Gated on nmea_seen_valid so
+    // there is no bump on uninitialized zeros before lock.
+    if (nmea_seen_valid) {
+      if (++gnss_data.second >= 60) {
+        gnss_data.second = 0;
+        if (++gnss_data.minute >= 60) {
+          gnss_data.minute = 0;
+          if (++gnss_data.hour >= 24) {
+            gnss_data.hour = 0;
+            // Date rollover left to NMEA RMC, the only source of y/m/d.
+          }
+        }
+      }
+    }
   } else if (delta > UBLOX_PPS_CADENCE_MAX_MS) {
     // Gap longer than expected: lost lock, PPS disabled, or recovering after a
     // noise-suppressed cycle. Re-baseline and invalidate. The next edge

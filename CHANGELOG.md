@@ -126,13 +126,16 @@
 
 - **Additions:**
     - Add sub-second UTC sync using `SAM-M10Q` `TIMEPULSE` on PC14 EXTI.
-    - Add ublox_get_utc_ms_now() returning UTC milliseconds since midnight.
+    - Add `ublox_get_utc_ms_now()` returning UTC milliseconds since midnight.
 - **Modifications:**
     - Seed UTC seconds from parsed GGA/RMC NMEA hh:mm:ss timestamps.
-    - Reject spurious PPS edges via 1 Hz cadence gate.
-        - Older variants of Momentum PCB do not have `TIMEPULSE` wired (floating
-          pin) cannot trip the validity flag from stray noise.
+    - Tick `gnss_data.hour/minute/second` at the PPS edge instead of at NMEA
+      arrival, so existing CAN/UART consumers align with the actual UTC second
+      boundary with CAN-frame-latency precision.
+        - Reject spurious PPS edges via 1 Hz cadence gate, so older Momentum PCB
+          variants without `TIMEPULSE` wired (floating PC14) cannot trip the
+          validity flag from stray noise.
         - Invalidate UTC reading when no `TIMEPULSE` edge has arrived for over 2
           seconds.
-        - Snapshot sync state with IRQs disabled in getter to avoid tearing
-          across EXTI preemption between the `utc_seconds` and `edge_ms` reads.
+    - Snapshot sync state with IRQs disabled in getter to avoid tearing across
+      EXTI preemption between the `utc_seconds` and `edge_ms` reads.
