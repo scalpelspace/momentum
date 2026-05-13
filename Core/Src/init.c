@@ -22,9 +22,38 @@
 
 extern RNG_HandleTypeDef hrng;
 
-/** Private variables. ********************************************************/
-
 /** Private functions. ********************************************************/
+
+/**
+ * @brief Drive the on-board WS2812B to reflect GNSS fix status.
+ */
+void led_status_run(void) {
+  static nmea_position_fix_t last_fix = FIX_TYPE_UNDETERMINED;
+  const nmea_position_fix_t fix = gnss_data.position_fix;
+
+  if (fix == last_fix)
+    return;
+  last_fix = fix;
+
+  switch (fix) {
+  case FIX_TYPE_GNSS_FIX:
+  case FIX_TYPE_DR_FIX:
+  case FIX_TYPE_RTK_FLOAT:
+  case FIX_TYPE_RTK_FIX:
+    ws2812b_set_colour(0, 0, 5, 0); // Green: GNSS lock acquired.
+    break;
+  case FIX_TYPE_NO_FIX:
+  case FIX_TYPE_GNSS_LIMITS_EXCEEDED:
+  case FIX_TYPE_DR_LIMITS_EXCEEDED:
+    ws2812b_set_colour(0, 3, 3, 0); // Yellow: awaiting fix.
+    break;
+  case FIX_TYPE_UNDETERMINED:
+  default:
+    ws2812b_set_colour(0, 2, 1, 3); // Idle: dim init colour.
+    break;
+  }
+  ws2812b_update();
+}
 
 /** Public functions. *********************************************************/
 
@@ -51,6 +80,7 @@ void momentum_init(void) {
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(bmp390_get_data, 10);
   scheduler_add_task(can_id_allocatee_state_machine, 20);
+  scheduler_add_task(led_status_run, 100);
 
   // Sensors.
   // TODO: DEV NOTE: Timer initialization completed by scheduler (TIM owner).
