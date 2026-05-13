@@ -140,3 +140,4 @@
     - Snapshot sync state with IRQs disabled in getter to avoid tearing across
       EXTI preemption between the `utc_seconds` and `edge_ms` reads.
     - Refactor rename `LICENSE.txt` to `LICENSE`.
+    - Modernize/update `.ioc` file and code gen for CubeMX `v6.17.0`.
