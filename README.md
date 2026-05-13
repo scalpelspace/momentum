@@ -55,8 +55,8 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
     * [7.1 Background](#71-background)
     * [7.2 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#72-universal-synchronousasynchronous-receivertransmitter-usart)
       * [7.2.1 Direct Memory Access (DMA)](#721-direct-memory-access-dma)
-      * [7.2.2 Nested Vectored Interrupt Controller (NVIC)](#722-nested-vectored-interrupt-controller-nvic)
-    * [7.3 SAM-M10Q Driver](#73-sam-m10q-driver)
+    * [7.3 Nested Vectored Interrupt Controller (NVIC)](#73-nested-vectored-interrupt-controller-nvic)
+    * [7.4 SAM-M10Q Driver](#74-sam-m10q-driver)
   * [8 WS2812B PWM Addressable RGB LED](#8-ws2812b-pwm-addressable-rgb-led)
     * [8.1 Clocks](#81-clocks)
     * [8.2 Pulse Width Modulation (PWM) Timer](#82-pulse-width-modulation-pwm-timer)
@@ -558,11 +558,17 @@ DMA is used configured to allow continuous GNSS receive in hardware:
 - (Both Peripheral and Memory) Data Width: `Byte`.
 - Use FIFO: `Disabled`.
 
-#### 7.2.2 Nested Vectored Interrupt Controller (NVIC)
+### 7.3 Nested Vectored Interrupt Controller (NVIC)
 
-USART2 global interrupted is enabled.
+`USART2` global interrupted is enabled.
 
-### 7.3 SAM-M10Q Driver
+`GPIO_EXTI14`is configured for the `TIMEPULSE` pin of the SAM-M10Q to trigger
+time synchronization:
+
+- External Interrupt Mode with Rising edge trigger detection.
+- No pull-up or pull-down.
+
+### 7.4 SAM-M10Q Driver
 
 STM32 HAL abstraction and runner functions:
 
