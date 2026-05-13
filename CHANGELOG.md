@@ -122,7 +122,7 @@
 
 ---
 
-## [v0.4.5 (2026-05-13)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.4)
+## [v0.4.5 (2026-05-13)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.5)
 
 - **Additions:**
     - Add sub-second UTC sync using `SAM-M10Q` `TIMEPULSE` on PC14 EXTI.
