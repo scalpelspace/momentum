@@ -59,6 +59,17 @@ static bool ublox_in_sentence = false;
 static uint8_t sentence_start_index = 0;
 static uint8_t sentence_end_index = 0;
 
+// UTC time synchronization (TIMEPULSE + NMEA).
+// utc_seconds is "seconds since UTC midnight" at the most recent TIMEPULSE
+// rising edge. NMEA seeds the absolute value; the EXTI ISR then dead-reckons
+// each subsequent edge. time_valid is only latched true inside the EXTI ISR
+// after NMEA has reported a valid fix, so we never expose a baseline that
+// pre-dates the first edge tick.
+static volatile uint32_t utc_seconds = 0;
+static volatile uint32_t edge_ms = 0;
+static volatile bool time_valid = false;
+static volatile bool nmea_seen_valid = false;
+
 /** Private functions. ********************************************************/
 
 /**
@@ -67,10 +78,10 @@ static uint8_t sentence_end_index = 0;
 void ublox_error_handler(void) {}
 
 /**
- * @brief Given the three NMEA fix‐flags (status, quality, pos_mode), determine
+ * @brief Given the three NMEA fix-flags (status, quality, pos_mode), determine
  *        which of the 10 possible nmea_position_fix_t types.
  *
- * @param flags Pointer to the three‐field struct filled from NMEA sentences:
+ * @param flags Pointer to the three-field struct filled from NMEA sentences:
  *              - flags->status  = 'A' or 'V'.
  *              - flags->quality = 0,1,2,4,5,6.
  *              - flags->pos_mode = 'N','A','D','E','R','F'.
@@ -152,7 +163,7 @@ float to_decimal_deg(const char *coordinate, const char direction) {
 }
 
 /**
- * @brief Compute the two‐byte UBX checksum (Fletcher-like) over a byte buffer.
+ * @brief Compute the two-byte UBX checksum (Fletcher-like) over a byte buffer.
  *
  * This function implements the standard u-blox UBX checksum algorithm:
  *   - CK_A is the 8-bit sum of all bytes in the buffer.
@@ -229,13 +240,13 @@ static bool validate_nmea_checksum(const char *sentence) {
 }
 
 /**
- * @brief Split an NMEA sentence (comma‐delimited) into exactly N tokens,
- *        preserving empty (zero‐length) fields.  Tokens are placed in the
- *        pre‐allocated array `tokens[]`, and each token is a pointer into the
+ * @brief Split an NMEA sentence (comma-delimited) into exactly N tokens,
+ *        preserving empty (zero-length) fields.  Tokens are placed in the
+ *        pre-allocated array `tokens[]`, and each token is a pointer into the
  *        single buffer `sentence`.  After calling this, buf[] will be modified
  *        in place (each comma becomes `\0`).
  *
- * @param sentence The NMEA line (null‐terminated); this buffer is modified.
+ * @param sentence The NMEA line (null-terminated); this buffer is modified.
  * @param tokens Array of pointers, length = max_tokens.
  * @param max_tokens Maximum number of tokens to extract.
  *
@@ -268,6 +279,21 @@ static int nmea_split_preserve_empty(char *sentence, char *tokens[],
   }
 
   return count;
+}
+
+/**
+ * @brief Seed the TIMEPULSE-aligned UTC tracker from a UART-parsed timestamp.
+ *
+ * Called by the NMEA parsers after extracting UTC hh:mm:ss. The value
+ * corresponds to the fix epoch of the most recent TIMEPULSE rising edge,
+ * which the EXTI ISR has (or will shortly have) timestamped via edge_ms.
+ *
+ * @param utc_ms_of_day Milliseconds since UTC midnight for the current fix.
+ * @param valid Whether the underlying NMEA fix reported valid time.
+ */
+static void ublox_timepulse_update(uint32_t utc_ms_of_day, bool valid) {
+  utc_seconds = utc_ms_of_day / 1000u;
+  nmea_seen_valid = valid;
 }
 
 /** @brief Parse GNGGA fields.
@@ -320,7 +346,7 @@ static bool parse_gngga(const char *sentence) {
   if (token_count < GNGGA_TOKEN_COUNT) {
     return false;
   }
-  // Check that mandatory string lengths are non‐zero.
+  // Check that mandatory string lengths are non-zero.
   for (int i = 1; i <= 12; i++) {
     if (tokens[i][0] == '\0') {
       return false;
@@ -355,6 +381,11 @@ static bool parse_gngga(const char *sentence) {
   gnss_data.position_flags.quality = (unsigned)strtoul(tokens[6], &endptr, 10);
   if (endptr == tokens[6])
     return false;
+
+  // Feed TIMEPULSE-aligned UTC tracker; time is valid when quality > 0.
+  ublox_timepulse_update((uint32_t)hh * 3600000u + (uint32_t)mm * 60000u +
+                             (uint32_t)ss * 1000u,
+                         gnss_data.position_flags.quality > 0);
 
   // 8) Number of satellites.
   gnss_data.satellites = (unsigned)strtoul(tokens[7], &endptr, 10);
@@ -436,7 +467,7 @@ static bool parse_gnrmc(const char *sentence) {
   if (token_count < GNRMC_TOKEN_COUNT) {
     return false;
   }
-  // Check that mandatory string lengths are non‐zero.
+  // Check that mandatory string lengths are non-zero.
   if (tokens[1][0] == '\0' || tokens[2][0] == '\0' || tokens[3][0] == '\0' ||
       tokens[4][0] == '\0' || tokens[5][0] == '\0' || tokens[6][0] == '\0' ||
       tokens[7][0] == '\0' || tokens[9][0] == '\0' || tokens[12][0] == '\0' ||
@@ -462,6 +493,11 @@ static bool parse_gnrmc(const char *sentence) {
   if (status != 'A' && status != 'V') {
     return false;
   }
+
+  // Feed TIMEPULSE-aligned UTC tracker; RMC status 'A' = valid navigation.
+  ublox_timepulse_update((uint32_t)hh * 3600000u + (uint32_t)mm * 60000u +
+                             (uint32_t)ss * 1000u,
+                         status == 'A');
 
   // 6) Latitude.
   //    tokens[3] = ddmm.mmmmm (string).
@@ -529,7 +565,7 @@ static bool parse_gnrmc(const char *sentence) {
 }
 
 /**
- * @brief Top‑level sentence dispatcher.
+ * @brief Top-level sentence dispatcher.
  *
  * @param sentence NMEA sentence to process.
  */
@@ -575,7 +611,7 @@ static void ublox_process_byte(uint8_t byte, size_t parse_index) {
         memcpy(sentence + len, ublox_rx_dma_buffer, sentence_end_index + 1);
         len += sentence_end_index + 1;
       }
-      sentence[len] = '\0'; // Null‑terminate.
+      sentence[len] = '\0'; // Null-terminate.
 
       parse_nmea_sentence(sentence); // Parse the extracted sentence.
 
@@ -611,6 +647,16 @@ void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart) {
       ublox_process_byte(b, ublox_rx_index);
       ublox_rx_index = (ublox_rx_index + 1) % UBLOX_RX_BUFFER_SIZE;
     }
+  }
+}
+
+void HAL_GPIO_EXTI_Callback_ublox(uint16_t n) {
+  if (n == UBLOX_TIMEPULSE_PIN) {
+    edge_ms = HAL_GetTick();
+    utc_seconds++; // Dead-reckon next top-of-second, NMEA confirms shortly.
+    // Only expose validity after at least one edge AND a valid NMEA preventing
+    // a pre-first-edge NMEA from yielding a bogus edge_ms=0 result.
+    time_valid = nmea_seen_valid;
   }
 }
 
@@ -650,6 +696,28 @@ void ublox_reset(void) {
   HAL_GPIO_WritePin(UBLOX_RESETN_PORT, UBLOX_RESETN_PIN, GPIO_PIN_RESET);
   HAL_Delay(5); // Hold reset for 5 ms.
   HAL_GPIO_WritePin(UBLOX_RESETN_PORT, UBLOX_RESETN_PIN, GPIO_PIN_SET);
+}
+
+bool ublox_get_utc_ms_now(uint64_t *utc_ms_out) {
+  // Snapshot the sync state with IRQs disabled so an edge can't fire between
+  // the reads of utc_seconds and edge_ms (which would tear the result by ~1s).
+  __disable_irq();
+  const bool v = time_valid;
+  const uint32_t s = utc_seconds;
+  const uint32_t e = edge_ms;
+  __enable_irq();
+
+  if (!v)
+    return false;
+
+  // Reject stale samples: TIMEPULSE is 1 Hz, so >2 s with no edge means we
+  // have lost the lock (or PPS) and the dead-reckon is no longer trustworthy.
+  const uint32_t elapsed = HAL_GetTick() - e;
+  if (elapsed > 2000u)
+    return false;
+
+  *utc_ms_out = (uint64_t)s * 1000u + elapsed;
+  return true;
 }
 
 void ublox_set_baud_rate(uint32_t baud_rate) {
