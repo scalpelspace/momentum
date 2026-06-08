@@ -17,6 +17,7 @@
   * [v0.4.1 (2026-05-01)](#v041--2026-05-01-)
   * [v0.4.2 (2026-05-04)](#v042--2026-05-04-)
   * [v0.4.5 (2026-05-13)](#v045--2026-05-13-)
+  * [v0.4.6 (2026-06-07)](#v046--2026-06-07-)
 <!-- TOC -->
 
 </details>
@@ -142,3 +143,11 @@
       EXTI preemption between the `utc_seconds` and `edge_ms` reads.
     - Refactor rename `LICENSE.txt` to `LICENSE`.
     - Modernize/update `.ioc` file and code gen for CubeMX `v6.17.0`.
+
+---
+
+## [v0.4.6 (2026-06-07)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.6)
+
+- **Modifications:**
+    - Update CAN bus message references for improved clarity.
+        - Update `momentum_driver` for tagged release `v0.3.4`.

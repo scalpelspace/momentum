@@ -146,7 +146,7 @@ void can_rx_datetime_get(can_header_t *header, uint8_t *data) {
   HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 
   const can_message_t *msg =
-      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_DATETIME_GET_RESPONSE];
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_DATETIME_RESPONSE];
   const uint32_t values[] = {
       sDate.Year,  sDate.Month,   sDate.Date,    sDate.WeekDay,
       sTime.Hours, sTime.Minutes, sTime.Seconds,
@@ -157,7 +157,7 @@ void can_rx_datetime_get(can_header_t *header, uint8_t *data) {
 
 void can_rx_gnss_utc_get(can_header_t *header, uint8_t *data) {
   const can_message_t *msg =
-      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS_UTC_GET_RESPONSE];
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS_UTC_RESPONSE];
   const uint32_t values[] = {
       gnss_data.year, gnss_data.month,  gnss_data.day,
       gnss_data.hour, gnss_data.minute, gnss_data.second,
@@ -178,7 +178,7 @@ void can_rx_rgb_led_set(can_header_t *header, uint8_t *data) {
 
 void can_rx_version_get(can_header_t *header, uint8_t *data) {
   const can_message_t *msg =
-      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_GET_RESPONSE];
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_RESPONSE];
   const uint32_t values[] = {
       MOMENTUM_VERSION_MAJOR,
       MOMENTUM_VERSION_MINOR,
