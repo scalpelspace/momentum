@@ -13,6 +13,8 @@
 static task_t tasks[MAX_TASKS];
 static uint8_t num_tasks = 0;
 
+/** Private functions. ********************************************************/
+
 /**
  * @brief Atomic get current timer peripheral value.
  *

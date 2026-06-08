@@ -14,17 +14,17 @@
 #include "telemetry.h"
 #endif
 
+/** Private variables. ********************************************************/
+
+static struct bmp3_dev dev;
+static struct bmp3_fifo_settings fifo_settings = {0};
+static uint8_t fifo_data[FIFO_MAX_SIZE];
+static struct bmp3_fifo_data fifo = {0};
+
 /** Public variables. *********************************************************/
 
 float bmp390_temperature;
 float bmp390_pressure;
-
-/** Private variables. ********************************************************/
-
-struct bmp3_dev dev;
-struct bmp3_fifo_settings fifo_settings = {0};
-uint8_t fifo_data[FIFO_MAX_SIZE];
-struct bmp3_fifo_data fifo = {0};
 
 /** Private functions. ********************************************************/
 

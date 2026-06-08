@@ -18,6 +18,7 @@
   * [v0.4.2 (2026-05-04)](#v042--2026-05-04-)
   * [v0.4.5 (2026-05-13)](#v045--2026-05-13-)
   * [v0.4.6 (2026-06-07)](#v046--2026-06-07-)
+  * [v0.4.7 (TBD)](#v047--tbd-)
 <!-- TOC -->
 
 </details>
@@ -151,3 +152,11 @@
 - **Modifications:**
     - Update CAN bus message references for improved clarity.
         - Update `momentum_driver` for tagged release `v0.3.4`.
+
+---
+
+## [v0.4.7 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.7)
+
+- **Modifications:**
+    - Tighten global variable linkage and visibility.
+    - Cleanup documentation and comments.

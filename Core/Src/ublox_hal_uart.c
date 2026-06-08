@@ -29,6 +29,30 @@
 // Buffer for UART reception.
 static uint8_t ublox_rx_dma_buffer[UBLOX_RX_BUFFER_SIZE];
 
+// Rx buffer management for DMA based operation.
+static uint16_t ublox_rx_index = 0;
+static bool ublox_in_sentence = false;
+static uint8_t sentence_start_index = 0;
+static uint8_t sentence_end_index = 0;
+
+// UTC time synchronization (TIMEPULSE + NMEA).
+// utc_seconds is "seconds since UTC midnight" at the most recent TIMEPULSE
+// rising edge. NMEA seeds the absolute value; the EXTI ISR then dead-reckons
+// each subsequent edge. time_valid is only latched true inside the EXTI ISR
+// after NMEA has reported a valid fix AND a pair of edges has been observed
+// at the expected 1 Hz cadence, so an unconnected/floating TIMEPULSE pin
+// picking up stray noise cannot fool the getter into reporting bad UTC.
+#define UBLOX_PPS_CADENCE_MIN_MS 900u  // Accept edges 100 ms either side of
+#define UBLOX_PPS_CADENCE_MAX_MS 1100u // the 1 Hz PPS default (TP5 default).
+static volatile uint32_t utc_seconds = 0;
+static volatile uint32_t edge_ms = 0;      // Last in-cadence edge tick.
+static volatile uint32_t prev_edge_ms = 0; // Baseline for cadence check.
+static volatile bool edge_seen = false;    // prev_edge_ms has been seeded.
+static volatile bool time_valid = false;
+static volatile bool nmea_seen_valid = false;
+
+/** Public variables. *********************************************************/
+
 // Latest GNSS data.
 ublox_data_t gnss_data = {
     FIX_TYPE_UNDETERMINED,
@@ -52,28 +76,6 @@ ublox_data_t gnss_data = {
     0,
     0.0f,
 };
-
-// Rx buffer management for DMA based operation.
-static uint16_t ublox_rx_index = 0;
-static bool ublox_in_sentence = false;
-static uint8_t sentence_start_index = 0;
-static uint8_t sentence_end_index = 0;
-
-// UTC time synchronization (TIMEPULSE + NMEA).
-// utc_seconds is "seconds since UTC midnight" at the most recent TIMEPULSE
-// rising edge. NMEA seeds the absolute value; the EXTI ISR then dead-reckons
-// each subsequent edge. time_valid is only latched true inside the EXTI ISR
-// after NMEA has reported a valid fix AND a pair of edges has been observed
-// at the expected 1 Hz cadence, so an unconnected/floating TIMEPULSE pin
-// picking up stray noise cannot fool the getter into reporting bad UTC.
-#define UBLOX_PPS_CADENCE_MIN_MS 900u  // Accept edges 100 ms either side of
-#define UBLOX_PPS_CADENCE_MAX_MS 1100u // the 1 Hz PPS default (TP5 default).
-static volatile uint32_t utc_seconds = 0;
-static volatile uint32_t edge_ms = 0;      // Last in-cadence edge tick.
-static volatile uint32_t prev_edge_ms = 0; // Baseline for cadence check.
-static volatile bool edge_seen = false;    // prev_edge_ms has been seeded.
-static volatile bool time_valid = false;
-static volatile bool nmea_seen_valid = false;
 
 /** Private functions. ********************************************************/
 

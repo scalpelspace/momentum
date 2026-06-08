@@ -13,7 +13,7 @@
 
 #include "ws2812b_hal_pwm.h"
 
-/** Internal variables. *******************************************************/
+/** Public variables. *********************************************************/
 
 ws2812b_led_data_t led_data[LED_COUNT];
 uint16_t dma_buffer[WS2812B_DMA_BUF_LEN];

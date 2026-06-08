@@ -17,6 +17,11 @@
 #include "telemetry.h"
 #endif
 
+/** Private variables. ********************************************************/
+
+static sh2_Hal_t *sh2_hal_instance = 0;
+static bool reset_occurred = false;
+
 /** Public variables. *********************************************************/
 
 sensor_config_t sensor_config[SH2_MAX_SENSOR_ID] = {
@@ -66,11 +71,6 @@ float bno085_lin_accel_z = 0;
 float bno085_gravity_x = 0;
 float bno085_gravity_y = 0;
 float bno085_gravity_z = 0;
-
-/** Private variables. ********************************************************/
-
-sh2_Hal_t *sh2_hal_instance = 0;
-bool reset_occurred = false;
 
 /** Private functions. ********************************************************/
 
