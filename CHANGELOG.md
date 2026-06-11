@@ -160,3 +160,6 @@
 - **Modifications:**
     - Tighten global variable linkage and visibility.
     - Cleanup documentation and comments.
+    - Add periodic state CAN message transmit with added MCU core temperature.
+        - Update `momentum_driver` for tagged release `v0.3.5`.
+        - Remove unused `can_tx_state()` previously defined in telemetry module.

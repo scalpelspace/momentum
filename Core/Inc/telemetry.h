@@ -9,7 +9,6 @@
 
 /** Public functions. *********************************************************/
 
-void can_tx_state(void);
 void can_tx_barometric(void);
 void can_tx_gnss1(void);
 void can_tx_gnss2(void);
@@ -21,7 +20,6 @@ void can_tx_accel(void);
 void can_tx_lin_accel(void);
 void can_tx_gravity(void);
 
-void comm_tx_state(void);
 void comm_tx_barometric(void);
 void comm_tx_gnss1(void);
 void comm_tx_gnss2(void);

@@ -12,6 +12,7 @@
 #include "can.h"
 #include "can_id_allocatee.h"
 #include "comm.h"
+#include "mcu_temp_hal_adc.h"
 #include "momentum_runner.h"
 #include "scheduler.h"
 #include "stm32l4xx_hal_rng.h"
@@ -23,6 +24,21 @@
 extern RNG_HandleTypeDef hrng;
 
 /** Private functions. ********************************************************/
+
+/**
+ * @brief
+ */
+void can_tx_state(void) {
+  const can_message_t state_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_STATE];
+  uint32_t state_sigs[2] = {0};
+  // TODO: Hardcoded state.
+  const float state_source_sigs[2] = {0, get_mcu_temp()};
+  for (int i = 0; i < state_msg.signal_count; ++i) {
+    state_sigs[i] =
+        physical_to_raw(state_source_sigs[i], &state_msg.signals[i]);
+  }
+  can_send_message_raw32(&hcan1, &state_msg, state_sigs);
+}
 
 /**
  * @brief Drive the on-board WS2812B to reflect GNSS fix status.
@@ -78,6 +94,7 @@ void momentum_init(void) {
 
   // Scheduler.
   scheduler_init(); // Initialize scheduler.
+  scheduler_add_task(can_tx_state, 1000);
   scheduler_add_task(bmp390_get_data, 10);
   scheduler_add_task(can_id_allocatee_state_machine, 20);
   scheduler_add_task(led_status_run, 100);
