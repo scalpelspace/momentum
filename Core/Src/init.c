@@ -26,7 +26,7 @@ extern RNG_HandleTypeDef hrng;
 /** Private functions. ********************************************************/
 
 /**
- * @brief
+ * @brief Transmit state message.
  */
 void can_tx_state(void) {
   const can_message_t state_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_STATE];
