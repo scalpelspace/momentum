@@ -20,11 +20,12 @@ extern ADC_HandleTypeDef hadc1;
 
 /** Definitions. **************************************************************/
 
-// Analog reference voltage (Vref+) in mV, used to scale the ADC LSB.
-#define MCU_TEMP_VREF_MV (3300u)
-
-// ADC resolution used for the temperature conversion.
+// ADC resolution used for the conversions.
 #define MCU_TEMP_ADC_RESOLUTION ADC_RESOLUTION_12B
+
+// Sampling time for the internal channels. Both the temperature sensor and
+// VREFINT require a long minimum sampling time.
+#define MCU_TEMP_ADC_SAMPLINGTIME ADC_SAMPLETIME_640CYCLES_5
 
 /** Public functions. *********************************************************/
 
@@ -44,7 +45,7 @@ HAL_StatusTypeDef mcu_temp_init(void);
  * @brief Get the current STM32L432KC internal temperature via ADC1_CH17.
  *
  * @return STM32L432KC internal temperature in degrees Celsius as float.
- * Returns NaN on conversion failure.
+ * @retval == NaN -> conversion failure.
  */
 float get_mcu_temp(void);
 
