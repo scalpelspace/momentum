@@ -153,6 +153,10 @@
     - Update CAN bus message references for improved clarity.
         - Update `momentum_driver` for tagged release `v0.3.4`.
 
+> **Post Release Notes:**
+> - Error: Version macros were not properly updated, incorrectly left as
+    `v0.4.5`.
+
 ---
 
 ## [v0.4.7 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.7)
