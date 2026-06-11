@@ -92,6 +92,9 @@ void momentum_init(void) {
   // CAN allocatee begin (configuration check internally).
   auto_can_id_allocatee_start();
 
+  // MCU internal core temperature sense (ADC self-calibration).
+  mcu_temp_init();
+
   // Scheduler.
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(can_tx_state, 1000);

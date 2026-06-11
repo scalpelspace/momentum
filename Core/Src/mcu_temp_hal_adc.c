@@ -11,6 +11,11 @@
 
 /** Public functions. *********************************************************/
 
+HAL_StatusTypeDef mcu_temp_init(void) {
+  // Run ADC single-ended self-calibration.
+  return HAL_ADCEx_Calibration_Start(&MCU_TEMP_HADC, ADC_SINGLE_ENDED);
+}
+
 float get_mcu_temp(void) {
   uint32_t adc_data;
 

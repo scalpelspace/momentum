@@ -29,6 +29,18 @@ extern ADC_HandleTypeDef hadc1;
 /** Public functions. *********************************************************/
 
 /**
+ * @brief Initialize the MCU temperature sense ADC.
+ *
+ * Runs the ADC single-ended self-calibration sequence. Must be called once,
+ * after the ADC peripheral is initialized (MX_ADC1_Init) and before the first
+ * call to get_mcu_temp(). Calibration requires the ADC to be disabled, so this
+ * must not be called while a conversion is in progress.
+ *
+ * @return HAL_OK on success, HAL error status otherwise.
+ */
+HAL_StatusTypeDef mcu_temp_init(void);
+
+/**
  * @brief Get the current STM32L432KC internal temperature via ADC1_CH17.
  *
  * @return STM32L432KC internal temperature in degrees Celsius as float.
