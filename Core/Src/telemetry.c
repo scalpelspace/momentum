@@ -16,12 +16,6 @@
 
 /** Public functions. *********************************************************/
 
-void can_tx_state(void) {
-  const can_message_t state_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_STATE];
-  const uint32_t state_sigs[1] = {0}; // TODO: Hardcoded state.
-  can_send_message_raw32(&hcan1, &state_msg, state_sigs);
-}
-
 void can_tx_barometric(void) {
   const can_message_t pressure_msg =
       mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_BAROMETRIC];
