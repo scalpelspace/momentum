@@ -179,3 +179,5 @@
             - Magnetometer: 25 Hz.
         - `BMP390` scheduler task: 25 Hz.
         - `SAM-M10Q` unchanged (10 Hz).
+    - Rebalance NVIC preemption priorities.
+      - `WS2812B` LED reduced to lower priority (3).
