@@ -28,6 +28,11 @@
 // Full telemetry flood on UART intended for debug/development purposes.
 // #define MOMENTUM_FULL_COMM_TELEMETRY
 
+/** BMP390 barometer sensor report rate. **************************************/
+
+// BMP390 data sample rate (in ms), use 0 for disabled.
+#define MOMENTUM_BAROMETER_REPORT_MS (40u)
+
 /** BNO085 IMU sensor configurations. *****************************************/
 
 // SH2_GAME_ROTATION_VECTOR report interval (in us), use 0 for disabled.
