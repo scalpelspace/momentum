@@ -178,7 +178,7 @@
             - Accelerometer: 100 Hz.
             - Magnetometer: 25 Hz.
         - `BMP390` scheduler task: 25 Hz.
-        - `SAM-M10Q` unchanged (10 Hz).
+        - `SAM-M10Q` scheduler task: 10 Hz with staggered tick.
     - Rebalance NVIC preemption priorities.
         - `WS2812B` LED reduced to lower priority (3).
         - Swap `SAM-M10Q` and `BNO085` priority, previously 1 and 2, now 2 and 1
