@@ -18,7 +18,7 @@
   * [v0.4.2 (2026-05-04)](#v042--2026-05-04-)
   * [v0.4.5 (2026-05-13)](#v045--2026-05-13-)
   * [v0.4.6 (2026-06-07)](#v046--2026-06-07-)
-  * [v0.4.7 (2026-06-12)](#v047--2026-06-12-)
+  * [v0.4.9 (2026-06-12)](#v049--2026-06-12-)
 <!-- TOC -->
 
 </details>
@@ -95,7 +95,7 @@
 ## [v0.4.0 (2026-04-28)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.0)
 
 - **Modifications:**
-    - Add new BNO085 magnetometer data collection and reporting.
+    - Add new `BNO085` magnetometer data collection and reporting.
         - Update `momentum_driver` for tagged release `v0.3.0`.
             - Improve naming of IMU messages following DBC changes.
             - DBC refactors present for signal encoding format (now using
@@ -159,11 +159,11 @@
 
 ---
 
-## [v0.4.7 (2026-06-12)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.7)
+## [v0.4.9 (2026-06-12)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.7)
 
 - **Modifications:**
     - Tighten global variable linkage and visibility.
-    - Cleanup documentation and comments.
+    - Cleanup documentation and comments including `CHANGELOG.md`.
     - Add periodic state CAN message transmit with added MCU core temperature.
         - Update `momentum_driver` for tagged release `v0.3.5`.
         - Remove unused `can_tx_state()` previously defined in telemetry module.
@@ -171,3 +171,11 @@
         - Swap to IDLE-line only DMA, remove redundant RxCplt.
         - Expand DMA buffer to 512 bytes.
         - Swap to cache only on DMA and transmit via on scheduler task.
+    - Reduce and simplify the default sensor report rates:
+        - `BNO085` sensor configuration:
+            - Quaternion (game vector): 100 Hz.
+            - Gyroscope: 100 Hz.
+            - Accelerometer: 100 Hz.
+            - Magnetometer: 25 Hz.
+        - `BMP390` scheduler task: 25 Hz.
+        - `SAM-M10Q` unchanged (10 Hz).
