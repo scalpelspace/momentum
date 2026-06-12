@@ -26,10 +26,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t n) {
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
   HAL_UART_RxCpltCallback_comm(huart);
-  HAL_UART_RxCpltCallback_ublox(huart);
 }
-
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart) {}
 
 /** SPI. */
 

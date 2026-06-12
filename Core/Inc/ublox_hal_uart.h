@@ -32,8 +32,8 @@ extern UART_HandleTypeDef huart2;
 
 /** Definitions. **************************************************************/
 
-#define UBLOX_RX_BUFFER_SIZE 128 // Based on NEMA specifications.
-// Based on $GNGGA maximum 82 characters/bytes with some overhead.
+// 512 >= one full 10 Hz GGA+RMC burst (~150 B) plus headroom.
+#define UBLOX_RX_BUFFER_SIZE 512
 
 /** Public types. *************************************************************/
 
@@ -96,7 +96,6 @@ extern ublox_data_t gnss_data;
 
 /** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
-void HAL_UART_RxCpltCallback_ublox(UART_HandleTypeDef *huart);
 void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart);
 void HAL_GPIO_EXTI_Callback_ublox(uint16_t n);
 
