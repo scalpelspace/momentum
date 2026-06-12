@@ -68,9 +68,15 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
       * [8.5.2 Reset Code Time Periods Calculation](#852-reset-code-time-periods-calculation)
   * [9 Real Time Clock (RTC)](#9-real-time-clock-rtc)
     * [9.1 RTC Driver](#91-rtc-driver)
-  * [10 Shared Low-Level Software Features](#10-shared-low-level-software-features)
-    * [10.1 Callbacks](#101-callbacks)
-  * [11 Third-Party Licenses](#11-third-party-licenses)
+  * [10 STM32L432KC Internal Temperature Sensor](#10-stm32l432kc-internal-temperature-sensor)
+    * [10.1 Background](#101-background)
+    * [10.2 Analog-to-Digital Converter (ADC)](#102-analog-to-digital-converter-adc)
+    * [10.3 Direct Memory Access (DMA)](#103-direct-memory-access-dma)
+    * [10.4 Nested Vectored Interrupt Controller (NVIC)](#104-nested-vectored-interrupt-controller-nvic)
+    * [10.5 MCU Temperature Driver](#105-mcu-temperature-driver)
+  * [11 Shared Low-Level Software Features](#11-shared-low-level-software-features)
+    * [11.1 Callbacks](#111-callbacks)
+  * [12 Third-Party Licenses](#12-third-party-licenses)
 <!-- TOC -->
 
 </details>
@@ -713,9 +719,74 @@ The RTC driver is made of 2 files:
 
 ---
 
-## 10 Shared Low-Level Software Features
+## 10 STM32L432KC Internal Temperature Sensor
 
-### 10.1 Callbacks
+The STM32L432KC includes an on-die temperature sensor internally connected to
+`ADC1_IN17`, used to monitor the MCU core temperature. It is sampled together
+with the internal voltage reference (VDDA).
+
+### 10.1 Background
+
+The internal temperature sensor produces a voltage that varies linearly with
+temperature and is calibrated with the device factory calibrations using the
+STM32 HAL `__HAL_ADC_CALC_TEMPERATURE()` macro.
+
+The reading depends on the actual analog supply voltage (`VDDA`), so `VREFINT`
+is sampled in the same sequence. `VREFINT` has a known factory-calibrated
+voltage, comparing its measured count against that calibration
+(`__HAL_ADC_CALC_VREFANALOG_VOLTAGE()`) recovers the real `VDDA`, which is then
+fed into the temperature calculation.
+
+### 10.2 Analog-to-Digital Converter (ADC)
+
+`ADC1` is configured as a 2-rank regular sequence (scan mode), so a single
+trigger samples both internal channels in order:
+
+- Rank 1: `VREFINT`.
+- Rank 2: `TEMPSENSOR` (`ADC1_IN17`).
+
+Key settings:
+
+- Resolution: `12-bit`.
+- Sampling time: `640.5 cycles` (both internal channels require a long minimum
+  sampling time).
+- Trigger: software start, single (non-continuous) conversion.
+- Clock source: `PLLSAI1`.
+
+### 10.3 Direct Memory Access (DMA)
+
+DMA moves both conversion results into memory without CPU involvement, so a
+conversion can be launched and serviced without blocking.
+
+`ADC1` `DMA1 Stream1`:
+
+- Direction: `Peripheral to Memory`.
+- Mode: `Normal`.
+- Peripheral Increment Address: `Disabled`.
+- Memory Increment Address: `Enabled`.
+- (Both Peripheral and Memory) Data Width: `Word`.
+- Use FIFO: `Disabled`.
+
+### 10.4 Nested Vectored Interrupt Controller (NVIC)
+
+`DMA1 channel1 global interrupt` is enabled for `ADC1`.
+
+On transfer completion the conversion-complete callback computes `VDDA` from the
+`VREFINT` count, converts the temperature count to degrees Celsius and caches
+the result for use.
+
+### 10.5 MCU Temperature Driver
+
+STM32 HAL abstraction functions:
+
+1. [mcu_temp_hal_adc.h](Core/Inc/mcu_temp_hal_adc.h).
+2. [mcu_temp_hal_adc.c](Core/Src/mcu_temp_hal_adc.c).
+
+---
+
+## 11 Shared Low-Level Software Features
+
+### 11.1 Callbacks
 
 Callbacks for certain peripherals are shared by the STM32 HAL and are
 centralized within the following module:
@@ -729,7 +800,7 @@ the STM32 HAL.
 
 ---
 
-## 11 Third-Party Licenses
+## 12 Third-Party Licenses
 
 This project uses the following open-source software components:
 
