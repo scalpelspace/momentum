@@ -177,7 +177,7 @@
             - Gyroscope: 100 Hz.
             - Accelerometer: 100 Hz.
             - Magnetometer: 25 Hz.
-        - `BMP390` scheduler task: 25 Hz.
+        - `BMP390` scheduler task: 25 Hz (set via configration macro).
         - `SAM-M10Q` scheduler task: 10 Hz with staggered tick.
     - Rebalance NVIC preemption priorities.
         - `WS2812B` LED reduced to lower priority (3).

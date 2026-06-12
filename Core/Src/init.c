@@ -157,10 +157,12 @@ void momentum_init(void) {
   // Scheduler.
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(can_tx_gnss, 25);
-  scheduler_add_task(bmp390_get_data, 40);
   scheduler_add_task(led_status_run, 100);
   scheduler_add_task(can_id_allocatee_state_machine, 250);
   scheduler_add_task(can_tx_state, 1000);
+#if MOMENTUM_BAROMETER_REPORT_MS > 0
+  scheduler_add_task(bmp390_get_data, MOMENTUM_BAROMETER_REPORT_MS);
+#endif
 
   // Sensors.
   // TODO: DEV NOTE: Timer initialization completed by scheduler (TIM owner).
