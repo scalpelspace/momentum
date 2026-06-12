@@ -10,8 +10,8 @@
 /** Includes. *****************************************************************/
 
 #include "bno085_runner.h"
-
 #include "configuration.h"
+
 #if defined(MOMENTUM_FULL_CAN_TELEMETRY) ||                                    \
     defined(MOMENTUM_FULL_COMM_TELEMETRY)
 #include "telemetry.h"
@@ -24,22 +24,47 @@ static bool reset_occurred = false;
 
 /** Public variables. *********************************************************/
 
-sensor_config_t sensor_config[SH2_MAX_SENSOR_ID] = {
-    // Fused orientation quaternion.
-    // 100 Hz.
-    {SH2_GAME_ROTATION_VECTOR, {.reportInterval_us = 10000}},
+sensor_config_t sensor_config[] = {
+#if MOMENTUM_QUATERNION_REPORT_US > 0
+#if MOMENTUM_USE_9DOF_QUATERNION
+    // Fused 9-DOF orientation quaternion.
+    {SH2_ROTATION_VECTOR, {.reportInterval_us = MOMENTUM_QUATERNION_REPORT_US}},
+#else
+    // Fused 6-DOF orientation quaternion (no magnetometer).
+    {SH2_GAME_ROTATION_VECTOR,
+     {.reportInterval_us = MOMENTUM_QUATERNION_REPORT_US}},
+#endif
+#endif
 
+#if MOMENTUM_GYROSCOPE_REPORT_US > 0
     // Calibrated gyroscope data.
-    // 100 Hz.
-    {SH2_GYROSCOPE_CALIBRATED, {.reportInterval_us = 10000}},
+    {SH2_GYROSCOPE_CALIBRATED,
+     {.reportInterval_us = MOMENTUM_GYROSCOPE_REPORT_US}},
+#endif
 
-    // Calibrated accelerometer data on X, Y and Z axes.
-    // 100 Hz.
-    {SH2_ACCELEROMETER, {.reportInterval_us = 10000}},
-
+#if MOMENTUM_MAGNETOMETER_REPORT_US > 0
     // Calibrated magnetometer data.
-    // 25 Hz.
-    {SH2_MAGNETIC_FIELD_CALIBRATED, {.reportInterval_us = 40000}},
+    {SH2_MAGNETIC_FIELD_CALIBRATED,
+     {.reportInterval_us = MOMENTUM_MAGNETOMETER_REPORT_US}},
+#endif
+
+#if MOMENTUM_ACCELEROMETER_REPORT_US > 0
+    // Calibrated accelerometer data on X, Y and Z axes.
+    {SH2_ACCELEROMETER,
+     {.reportInterval_us = MOMENTUM_ACCELEROMETER_REPORT_US}},
+#endif
+
+#if MOMENTUM_LINEAR_ACCELEROMETER_REPORT_US > 0
+    // Linear acceleration minus/isolated from the gravitational component.
+    {SH2_LINEAR_ACCELERATION,
+     {.reportInterval_us = MOMENTUM_LINEAR_ACCELEROMETER_REPORT_US}},
+#endif
+
+#if MOMENTUM_GRAVITY_ACCELEROMETER_REPORT_US > 0
+    // Gravity vector for orientation.
+    {SH2_GRAVITY,
+     {.reportInterval_us = MOMENTUM_GRAVITY_ACCELEROMETER_REPORT_US}},
+#endif
 };
 
 float bno085_quaternion_i = 0;
@@ -152,6 +177,23 @@ static void sensor_report_handler(void *cookie, sh2_SensorEvent_t *pEvent) {
     bno085_quaternion_real = value.un.gameRotationVector.real;
     bno085_quaternion_accuracy_rad = 0.0f;
     bno085_quaternion_accuracy_deg = 0.0f;
+
+#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+    can_tx_quaternion();
+#endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+    comm_tx_quaternion();
+#endif
+    break;
+
+  case SH2_ROTATION_VECTOR:
+    bno085_quaternion_i = value.un.rotationVector.i;
+    bno085_quaternion_j = value.un.rotationVector.j;
+    bno085_quaternion_k = value.un.rotationVector.k;
+    bno085_quaternion_real = value.un.rotationVector.real;
+    bno085_quaternion_accuracy_rad = value.un.rotationVector.accuracy;
+    bno085_quaternion_accuracy_deg =
+        value.un.rotationVector.accuracy * (float)RAD_TO_DEG;
 
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
     can_tx_quaternion();

@@ -34,7 +34,7 @@ typedef struct {
 
 /** Public variables. *********************************************************/
 
-extern sensor_config_t sensor_config[SH2_MAX_SENSOR_ID];
+extern sensor_config_t sensor_config[];
 
 extern float bno085_quaternion_i;
 extern float bno085_quaternion_j;

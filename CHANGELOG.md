@@ -172,7 +172,7 @@
         - Expand DMA buffer to 512 bytes.
         - Swap to cache only on DMA and transmit via on scheduler task.
     - Reduce and simplify the default sensor report rates:
-        - `BNO085` sensor configuration:
+        - `BNO085` sensor configuration now defined via configration macros:
             - Quaternion (game vector): 100 Hz.
             - Gyroscope: 100 Hz.
             - Accelerometer: 100 Hz.
