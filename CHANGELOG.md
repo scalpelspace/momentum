@@ -18,7 +18,7 @@
   * [v0.4.2 (2026-05-04)](#v042--2026-05-04-)
   * [v0.4.5 (2026-05-13)](#v045--2026-05-13-)
   * [v0.4.6 (2026-06-07)](#v046--2026-06-07-)
-  * [v0.4.7 (2026-06-11)](#v047--2026-06-11-)
+  * [v0.4.7 (2026-06-12)](#v047--2026-06-12-)
 <!-- TOC -->
 
 </details>
@@ -159,7 +159,7 @@
 
 ---
 
-## [v0.4.7 (2026-06-11)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.7)
+## [v0.4.7 (2026-06-12)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.7)
 
 - **Modifications:**
     - Tighten global variable linkage and visibility.

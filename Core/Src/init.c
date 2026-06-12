@@ -92,8 +92,10 @@ void momentum_init(void) {
   // CAN allocatee begin (configuration check internally).
   auto_can_id_allocatee_start();
 
-  // MCU internal core temperature sense (ADC self-calibration).
+  // MCU internal core temperature sense (ADC self-calibration), then kick the
+  // first DMA conversion so a reading is cached before first task trigger.
   mcu_temp_init();
+  mcu_temp_start();
 
   // Scheduler.
   scheduler_init(); // Initialize scheduler.

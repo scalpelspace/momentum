@@ -7,6 +7,7 @@
 /** Includes. *****************************************************************/
 
 #include "comm.h"
+#include "mcu_temp_hal_adc.h"
 #include "momentum_runner.h"
 #include "sh2_hal_spi.h"
 #include "stm32l4xx_hal.h"
@@ -42,4 +43,10 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
   HAL_SPI_TxCpltCallback_momentum(hspi);
+}
+
+/** ADC. */
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+  HAL_ADC_ConvCpltCallback_mcu_temp(hadc);
 }
