@@ -170,3 +170,4 @@
     - Fix `SAM-M10Q` UART for timing/scheduling improvements.
         - Swap to IDLE-line only DMA, remove redundant RxCplt.
         - Expand DMA buffer to 512 bytes.
+        - Swap to cache only on DMA and transmit via on scheduler task.

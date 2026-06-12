@@ -13,12 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "configuration.h"
-#if defined(MOMENTUM_FULL_CAN_TELEMETRY) ||                                    \
-    defined(MOMENTUM_FULL_COMM_TELEMETRY)
-#include "telemetry.h"
-#endif
-
 /** Definitions. **************************************************************/
 
 #define GNGGA_TOKEN_COUNT 15 // GGA index [0..14], exclude checksum and return.
@@ -411,17 +405,6 @@ static bool parse_gngga(const char *sentence) {
   // 12) Update position fix classification.
   gnss_data.position_fix = classify_position_fix(&gnss_data.position_flags);
 
-#ifdef MOMENTUM_FULL_CAN_TELEMETRY
-  can_tx_gnss1();
-  can_tx_gnss2();
-  can_tx_gnss3();
-#endif
-#ifdef MOMENTUM_FULL_COMM_TELEMETRY
-  comm_tx_gnss1();
-  comm_tx_gnss2();
-  comm_tx_gnss3();
-#endif
-
   return true;
 }
 
@@ -556,17 +539,6 @@ static bool parse_gnrmc(const char *sentence) {
 
   // 13) Update position fix classification.
   gnss_data.position_fix = classify_position_fix(&gnss_data.position_flags);
-
-#ifdef MOMENTUM_FULL_CAN_TELEMETRY
-  can_tx_gnss1();
-  can_tx_gnss2();
-  can_tx_gnss3();
-#endif
-#ifdef MOMENTUM_FULL_COMM_TELEMETRY
-  comm_tx_gnss1();
-  comm_tx_gnss2();
-  comm_tx_gnss3();
-#endif
 
   return true;
 }

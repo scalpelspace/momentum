@@ -12,10 +12,12 @@
 #include "can.h"
 #include "can_id_allocatee.h"
 #include "comm.h"
+#include "configuration.h"
 #include "mcu_temp_hal_adc.h"
 #include "momentum_runner.h"
 #include "scheduler.h"
 #include "stm32l4xx_hal_rng.h"
+#include "telemetry.h"
 #include "ublox_hal_uart.h"
 #include "ws2812b_hal_pwm.h"
 
@@ -38,6 +40,30 @@ void can_tx_state(void) {
         physical_to_raw(state_source_sigs[i], &state_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &state_msg, state_sigs);
+}
+
+/**
+ * @brief Transmit cached GNSS telemetry at a fixed scheduler-driven rate.
+ */
+void can_tx_gnss(void) {
+#ifdef MOMENTUM_FULL_CAN_TELEMETRY
+  uint32_t primask = __get_PRIMASK();
+  __disable_irq();
+
+  can_tx_gnss1();
+  can_tx_gnss2();
+  can_tx_gnss3();
+
+  // Restore the prior interrupt state (do not force-enable if already masked).
+  if (!primask) {
+    __enable_irq();
+  }
+#endif
+#ifdef MOMENTUM_FULL_COMM_TELEMETRY
+  comm_tx_gnss1();
+  comm_tx_gnss2();
+  comm_tx_gnss3();
+#endif
 }
 
 /**
@@ -103,6 +129,10 @@ void momentum_init(void) {
   scheduler_add_task(bmp390_get_data, 10);
   scheduler_add_task(can_id_allocatee_state_machine, 20);
   scheduler_add_task(led_status_run, 100);
+#if defined(MOMENTUM_FULL_CAN_TELEMETRY) ||                                    \
+    defined(MOMENTUM_FULL_COMM_TELEMETRY)
+  scheduler_add_task(can_tx_gnss, 100);
+#endif
 
   // Sensors.
   // TODO: DEV NOTE: Timer initialization completed by scheduler (TIM owner).
