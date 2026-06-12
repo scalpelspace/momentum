@@ -17,6 +17,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
   * [1 Overview](#1-overview)
     * [1.1 Bill of Materials (BOM)](#11-bill-of-materials-bom)
     * [1.2 Block Diagram](#12-block-diagram)
+      * [1.2.1 Default Sensor Report Rates](#121-default-sensor-report-rates)
     * [1.3 Pin Configurations](#13-pin-configurations)
     * [1.4 Clock Configurations](#14-clock-configurations)
   * [2 USB Interface via CP2102N (USB-to-UART)](#2-usb-interface-via-cp2102n-usb-to-uart)
@@ -102,6 +103,17 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 ![momentum.drawio.png](docs/momentum.drawio.png)
 
 > Drawio file here: [momentum.drawio](docs/momentum.drawio).
+
+#### 1.2.1 Default Sensor Report Rates
+
+The following sensor data is configured for the specified rates by default.
+
+| Sensor              | Data                    | Report Rate                |
+|---------------------|-------------------------|----------------------------|
+| STM32L432KC         | STMicroelectronics      | 32-bit MCU                 |
+| CP2102N-A02-GQFN24R | Silicon Labs            | USB 2.0 to UART Interface  |
+| BNO086              | CEVA Technologies, Inc. | 9-DOF IMU                  |
+| BMP390              | Bosch Sensortec         | Barometric Pressure Sensor |
 
 ### 1.3 Pin Configurations
 
