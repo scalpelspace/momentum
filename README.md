@@ -106,14 +106,21 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 
 #### 1.2.1 Default Sensor Report Rates
 
-The following sensor data is configured for the specified rates by default.
+The following sensor data is configured for the specified rates by default. The
+BNO086 and BMP390 report rates are set 
+in [`configuration.h`](Core/Inc/configuration.h). The SAM-M10Q rates are set by
+the scheduler task period and module configuration respectively.
 
-| Sensor              | Data                    | Report Rate                |
-|---------------------|-------------------------|----------------------------|
-| STM32L432KC         | STMicroelectronics      | 32-bit MCU                 |
-| CP2102N-A02-GQFN24R | Silicon Labs            | USB 2.0 to UART Interface  |
-| BNO086              | CEVA Technologies, Inc. | 9-DOF IMU                  |
-| BMP390              | Bosch Sensortec         | Barometric Pressure Sensor |
+| Sensor   | Data                                                | Report Rate |
+|----------|-----------------------------------------------------|-------------|
+| BNO086   | Orientation quaternion (6-DOF game rotation vector) | 100 Hz      |
+| BNO086   | Calibrated gyroscope                                | 100 Hz      |
+| BNO086   | Calibrated accelerometer                            | 100 Hz      |
+| BNO086   | Calibrated magnetometer                             | 25 Hz       |
+| BNO086   | Linear acceleration                                 | Disabled    |
+| BNO086   | Gravity vector                                      | Disabled    |
+| BMP390   | Barometric pressure and temperature                 | 25 Hz       |
+| SAM-M10Q | GNSS position, velocity and time (NMEA GGA + RMC)   | 10 Hz       |
 
 ### 1.3 Pin Configurations
 
