@@ -43,16 +43,35 @@ void can_tx_state(void) {
 }
 
 /**
- * @brief Transmit cached GNSS telemetry at a fixed scheduler-driven rate.
+ * @brief Transmit cached GNSS telemetry, staggered to ease CAN TX pressure.
+ *
+ * Scheduled on a 25 ms base tick. Each message is sent on its own tick so a
+ * single invocation never queues all frame at once:
+ *   - Phase 0 ( 0 ms): GNSS1 (latitude/longitude).
+ *   - Phase 1 (25 ms): GNSS2 (speed/course/fix/satellites/HDOP).
+ *   - Phase 2 (50 ms): GNSS3 (altitude/geoid separation).
+ *   - Phase 3 (75 ms): idle (leaves a quiet bus slot).
  */
 void can_tx_gnss(void) {
+  static uint8_t phase = 0;
+
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
   uint32_t primask = __get_PRIMASK();
   __disable_irq();
 
-  can_tx_gnss1();
-  can_tx_gnss2();
-  can_tx_gnss3();
+  switch (phase) {
+  case 0:
+    can_tx_gnss1();
+    break;
+  case 1:
+    can_tx_gnss2();
+    break;
+  case 2:
+    can_tx_gnss3();
+    break;
+  default:
+    break; // Idle tick.
+  }
 
   // Restore the prior interrupt state (do not force-enable if already masked).
   if (!primask) {
@@ -60,10 +79,22 @@ void can_tx_gnss(void) {
   }
 #endif
 #ifdef MOMENTUM_FULL_COMM_TELEMETRY
-  comm_tx_gnss1();
-  comm_tx_gnss2();
-  comm_tx_gnss3();
+  switch (phase) {
+  case 0:
+    comm_tx_gnss1();
+    break;
+  case 1:
+    comm_tx_gnss2();
+    break;
+  case 2:
+    comm_tx_gnss3();
+    break;
+  default:
+    break; // Idle tick.
+  }
 #endif
+
+  phase = (uint8_t)((phase + 1u) & 0x03u); // Cycle 0..3 (100 ms period).
 }
 
 /**
@@ -125,14 +156,11 @@ void momentum_init(void) {
 
   // Scheduler.
   scheduler_init(); // Initialize scheduler.
-  scheduler_add_task(can_tx_state, 1000);
+  scheduler_add_task(can_tx_gnss, 25);
   scheduler_add_task(bmp390_get_data, 40);
-  scheduler_add_task(can_id_allocatee_state_machine, 20);
   scheduler_add_task(led_status_run, 100);
-#if defined(MOMENTUM_FULL_CAN_TELEMETRY) ||                                    \
-    defined(MOMENTUM_FULL_COMM_TELEMETRY)
-  scheduler_add_task(can_tx_gnss, 100);
-#endif
+  scheduler_add_task(can_id_allocatee_state_machine, 250);
+  scheduler_add_task(can_tx_state, 1000);
 
   // Sensors.
   // TODO: DEV NOTE: Timer initialization completed by scheduler (TIM owner).
