@@ -32,8 +32,8 @@ static uint8_t ublox_rx_dma_buffer[UBLOX_RX_BUFFER_SIZE];
 // Rx buffer management for DMA based operation.
 static uint16_t ublox_rx_index = 0;
 static bool ublox_in_sentence = false;
-static uint8_t sentence_start_index = 0;
-static uint8_t sentence_end_index = 0;
+static uint16_t sentence_start_index = 0;
+static uint16_t sentence_end_index = 0;
 
 // UTC time synchronization (TIMEPULSE + NMEA).
 // utc_seconds is "seconds since UTC midnight" at the most recent TIMEPULSE
@@ -632,14 +632,6 @@ static void ublox_process_byte(uint8_t byte, size_t parse_index) {
 
 /** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
-void HAL_UART_RxCpltCallback_ublox(UART_HandleTypeDef *huart) {
-  if (huart == &UBLOX_HUART) {
-    for (size_t i = 0; i < UBLOX_RX_BUFFER_SIZE; ++i) {
-      ublox_process_byte(ublox_rx_dma_buffer[i], i);
-    }
-  }
-}
-
 /** NOTE: USART2 hardware specific, implement in USART2_IRQHandler(). */
 void USART2_IRQHandler_ublox(UART_HandleTypeDef *huart) {
   if (__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE)) { // Detected IDLE flag.
@@ -741,6 +733,9 @@ void ublox_init(void) {
 
   // Start UART reception with DMA.
   HAL_UART_Receive_DMA(&UBLOX_HUART, ublox_rx_dma_buffer, UBLOX_RX_BUFFER_SIZE);
+
+  __HAL_UART_CLEAR_IDLEFLAG(&UBLOX_HUART);
+  __HAL_UART_ENABLE_IT(&UBLOX_HUART, UART_IT_IDLE);
 }
 
 void ublox_reset(void) {

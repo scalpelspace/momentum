@@ -167,3 +167,6 @@
     - Add periodic state CAN message transmit with added MCU core temperature.
         - Update `momentum_driver` for tagged release `v0.3.5`.
         - Remove unused `can_tx_state()` previously defined in telemetry module.
+    - Fix `SAM-M10Q` UART for timing/scheduling improvements.
+        - Swap to IDLE-line only DMA, remove redundant RxCplt.
+        - Expand DMA buffer to 512 bytes.
