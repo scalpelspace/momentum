@@ -126,7 +126,7 @@ void momentum_init(void) {
   // Scheduler.
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(can_tx_state, 1000);
-  scheduler_add_task(bmp390_get_data, 10);
+  scheduler_add_task(bmp390_get_data, 40);
   scheduler_add_task(can_id_allocatee_state_machine, 20);
   scheduler_add_task(led_status_run, 100);
 #if defined(MOMENTUM_FULL_CAN_TELEMETRY) ||                                    \
