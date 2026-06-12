@@ -25,6 +25,13 @@ extern TIM_HandleTypeDef htim2;
 
 #define MAX_TASKS 10
 
+// Maximum schedulable period. The time base is a 32-bit microsecond timer that
+// wraps every 2^32 us, and is_due_u32() compares times with signed 32-bit
+// subtraction. That comparison is unambiguous only while the distance between
+// now and due stays strictly below half the range (< 2^31 us).
+#define SCHEDULER_MAX_PERIOD_US (2147483647u)
+#define SCHEDULER_MAX_PERIOD_MS (SCHEDULER_MAX_PERIOD_US / 1000u)
+
 /** Public types. *************************************************************/
 
 /**
@@ -52,7 +59,8 @@ void scheduler_init(void);
  * Function to add tasks to the scheduler.
  *
  * @param task_function task_function_t to add as a task.
- * @param period_ms Task execution period in milliseconds.
+ * @param period_ms Task execution period in milliseconds. Must be <=
+ * SCHEDULER_MAX_PERIOD_MS.
  */
 void scheduler_add_task(task_function_t task_function, uint32_t period_ms);
 

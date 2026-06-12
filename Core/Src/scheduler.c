@@ -21,7 +21,7 @@ static uint8_t num_tasks = 0;
  * @return Current time.
  */
 static uint32_t time_us(void) {
-  return SCHEDULER_TIM->CNT; // Atomic 32-bit read on Cortex-M4.
+  return SCHEDULER_TIM->CNT; // Atomic 32-bit timer.
 }
 
 /**
