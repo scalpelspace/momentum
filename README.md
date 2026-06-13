@@ -772,7 +772,10 @@ Key settings:
 - Sampling time: `640.5 cycles` (both internal channels require a long minimum
   sampling time).
 - Trigger: software start, single (non-continuous) conversion.
-- Clock source: `PLLSAI1`.
+
+Additional settings:
+
+- Overrun behaviour: Overrun data overwritten.
 
 ### 10.3 Direct Memory Access (DMA)
 
