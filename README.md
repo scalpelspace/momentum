@@ -107,7 +107,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 #### 1.2.1 Default Sensor Report Rates
 
 The following sensor data is configured for the specified rates by default. The
-BNO086 and BMP390 report rates are set 
+BNO086 and BMP390 report rates are set
 in [`configuration.h`](Core/Inc/configuration.h). The SAM-M10Q rates are set by
 the scheduler task period and module configuration respectively.
 
@@ -138,7 +138,9 @@ the scheduler task period and module configuration respectively.
 |-------------|-------------------------|----------------------------------|-----------------------------------|-------------------------------------------------|
 | PA14        | `SYS_JTCK-SWCLK`        |                                  | TC2050 SWD Pin 4: `SWCLK`         |                                                 |
 | PA13        | `SYS_JTMS-SWDIO`        |                                  | TC2050 SWD Pin 2: `SWDIO`         |                                                 |
-|             | `TIM2_CH1`              | PWM no output                    |                                   | Scheduler, BNO086 SH2 and BMP390 BMP3 timer.    |
+|             | `TIM2_CH1`              | PWM no output                    | Scheduling                        | Scheduler, BNO086 SH2 and BMP390 BMP3 timer.    |
+|             | `ADC1` `VREFINT`        | Scan conversion mode             | VDDA Sense                        | Configured in ADC1 rank 1                       |
+|             | `ADC1_IN17`             | Scan conversion mode             | Temperature Sensor Channel        | Configured in ADC1 rank 2                       |
 | PA5         | `SPI1_SCK`              |                                  | BNO086 Pin 19: `H_SCL/SCK/RX`     |                                                 |
 | PA4         | `GPIO_Output` (SPI1 CS) | Set high                         | BNO086 Pin 18: `H_CSN`            |                                                 |
 | PA6         | `SPI1_MISO`             |                                  | BNO086 Pin 20: `H_SDA/H_MISO/TX`  |                                                 |
