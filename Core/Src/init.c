@@ -30,7 +30,7 @@ extern RNG_HandleTypeDef hrng;
 /**
  * @brief Transmit state message.
  */
-void can_tx_state(void) {
+static void can_tx_state(void) {
   const can_message_t state_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_STATE];
   uint32_t state_sigs[2] = {0};
   // TODO: Hardcoded state.
@@ -40,6 +40,8 @@ void can_tx_state(void) {
         physical_to_raw(state_source_sigs[i], &state_msg.signals[i]);
   }
   can_send_message_raw32(&hcan1, &state_msg, state_sigs);
+
+  mcu_temp_start(); // Trigger next temperature read.
 }
 
 /**
@@ -52,7 +54,7 @@ void can_tx_state(void) {
  *   - Phase 2 (50 ms): GNSS3 (altitude/geoid separation).
  *   - Phase 3 (75 ms): idle (leaves a quiet bus slot).
  */
-void can_tx_gnss(void) {
+static void can_tx_gnss(void) {
   static uint8_t phase = 0;
 
 #ifdef MOMENTUM_FULL_CAN_TELEMETRY
@@ -100,7 +102,7 @@ void can_tx_gnss(void) {
 /**
  * @brief Drive the on-board WS2812B to reflect GNSS fix status.
  */
-void led_status_run(void) {
+static void led_status_run(void) {
   static nmea_position_fix_t last_fix = FIX_TYPE_UNDETERMINED;
   const nmea_position_fix_t fix = gnss_data.position_fix;
 

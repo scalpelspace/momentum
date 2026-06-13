@@ -159,7 +159,7 @@
 
 ---
 
-## [v0.4.9 (2026-06-12)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.9)
+## [v0.4.9 (2026-06-13)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.9)
 
 - **Modifications:**
     - Tighten global variable linkage and visibility.
