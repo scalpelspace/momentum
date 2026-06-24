@@ -4,9 +4,6 @@
 
 STM32L432KC microcontroller firmware for `momentum_pcb`.
 
-- GNSS, IMU and barometer sensor hub compatible with Uno-style microcontroller
-  boards via SPI and CAN bus.
-
 ---
 
 <details markdown="1">
