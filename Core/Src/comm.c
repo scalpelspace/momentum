@@ -15,6 +15,7 @@
 #include "bno085_runner.h"
 #include "configuration.h"
 #include "ublox_hal_uart.h"
+#include "uid_hash48.h"
 #include "ws2812b_hal_pwm.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -46,6 +47,14 @@ static void comm_handle_line(const char *line) {
     printf("%s %u.%u.%u.%c\r\n", SCALPELSPACE_SHORT_NAME,
            MOMENTUM_VERSION_MAJOR, MOMENTUM_VERSION_MINOR,
            MOMENTUM_VERSION_PATCH, MOMENTUM_VERSION_IDENTIFIER);
+  }
+
+  else if (strcmp(line, "uid") == 0) {
+    uint16_t uid0 = 0;
+    uint16_t uid1 = 0;
+    uint16_t uid2 = 0;
+    get_uid_hash48_parts(&uid0, &uid1, &uid2);
+    printf("%u %u %u\n", uid0, uid1, uid2);
   }
 
   else if (strncmp(line, "rgb", 3) == 0) {

@@ -190,15 +190,16 @@ interface.
 
 The following table shows the available commands through this interface:
 
-| Command   | Example           | R/W | Description                                                                |
-|-----------|-------------------|-----|----------------------------------------------------------------------------|
-| `version` | `version`         | R   | Prints firmware name and full semantic version string.                     |
-| `ver`     | `ver`             | R   | Short alias for `version`.                                                 |
-| `rgb`     | `rgb 255, 0, 128` | W   | Sets the WS2812B LED (index 0) to the specified RGB color `[0, 255]` each. |
-| `imu`     | `imu`             | R   | Prints the current IMU quaternion values (i, j, k, real).                  |
-| `baro`    | `baro`            | R   | Prints barometric sensor temperature (deg C) and pressure (Pa).            |
-| `gnss`    | `gnss`            | R   | Prints GNSS date/time, latitude, longitude, and altitude.                  |
-| `report`  | `report`          | R   | Prints a combined report of IMU, barometer, and GNSS sensor data.          |
+| Command   | Example           | R/W | Description                                                                     |
+|-----------|-------------------|-----|---------------------------------------------------------------------------------|
+| `version` | `version`         | R   | Prints firmware name and full semantic version string.                          |
+| `uid`     | `uid`             | R   | Prints the 48-bit UID in decimal as three whitespace-separated 16-bit segments. |
+| `ver`     | `ver`             | R   | Short alias for `version`.                                                      |
+| `rgb`     | `rgb 255, 0, 128` | W   | Sets the WS2812B LED (index 0) to the specified RGB color `[0, 255]` each.      |
+| `imu`     | `imu`             | R   | Prints the current IMU quaternion values (i, j, k, real).                       |
+| `baro`    | `baro`            | R   | Prints barometric sensor temperature (deg C) and pressure (Pa).                 |
+| `gnss`    | `gnss`            | R   | Prints GNSS date/time, latitude, longitude, and altitude.                       |
+| `report`  | `report`          | R   | Prints a combined report of IMU, barometer, and GNSS sensor data.               |
 
 #### 2.1.2 Direct Memory Access (DMA)
 

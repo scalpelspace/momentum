@@ -18,7 +18,8 @@
   * [v0.4.2 (2026-05-04)](#v042--2026-05-04-)
   * [v0.4.5 (2026-05-13)](#v045--2026-05-13-)
   * [v0.4.6 (2026-06-07)](#v046--2026-06-07-)
-  * [v0.4.9 (2026-06-12)](#v049--2026-06-12-)
+  * [v0.4.9 (2026-06-13)](#v049--2026-06-13-)
+  * [v0.4.10 (2026-06-24)](#v0410--2026-06-24-)
 <!-- TOC -->
 
 </details>
@@ -183,3 +184,11 @@
         - `WS2812B` LED reduced to lower priority (3).
         - Swap `SAM-M10Q` and `BNO085` priority, previously 1 and 2, now 2 and 1
           respectively.
+
+---
+
+## [v0.4.10 (2026-06-24)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.10)
+
+- **Modifications:**
+    - Add `uid` retrival in comm UART/Serial Interface.
+        - Update UART/Serial Interface docs.
