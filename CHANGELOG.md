@@ -20,6 +20,7 @@
   * [v0.4.6 (2026-06-07)](#v046--2026-06-07-)
   * [v0.4.9 (2026-06-13)](#v049--2026-06-13-)
   * [v0.4.10 (2026-06-24)](#v0410--2026-06-24-)
+  * [v0.4.11 (TBD)](#v0411--tbd-)
 <!-- TOC -->
 
 </details>
@@ -192,3 +193,10 @@
 - **Modifications:**
     - Add `uid` retrival in comm UART/Serial Interface.
         - Update UART/Serial Interface docs.
+
+---
+
+## [v0.4.11 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/TBD)
+
+- **Modifications:**
+    - Tighten function linkage and visibility.

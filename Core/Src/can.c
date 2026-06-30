@@ -39,7 +39,7 @@ can_node_id_t can_node_id = DEFAULT_CAN_NODE_ID;
  * @param header Pointer to the CAN RX header.
  * @param data Pointer to the raw data of the CAN message.
  */
-void process_can_message(CAN_RxHeaderTypeDef *header, uint8_t *data) {
+static void process_can_message(CAN_RxHeaderTypeDef *header, uint8_t *data) {
   // CAN ID allocatee callbacks.
   // TODO: Overhead here, reduce via control flag or extended state variable?
   const can_header_t l_header = {
@@ -73,6 +73,59 @@ void process_can_message(CAN_RxHeaderTypeDef *header, uint8_t *data) {
       }
     }
   }
+}
+
+static void can_rx_datetime_get(can_header_t *header, uint8_t *data) {
+  RTC_DateTypeDef sDate = {0};
+  RTC_TimeTypeDef sTime = {0};
+
+  // NOTE: Time must be read before date on STM32 HAL to unlock the shadow
+  // registers correctly - reading date first can latch stale values.
+  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_DATETIME_RESPONSE];
+  const uint32_t values[] = {
+      sDate.Year,  sDate.Month,   sDate.Date,    sDate.WeekDay,
+      sTime.Hours, sTime.Minutes, sTime.Seconds,
+  };
+
+  can_send_message_raw32(&HCAN, msg, values);
+}
+
+static void can_rx_gnss_utc_get(can_header_t *header, uint8_t *data) {
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS_UTC_RESPONSE];
+  const uint32_t values[] = {
+      gnss_data.year, gnss_data.month,  gnss_data.day,
+      gnss_data.hour, gnss_data.minute, gnss_data.second,
+  };
+
+  can_send_message_raw32(&HCAN, msg, values);
+}
+
+static void can_rx_rgb_led_set(can_header_t *header, uint8_t *data) {
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_RGB_LED_SET];
+  const uint8_t r = (uint8_t)decode_signal(&msg->signals[0], data);
+  const uint8_t g = (uint8_t)decode_signal(&msg->signals[1], data);
+  const uint8_t b = (uint8_t)decode_signal(&msg->signals[2], data);
+  ws2812b_set_colour(0, r, g, b);
+  ws2812b_update();
+}
+
+static void can_rx_version_get(can_header_t *header, uint8_t *data) {
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_RESPONSE];
+  const uint32_t values[] = {
+      MOMENTUM_VERSION_MAJOR,
+      MOMENTUM_VERSION_MINOR,
+      MOMENTUM_VERSION_PATCH,
+      MOMENTUM_VERSION_IDENTIFIER,
+  };
+
+  can_send_message_raw32(&HCAN, msg, values);
 }
 
 /** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
@@ -133,59 +186,6 @@ void can_init(void) {
   // Setup CAN general members on the transmit header.
   tx_header.IDE = CAN_ID_STD;
   // Remaining members (DLC and StdId) are configured per message on transmit.
-}
-
-void can_rx_datetime_get(can_header_t *header, uint8_t *data) {
-  RTC_DateTypeDef sDate = {0};
-  RTC_TimeTypeDef sTime = {0};
-
-  // NOTE: Time must be read before date on STM32 HAL to unlock the shadow
-  // registers correctly - reading date first can latch stale values.
-  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
-
-  const can_message_t *msg =
-      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_DATETIME_RESPONSE];
-  const uint32_t values[] = {
-      sDate.Year,  sDate.Month,   sDate.Date,    sDate.WeekDay,
-      sTime.Hours, sTime.Minutes, sTime.Seconds,
-  };
-
-  can_send_message_raw32(&HCAN, msg, values);
-}
-
-void can_rx_gnss_utc_get(can_header_t *header, uint8_t *data) {
-  const can_message_t *msg =
-      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS_UTC_RESPONSE];
-  const uint32_t values[] = {
-      gnss_data.year, gnss_data.month,  gnss_data.day,
-      gnss_data.hour, gnss_data.minute, gnss_data.second,
-  };
-
-  can_send_message_raw32(&HCAN, msg, values);
-}
-
-void can_rx_rgb_led_set(can_header_t *header, uint8_t *data) {
-  const can_message_t *msg =
-      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_RGB_LED_SET];
-  const uint8_t r = (uint8_t)decode_signal(&msg->signals[0], data);
-  const uint8_t g = (uint8_t)decode_signal(&msg->signals[1], data);
-  const uint8_t b = (uint8_t)decode_signal(&msg->signals[2], data);
-  ws2812b_set_colour(0, r, g, b);
-  ws2812b_update();
-}
-
-void can_rx_version_get(can_header_t *header, uint8_t *data) {
-  const can_message_t *msg =
-      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_RESPONSE];
-  const uint32_t values[] = {
-      MOMENTUM_VERSION_MAJOR,
-      MOMENTUM_VERSION_MINOR,
-      MOMENTUM_VERSION_PATCH,
-      MOMENTUM_VERSION_IDENTIFIER,
-  };
-
-  can_send_message_raw32(&HCAN, msg, values);
 }
 
 void can_db_init(void) {
