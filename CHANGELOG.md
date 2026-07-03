@@ -196,7 +196,11 @@
 
 ---
 
-## [v0.4.11 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/TBD)
+## [v0.4.11 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.11)
 
 - **Modifications:**
     - Tighten function linkage and visibility.
+    - Guard the shared CAN TX header/mailbox with interrupt disable to prevent
+      ISR/main-loop races.
+    - Change DLC mismatch handling to skip only that entry instead of aborting
+      the whole dispatch loop.

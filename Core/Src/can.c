@@ -69,7 +69,7 @@ static void process_can_message(CAN_RxHeaderTypeDef *header, uint8_t *data) {
       } else {
         // Handle ID/DLC mismatch fault.
         // can_fault(); // TODO: IMPLEMENT.
-        return;
+        continue;
       }
     }
   }
@@ -213,25 +213,35 @@ HAL_StatusTypeDef can_send_message_raw32(CAN_HandleTypeDef *h_can_x,
     pack_signal_raw32(&msg->signals[i], data, signal_values[i]);
   }
 
-  // Prepare the CAN transmit header.
+  // Prepare and submit the CAN transmit header atomically. tx_header and
+  // tx_mailbox are shared statics, so interrupts are disabled here to prevent
+  // a race between ISR and main-loop senders.
+  __disable_irq();
   tx_header.StdId = msg->message_id;
   tx_header.IDE = CAN_ID_STD;
   tx_header.RTR = CAN_RTR_DATA;
   tx_header.DLC = msg->dlc;
 
-  return HAL_CAN_AddTxMessage(h_can_x, &tx_header, data, &tx_mailbox);
+  const HAL_StatusTypeDef status =
+      HAL_CAN_AddTxMessage(h_can_x, &tx_header, data, &tx_mailbox);
+  __enable_irq();
+
+  return status;
 }
 
 bool can_tx_direct(const can_message_t *msg, const uint8_t data[8]) {
-  // Prepare the CAN transmit header.
+  // Prepare and submit the CAN transmit header atomically. See
+  // can_send_message_raw32() for why this must not be interrupted.
+  __disable_irq();
   tx_header.StdId = msg->message_id;
   tx_header.IDE = CAN_ID_STD;
   tx_header.RTR = CAN_RTR_DATA;
   tx_header.DLC = msg->dlc;
 
-  // Transmit.
   const HAL_StatusTypeDef status =
       HAL_CAN_AddTxMessage(&HCAN, &tx_header, data, &tx_mailbox);
+  __enable_irq();
+
   if (status == HAL_OK) {
     return true;
   }
