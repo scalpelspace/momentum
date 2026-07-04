@@ -20,7 +20,7 @@
   * [v0.4.6 (2026-06-07)](#v046--2026-06-07-)
   * [v0.4.9 (2026-06-13)](#v049--2026-06-13-)
   * [v0.4.10 (2026-06-24)](#v0410--2026-06-24-)
-  * [v0.4.11 (TBD)](#v0411--tbd-)
+  * [v0.4.11 (2026-07-04)](#v0411--2026-07-04-)
 <!-- TOC -->
 
 </details>
@@ -196,7 +196,7 @@
 
 ---
 
-## [v0.4.11 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.11)
+## [v0.4.11 (2026-07-04)](https://github.com/scalpelspace/momentum/releases/tag/v0.4.11)
 
 - **Modifications:**
     - Tighten function linkage and visibility.
