@@ -17,129 +17,109 @@
 /** Public functions. *********************************************************/
 
 void can_tx_barometric(void) {
-  const can_message_t pressure_msg =
-      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_BAROMETRIC];
-  uint32_t pressure_sigs[3] = {0};
-  const float pressure_source_sigs[3] = {bmp390_pressure, bmp390_temperature,
-                                         (float)0}; // TODO: Hardcoded state.
-  for (int i = 0; i < pressure_msg.signal_count; ++i) {
-    pressure_sigs[i] =
-        physical_to_raw(pressure_source_sigs[i], &pressure_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &pressure_msg, pressure_sigs);
+  const can_message_t *msg = &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_BAROMETRIC];
+  const uint32_t values[] = {
+      physical_to_raw(bmp390_pressure, &msg->signals[0]),
+      physical_to_raw(bmp390_temperature, &msg->signals[1]),
+      physical_to_raw((float)0, &msg->signals[2]), // TODO: Hardcoded state.
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void can_tx_gnss1(void) {
-  const can_message_t gnss1_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS1];
-  uint32_t gnss1_sigs[2] = {0};
-  const float gnss1_source_sigs[2] = {gnss_data.latitude, gnss_data.longitude};
-  for (int i = 0; i < gnss1_msg.signal_count; ++i) {
-    gnss1_sigs[i] =
-        physical_to_raw(gnss1_source_sigs[i], &gnss1_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &gnss1_msg, gnss1_sigs);
+  const can_message_t *msg = &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS1];
+  const uint32_t values[] = {
+      physical_to_raw(gnss_data.latitude, &msg->signals[0]),
+      physical_to_raw(gnss_data.longitude, &msg->signals[1]),
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void can_tx_gnss2(void) {
-  const can_message_t gnss2_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS2];
-  uint32_t gnss2_sigs[5] = {0};
-  const float gnss2_source_sigs[5] = {
-      gnss_data.speed_knots, gnss_data.course_deg, gnss_data.position_fix,
-      gnss_data.satellites, gnss_data.hdop};
-  for (int i = 0; i < gnss2_msg.signal_count; ++i) {
-    gnss2_sigs[i] =
-        physical_to_raw(gnss2_source_sigs[i], &gnss2_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &gnss2_msg, gnss2_sigs);
+  const can_message_t *msg = &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS2];
+  const uint32_t values[] = {
+      physical_to_raw(gnss_data.speed_knots, &msg->signals[0]),
+      physical_to_raw(gnss_data.course_deg, &msg->signals[1]),
+      physical_to_raw(gnss_data.position_fix, &msg->signals[2]),
+      physical_to_raw(gnss_data.satellites, &msg->signals[3]),
+      physical_to_raw(gnss_data.hdop, &msg->signals[4]),
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void can_tx_gnss3(void) {
-  const can_message_t gnss3_msg = mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS3];
-  uint32_t gnss3_sigs[3] = {0};
-  const float gnss3_source_sigs[3] = {gnss_data.altitude_m,
-                                      gnss_data.geoid_sep_m,
-                                      (float)0}; // TODO: Hardcoded state.
-  for (int i = 0; i < gnss3_msg.signal_count; ++i) {
-    gnss3_sigs[i] =
-        physical_to_raw(gnss3_source_sigs[i], &gnss3_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &gnss3_msg, gnss3_sigs);
+  const can_message_t *msg = &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GNSS3];
+  const uint32_t values[] = {
+      physical_to_raw(gnss_data.altitude_m, &msg->signals[0]),
+      physical_to_raw(gnss_data.geoid_sep_m, &msg->signals[1]),
+      physical_to_raw((float)0, &msg->signals[2]), // TODO: Hardcoded state.
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void can_tx_quaternion(void) {
-  const can_message_t quaternion_msg =
-      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_QUATERNION];
-  uint32_t quaternion_sigs[4] = {0};
-  const float quaternion_source_sigs[4] = {
-      bno085_quaternion_i, bno085_quaternion_j, bno085_quaternion_k,
-      bno085_quaternion_real};
-  for (int i = 0; i < quaternion_msg.signal_count; ++i) {
-    quaternion_sigs[i] =
-        physical_to_raw(quaternion_source_sigs[i], &quaternion_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &quaternion_msg, quaternion_sigs);
+  const can_message_t *msg = &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_QUATERNION];
+  const uint32_t values[] = {
+      physical_to_raw(bno085_quaternion_i, &msg->signals[0]),
+      physical_to_raw(bno085_quaternion_j, &msg->signals[1]),
+      physical_to_raw(bno085_quaternion_k, &msg->signals[2]),
+      physical_to_raw(bno085_quaternion_real, &msg->signals[3]),
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void can_tx_mag(void) {
-  const can_message_t mag_msg =
-      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_MAGNETOMETER];
-  uint32_t mag_sigs[3] = {0};
-  const float mag_source_sigs[3] = {bno085_mag_x, bno085_mag_y, bno085_mag_z};
-  for (int i = 0; i < mag_msg.signal_count; ++i) {
-    mag_sigs[i] = physical_to_raw(mag_source_sigs[i], &mag_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &mag_msg, mag_sigs);
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_MAGNETOMETER];
+  const uint32_t values[] = {
+      physical_to_raw(bno085_mag_x, &msg->signals[0]),
+      physical_to_raw(bno085_mag_y, &msg->signals[1]),
+      physical_to_raw(bno085_mag_z, &msg->signals[2]),
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void can_tx_gyro(void) {
-  const can_message_t gyro_msg =
-      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GYROSCOPE];
-  uint32_t gyro_sigs[3] = {0};
-  const float gyro_source_sigs[3] = {bno085_gyro_x, bno085_gyro_y,
-                                     bno085_gyro_z};
-  for (int i = 0; i < gyro_msg.signal_count; ++i) {
-    gyro_sigs[i] = physical_to_raw(gyro_source_sigs[i], &gyro_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &gyro_msg, gyro_sigs);
+  const can_message_t *msg = &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GYROSCOPE];
+  const uint32_t values[] = {
+      physical_to_raw(bno085_gyro_x, &msg->signals[0]),
+      physical_to_raw(bno085_gyro_y, &msg->signals[1]),
+      physical_to_raw(bno085_gyro_z, &msg->signals[2]),
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void can_tx_accel(void) {
-  const can_message_t accel_msg =
-      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_ACCELEROMETER];
-  uint32_t accel_sigs[3] = {0};
-  const float accel_source_sigs[3] = {bno085_accel_x, bno085_accel_y,
-                                      bno085_accel_z};
-  for (int i = 0; i < accel_msg.signal_count; ++i) {
-    accel_sigs[i] =
-        physical_to_raw(accel_source_sigs[i], &accel_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &accel_msg, accel_sigs);
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_ACCELEROMETER];
+  const uint32_t values[] = {
+      physical_to_raw(bno085_accel_x, &msg->signals[0]),
+      physical_to_raw(bno085_accel_y, &msg->signals[1]),
+      physical_to_raw(bno085_accel_z, &msg->signals[2]),
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void can_tx_lin_accel(void) {
-  const can_message_t lin_accel_msg =
-      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_LINEAR_ACCELEROMETER];
-  uint32_t lin_accel_sigs[3] = {0};
-  const float lin_accel_source_sigs[3] = {
-      bno085_lin_accel_x, bno085_lin_accel_y, bno085_lin_accel_z};
-  for (int i = 0; i < lin_accel_msg.signal_count; ++i) {
-    lin_accel_sigs[i] =
-        physical_to_raw(lin_accel_source_sigs[i], &lin_accel_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &lin_accel_msg, lin_accel_sigs);
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_LINEAR_ACCELEROMETER];
+  const uint32_t values[] = {
+      physical_to_raw(bno085_lin_accel_x, &msg->signals[0]),
+      physical_to_raw(bno085_lin_accel_y, &msg->signals[1]),
+      physical_to_raw(bno085_lin_accel_z, &msg->signals[2]),
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void can_tx_gravity(void) {
-  const can_message_t gravity_msg =
-      mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GRAVITY_ACCELEROMETER];
-  uint32_t gravity_sigs[3] = {0};
-  const float gravity_source_sigs[3] = {bno085_gravity_x, bno085_gravity_y,
-                                        bno085_gravity_z};
-  for (int i = 0; i < gravity_msg.signal_count; ++i) {
-    gravity_sigs[i] =
-        physical_to_raw(gravity_source_sigs[i], &gravity_msg.signals[i]);
-  }
-  can_send_message_raw32(&hcan1, &gravity_msg, gravity_sigs);
+  const can_message_t *msg =
+      &mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_GRAVITY_ACCELEROMETER];
+  const uint32_t values[] = {
+      physical_to_raw(bno085_gravity_x, &msg->signals[0]),
+      physical_to_raw(bno085_gravity_y, &msg->signals[1]),
+      physical_to_raw(bno085_gravity_z, &msg->signals[2]),
+  };
+  can_send_message_raw32(&hcan1, msg, values);
 }
 
 void comm_tx_state(void) {

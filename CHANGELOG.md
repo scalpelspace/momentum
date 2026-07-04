@@ -204,3 +204,5 @@
       ISR/main-loop races.
     - Change DLC mismatch handling to skip only that entry instead of aborting
       the whole dispatch loop.
+    - Refactor CAN telemetry transmit to use const pointer message reference and
+      direct signal initialization.
