@@ -209,7 +209,19 @@ HAL_StatusTypeDef can_send_message_raw32(CAN_HandleTypeDef *h_can_x,
                                          const uint32_t signal_values[]) {
   uint8_t data[8] = {0};
 
+  // Derive mux value from the selector's slot, if the message is muxed.
+  uint32_t mux_value = 0;
   for (int i = 0; i < msg->signal_count; ++i) {
+    if (msg->signals[i].mux_role == CAN_MUX_SELECTOR) {
+      mux_value = signal_values[i];
+      break;
+    }
+  }
+
+  for (int i = 0; i < msg->signal_count; ++i) {
+    if (!can_signal_is_active(&msg->signals[i], mux_value)) {
+      continue; // Skip dependents of other mux values.
+    }
     pack_signal_raw32(&msg->signals[i], data, signal_values[i]);
   }
 

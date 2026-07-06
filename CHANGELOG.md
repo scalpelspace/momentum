@@ -21,6 +21,7 @@
   * [v0.4.9 (2026-06-13)](#v049--2026-06-13-)
   * [v0.4.10 (2026-06-24)](#v0410--2026-06-24-)
   * [v0.4.11 (2026-07-04)](#v0411--2026-07-04-)
+  * [v0.5.0 (2026-07-06)](#v050--2026-07-06-)
 <!-- TOC -->
 
 </details>
@@ -206,3 +207,12 @@
       the whole dispatch loop.
     - Refactor CAN telemetry transmit to use const pointer message reference and
       direct signal initialization.
+
+---
+
+## [v0.5.0 (2026-07-06)](https://github.com/scalpelspace/momentum/releases/tag/v0.5.0)
+
+- **Modifications:**
+    - Update for [`momentum_driver`](Core/momentum_driver) tagged release
+      v0.4.0.
+        - Update `can_send_message_raw32()` for muxed signal CAN transmit.
