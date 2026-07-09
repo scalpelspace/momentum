@@ -22,7 +22,7 @@
   * [v0.4.10 (2026-06-24)](#v0410--2026-06-24-)
   * [v0.4.11 (2026-07-04)](#v0411--2026-07-04-)
   * [v0.5.0 (2026-07-06)](#v050--2026-07-06-)
-  * [v0.5.1 (TBD)](#v051--tbd-)
+  * [v0.5.1 (2026-07-09)](#v051--2026-07-09-)
 <!-- TOC -->
 
 </details>
@@ -200,6 +200,8 @@
 
 ---
 
-## [v0.5.1 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.5.1)
+## [v0.5.1 (2026-07-09)](https://github.com/scalpelspace/momentum/releases/tag/v0.5.1)
 
 - Cleanup `CHANGELOG.md` for formatting and syntax consistency.
+- Enable `AutoBusOff` and `AutoRetransmission` via CubeMX.
+- Update `momentum_driver` to tagged release v0.4.1.
