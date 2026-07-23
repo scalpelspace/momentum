@@ -224,4 +224,4 @@
   in HAL callbacks.
     - Match callbacks to their peripheral by register instance (via new
       `*_INSTANCE` macros) rather than by handle address, and normalize all
-      checkers to the early-return guard-clause form
+      checkers to the early-return guard-clause form.
