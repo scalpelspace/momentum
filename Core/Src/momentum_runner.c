@@ -230,7 +230,7 @@ void restart(void) {
 /** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
-  if (hspi != &MOMENTUM_HSPI) {
+  if (hspi->Instance != MOMENTUM_SPI_INSTANCE) {
     return;
   }
 
@@ -262,8 +262,9 @@ void HAL_SPI_RxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
 }
 
 void HAL_SPI_TxCpltCallback_momentum(SPI_HandleTypeDef *hspi) {
-  if (hspi != &MOMENTUM_HSPI || spi_state != SEND_RESPONSE)
+  if (hspi->Instance != MOMENTUM_SPI_INSTANCE || spi_state != SEND_RESPONSE) {
     return;
+  }
 
   restart();
 }

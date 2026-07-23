@@ -20,6 +20,7 @@
 extern UART_HandleTypeDef huart1;
 
 // UART.
+#define COMM_UART_INSTANCE USART1
 #define COMM_HUART huart1
 
 /** User implementations into STM32 HAL (overwrite weak HAL functions). *******/

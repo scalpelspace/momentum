@@ -17,6 +17,7 @@
 extern SPI_HandleTypeDef hspi3;
 
 // SPI.
+#define MOMENTUM_SPI_INSTANCE SPI3
 #define MOMENTUM_HSPI hspi3
 // CS pin is handled by hardware NSS.
 

@@ -23,6 +23,7 @@ extern SPI_HandleTypeDef hspi1;
 extern TIM_HandleTypeDef htim2;
 
 // SPI.
+#define SH2_SPI_INSTANCE SPI1
 #define SH2_HSPI hspi1
 #define SH2_CSN_PORT GPIOA
 #define SH2_CSN_PIN GPIO_PIN_4

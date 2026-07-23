@@ -225,10 +225,12 @@ void HAL_GPIO_EXTI_Callback_sh2(uint16_t n) {
 }
 
 void HAL_SPI_TxRxCpltCallback_sh2(SPI_HandleTypeDef *hspi) {
-  if (hspi == &SH2_HSPI) {
-    if (is_open) {
-      spi_completed();
-    }
+  if (hspi->Instance != SH2_SPI_INSTANCE) {
+    return;
+  }
+
+  if (is_open) {
+    spi_completed();
   }
 }
 

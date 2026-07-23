@@ -24,6 +24,7 @@
   * [v0.5.0 (2026-07-06)](#v050--2026-07-06-)
   * [v0.5.1 (2026-07-09)](#v051--2026-07-09-)
   * [v0.5.2 (2026-07-10)](#v052--2026-07-10-)
+  * [v0.5.3 (TBD)](#v053--tbd-)
 <!-- TOC -->
 
 </details>
@@ -214,3 +215,13 @@
 - Update scheduler to run `can_id_allocatee_state_machine` at 20 ms period
   (previously 250 ms).
 - Update `momentum_driver` to tagged version v0.4.2.
+
+---
+
+## [v0.5.3 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.5.3)
+
+- Cleanup peripheral checking to compare `->Instance` instead of handle pointers
+  in HAL callbacks.
+    - Match callbacks to their peripheral by register instance (via new
+      `*_INSTANCE` macros) rather than by handle address, and normalize all
+      checkers to the early-return guard-clause form

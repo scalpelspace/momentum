@@ -112,36 +112,38 @@ static void comm_handle_line(const char *line) {
 /** User implementations into STM32 HAL (overwrite weak HAL functions). *******/
 
 void HAL_UART_RxCpltCallback_comm(UART_HandleTypeDef *huart) {
-  if (huart == &COMM_HUART) {
-    uint8_t b = comm_rx_byte;
+  if (huart->Instance != COMM_UART_INSTANCE) {
+    return;
+  }
 
-    HAL_UART_Receive_DMA(&COMM_HUART, &comm_rx_byte, 1);
+  uint8_t b = comm_rx_byte;
 
-    // Basic line editing/framing.
-    if (b == '\r') {
-      return; // Ignore CR.
-    }
+  HAL_UART_Receive_DMA(&COMM_HUART, &comm_rx_byte, 1);
 
-    if (b == '\n') {
-      // End of line: null-terminate and handle command.
-      if (comm_line_len >= COMM_LINE_MAX)
-        comm_line_len = COMM_LINE_MAX - 1;
-      comm_line[comm_line_len] = '\0';
+  // Basic line editing/framing.
+  if (b == '\r') {
+    return; // Ignore CR.
+  }
 
-      comm_handle_line(comm_line);
+  if (b == '\n') {
+    // End of line: null-terminate and handle command.
+    if (comm_line_len >= COMM_LINE_MAX)
+      comm_line_len = COMM_LINE_MAX - 1;
+    comm_line[comm_line_len] = '\0';
 
-      // Reset buffer.
-      comm_line_len = 0;
-      return;
-    }
+    comm_handle_line(comm_line);
 
-    // Normal character.
-    if (comm_line_len < (COMM_LINE_MAX - 1)) {
-      comm_line[comm_line_len++] = (char)b;
-    } else {
-      // Overflow: drop line.
-      comm_line_len = 0;
-    }
+    // Reset buffer.
+    comm_line_len = 0;
+    return;
+  }
+
+  // Normal character.
+  if (comm_line_len < (COMM_LINE_MAX - 1)) {
+    comm_line[comm_line_len++] = (char)b;
+  } else {
+    // Overflow: drop line.
+    comm_line_len = 0;
   }
 }
 
