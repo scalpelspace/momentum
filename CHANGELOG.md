@@ -245,3 +245,4 @@
       `can_db_init()`. Previously the value only set `can_node_id` and the DBC
       was left unpatched, so the node transmitted under the authored ID.
     - Add a compile time range check rejecting IDs outside `[0, 30]`.
+- Reorganize `README.md` docs.

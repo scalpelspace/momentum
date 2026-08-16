@@ -21,35 +21,35 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
     * [2.1 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#21-universal-synchronousasynchronous-receivertransmitter-usart)
       * [2.1.1 UART/Serial Interface](#211-uartserial-interface)
       * [2.1.2 Direct Memory Access (DMA)](#212-direct-memory-access-dma)
-  * [3 Serial Peripheral Interface (SPI)](#3-serial-peripheral-interface-spi)
-    * [3.1 Direct Memory Access (DMA)](#31-direct-memory-access-dma)
-    * [3.2 Nested Vectored Interrupt Controller (NVIC)](#32-nested-vectored-interrupt-controller-nvic)
-  * [4 BNO086 9-DOF IMU](#4-bno086-9-dof-imu)
-    * [4.1 Background](#41-background)
-    * [4.2 Serial Peripheral Interface (SPI)](#42-serial-peripheral-interface-spi)
-      * [4.2.1 Full-Duplex vs. Half-Duplex](#421-full-duplex-vs-half-duplex)
-      * [4.2.2 Clock Polarity, Phase and Modes](#422-clock-polarity-phase-and-modes)
-      * [4.2.3 Clock Rate](#423-clock-rate)
-      * [4.2.4 Direct Memory Access (DMA)](#424-direct-memory-access-dma)
-    * [4.3 General-Purpose Input/Output (GPIO) Output](#43-general-purpose-inputoutput-gpio-output)
-    * [4.4 Timer](#44-timer)
-      * [4.4.1 Timer Prescaler Calculation](#441-timer-prescaler-calculation)
-    * [4.5 Nested Vectored Interrupt Controller (NVIC)](#45-nested-vectored-interrupt-controller-nvic)
-    * [4.6 BNO086 Driver](#46-bno086-driver)
-      * [4.6.1 SH2 Set Reorientation Quaternion](#461-sh2-set-reorientation-quaternion)
-  * [5 BMP390 Barometric Pressure Sensor](#5-bmp390-barometric-pressure-sensor)
+  * [3 TJA1057BTK CAN Bus Transceiver](#3-tja1057btk-can-bus-transceiver)
+    * [3.1 Background](#31-background)
+    * [3.2 Controller Area Network (CAN)](#32-controller-area-network-can)
+      * [3.2.1 Bit Time Calculation](#321-bit-time-calculation)
+      * [3.2.2 Nested Vectored Interrupt Controller (NVIC)](#322-nested-vectored-interrupt-controller-nvic)
+    * [3.3 CAN High-Level Driver](#33-can-high-level-driver)
+      * [3.3.1 Node ID Assignment](#331-node-id-assignment)
+    * [3.4 CAN DBC and Low-Level Driver](#34-can-dbc-and-low-level-driver)
+  * [4 Serial Peripheral Interface (SPI)](#4-serial-peripheral-interface-spi)
+    * [4.1 Direct Memory Access (DMA)](#41-direct-memory-access-dma)
+    * [4.2 Nested Vectored Interrupt Controller (NVIC)](#42-nested-vectored-interrupt-controller-nvic)
+  * [5 BNO086 9-DOF IMU](#5-bno086-9-dof-imu)
     * [5.1 Background](#51-background)
-    * [5.2 Inter-Integrated Circuit (I2C)](#52-inter-integrated-circuit-i2c)
-    * [5.3 Timer](#53-timer)
-    * [5.4 BMP390 Driver](#54-bmp390-driver)
-  * [6 TJA1057BTK CAN Bus Transceiver](#6-tja1057btk-can-bus-transceiver)
+    * [5.2 Serial Peripheral Interface (SPI)](#52-serial-peripheral-interface-spi)
+      * [5.2.1 Full-Duplex vs. Half-Duplex](#521-full-duplex-vs-half-duplex)
+      * [5.2.2 Clock Polarity, Phase and Modes](#522-clock-polarity-phase-and-modes)
+      * [5.2.3 Clock Rate](#523-clock-rate)
+      * [5.2.4 Direct Memory Access (DMA)](#524-direct-memory-access-dma)
+    * [5.3 General-Purpose Input/Output (GPIO) Output](#53-general-purpose-inputoutput-gpio-output)
+    * [5.4 Timer](#54-timer)
+      * [5.4.1 Timer Prescaler Calculation](#541-timer-prescaler-calculation)
+    * [5.5 Nested Vectored Interrupt Controller (NVIC)](#55-nested-vectored-interrupt-controller-nvic)
+    * [5.6 BNO086 Driver](#56-bno086-driver)
+      * [5.6.1 SH2 Set Reorientation Quaternion](#561-sh2-set-reorientation-quaternion)
+  * [6 BMP390 Barometric Pressure Sensor](#6-bmp390-barometric-pressure-sensor)
     * [6.1 Background](#61-background)
-    * [6.2 Controller Area Network (CAN)](#62-controller-area-network-can)
-      * [6.2.1 Bit Time Calculation](#621-bit-time-calculation)
-      * [6.2.2 Nested Vectored Interrupt Controller (NVIC)](#622-nested-vectored-interrupt-controller-nvic)
-    * [6.3 CAN High-Level Driver](#63-can-high-level-driver)
-      * [6.3.1 Node ID Assignment](#631-node-id-assignment)
-    * [6.4 CAN DBC and Low-Level Driver](#64-can-dbc-and-low-level-driver)
+    * [6.2 Inter-Integrated Circuit (I2C)](#62-inter-integrated-circuit-i2c)
+    * [6.3 Timer](#63-timer)
+    * [6.4 BMP390 Driver](#64-bmp390-driver)
   * [7 SAM-M10Q RF Receiver Galileo, GLONASS, GPS](#7-sam-m10q-rf-receiver-galileo-glonass-gps)
     * [7.1 Background](#71-background)
     * [7.2 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#72-universal-synchronousasynchronous-receivertransmitter-usart)
@@ -226,287 +226,21 @@ DMA is used configured for a ring buffer style implementation:
 
 ---
 
-## 3 Serial Peripheral Interface (SPI)
-
-SPI Full-Duplex Slave configuration:
-
-- CPOL = 0.
-- CPHA = 0.
-- Hardware peripheral select (NSS) enabled.
-
-Low level SPI communication drivers can be found
-here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
-
-### 3.1 Direct Memory Access (DMA)
-
-DMA is enabled for both SPI1 RX and TX in order to reduce interrupt utilization.
-
-`SPI3_RX` `DMA2 Stream1`:
-
-- Direction: `Peripheral to Memory`.
-- Mode: `Normal`.
-- Peripheral Increment Address: `Disabled`.
-- Memory Increment Address: `Enabled`.
-- (Both Peripheral and Memory) Data Width: `Byte`.
-- Use FIFO: `Disabled`.
-
-`SPI3_TX` `DMA2 Stream2`:
-
-- Direction: `Memory to Peripheral`.
-- Mode: `Normal`.
-- Peripheral Increment Address: `Disabled`.
-- Memory Increment Address: `Enabled`.
-- (Both Peripheral and Memory) Data Width: `Byte`.
-- Use FIFO: `Disabled`.
-
-### 3.2 Nested Vectored Interrupt Controller (NVIC)
-
-SPI3 global interrupted is enabled.
-
----
-
-## 4 BNO086 9-DOF IMU
-
-> **Note:** Momentum was originally designed for the BNO085, however hardware
-> files were updated to reflect use of the newer BNO086. Firmware is cross
-> compatible for both the BNO085/6, however source files maintain the use of
-> the "BNO085" naming.
-
-9-axis Inertial Measurement Unit (IMU) combining an accelerometer, gyroscope,
-and magnetometer, based on Bosch Sensortec's BNO080 hardware, with sensor fusion
-firmware developed by CEVA, Inc. (formerly Hillcrest Laboratories).
-(Non-standard) I2C and SPI capable.
-
-> Utilized reference documents:
-> 1. `1000-3535 - Sensor Hub Transport Protocol v1.8`
-> 2. `1000-3600 - SH-2 SHTP Reference Manual v1.5_1`
-> 3. `1000-3625 - SH-2 Reference Manual v1.4`
-> 4. `1000-3918 - BNO080 Migration_1`
-> 5. `1000-3927 - BNO080 Datasheet v1.6`
-> 6. `1000-4044 - BNO080-BNO085 Sensor Calibration Procedure v1.3`
-> 7. `1000-4045 - App Note - BNO080-BNO085 Tare Function Usage Guide_1`
-> 8. `HillcrestLabs BNO080-085 DataSheet_C`
-
-### 4.1 Background
-
-The BNO086 runs the same hardware as the BNO080, however runs custom Sensor Hub
-2 (SH-2) firmware to reduce development overhead on features related to sensor
-fusion and optimization. SH-2 is designed around the Sensor Hub Transport
-Protocol (SHTP), which runs on SPI, I2C, etc.
-
-### 4.2 Serial Peripheral Interface (SPI)
-
-In an SPI setup, there is always one controller (master) connected to one or
-more peripherals (slaves). The controller controls the communication by
-generating a clock signal (SCK) and selecting which slave to communicate with
-using the Chip Select (CS) line. Data is exchanged between the controller and
-peripheral(s) over two data lines: COPI/MOSI and CIPO or MISO.
-
-Basic pinouts:
-
-1. Clock (SCK)
-    - The clock signal generated by the master device that synchronizes data
-      transfer in SPI communication.
-
-2. Chip Select (CS) or Slave Select (NSS)
-    - A signal used to select a specific slave device in SPI communication. When
-      the CS line is active (usually low), the selected slave device is enabled
-      to communicate with the master.
-
-3. Controller Out Peripheral In (COPI) or Master Out Slave In (MOSI)
-    - The data line used to transfer data from the master device to the slave
-      device. The master outputs data on this line, which the slave reads.
-
-4. Controller In Peripheral Out (CIPO) or Master In Slave Out (MISO)
-    - The data line used to transfer data from the slave device to the master
-      device. The slave outputs data on this line, which the master reads.
-
-Since firmware describes the role of the central STM32L432KC controller, the SPI
-configuration is controller (master).
-
-#### 4.2.1 Full-Duplex vs. Half-Duplex
-
-Full-Duplex: Data can be sent and received simultaneously.
-
-Half-Duplex: Data is either sent or received at any given time, not both
-simultaneously.
-
-For the purposes of bidirectional communication full-duplex mode is selected.
-
-#### 4.2.2 Clock Polarity, Phase and Modes
-
-CPOL (Clock Polarity): determines the idle state of the clock signal (SCK).
-
-- CPOL = 0: The clock is low (0) when idle.
-- CPOL = 1: The clock is high (1) when idle.
-
-CPHA (Clock Phase): determines when data is sampled relative to the clock
-signal.
-
-- CPHA = 0: Data is sampled on the leading (1st) clock edge.
-- CPHA = 1: Data is sampled on the trailing (2nd) clock edge.
-
-SPI Modes (Combination of CPOL and CPHA):
-
-| Mode | CPOL | CPHA | SCK idle state | Data captured on               | Data output on |
-|:----:|:----:|:----:|:--------------:|--------------------------------|----------------|
-|  0   |  0   |  0   |    Low (0)     | Rising edge of SCK (1st edge)  | Falling edge   |
-|  1   |  0   |  1   |    Low (0)     | Falling edge of SCK (2nd edge) | Rising edge    |
-|  2   |  1   |  0   |    High (1)    | Falling edge of SCK (1st edge) | Rising edge    |
-|  3   |  1   |  1   |    High (1)    | Rising edge of SCK (2nd edge)  | Falling edge   |
-
-The datasheet specifies the use of CPOL = 1 (high) and CPHA = 1 (2nd edge).
-
-#### 4.2.3 Clock Rate
-
-As specified in the datasheet, the maximum SPI clock rate is 3 MHz. Given that
-SPI1 runs on the APB2 bus clock (80 MHz), and the prescaler values are powers of
-2 (2, 4, 8, etc.):
-
-$$PSC = \frac{Source}{Target} - 1 = \frac{ 80 \space \mathrm{MHz} }{ 3 \space \mathrm{MHz} } - 1 = 25.7$$
-
-PSC = 32 is used (powers of 2).
-
-$$Clock = \frac{Source}{PSC} = \frac{ 80 \space \mathrm{MHz} }{ 32 } = 2.5 \space \mathrm{MHz}$$
-
-Final clock rate is 2.5 MHz.
-
-#### 4.2.4 Direct Memory Access (DMA)
-
-DMA is enabled for both SPI1 RX and TX in order to reduce interrupt utilization.
-
-`SPI1_RX` `DMA2 Stream3`:
-
-- Direction: `Peripheral to Memory`.
-- Mode: `Normal`.
-- Peripheral Increment Address: `Disabled`.
-- Memory Increment Address: `Enabled`.
-- (Both Peripheral and Memory) Data Width: `Byte`.
-- Use FIFO: `Disabled`.
-
-`SPI1_TX` `DMA1 Stream3`:
-
-- Direction: `Memory to Peripheral`.
-- Mode: `Normal`.
-- Peripheral Increment Address: `Disabled`.
-- Memory Increment Address: `Enabled`.
-- (Both Peripheral and Memory) Data Width: `Byte`.
-- Use FIFO: `Disabled`.
-
-### 4.3 General-Purpose Input/Output (GPIO) Output
-
-3 GPIO output pins are used to control pins: PS0/Wake, PS1 and NRST. These pins
-manage SPI/I2C switching, the SPI configuration and reset. Theoretically, some
-of these can be pulled low via hardware and it would still work. However, as
-suggested by the official SH2 driver struct and for flexibility purposes, all 3
-pins are set for their own GPIO output pins.
-
-### 4.4 Timer
-
-TIM2 is configured to be used for timing operations (1 us time base) in the SH2
-SHTP drivers.
-
-#### 4.4.1 Timer Prescaler Calculation
-
-TIM2 runs based on the APB1 timer clocks which are set to 80 MHz. The
-prescaler (PSC) must be calculated accordingly to achieve a 1 us (1 MHz) time
-base. In other words, aiming for 1 tick = 1 us.
-
-$$PSC = \frac{Source}{Target} - 1 = \frac{ 80 \space \mathrm{MHz} }{ 1 \space \mathrm{MHz} } - 1 = 79$$
-
-### 4.5 Nested Vectored Interrupt Controller (NVIC)
-
-`GPIO_EXTI0`is configured for the `INTN` pin of the BNO086 to trigger an MCU
-response:
-
-- External Interrupt Mode with Falling edge trigger detection.
-- Pull-up.
-
-### 4.6 BNO086 Driver
-
-Submodule: [sh2](Core/sh2).
-
-Source: [github.com/ceva-dsp/sh2](https://github.com/ceva-dsp/sh2).
-
-STM32 HAL abstraction and runner functions:
-
-1. [sh2_hal_spi.h](Core/Inc/sh2_hal_spi.h).
-2. [sh2_hal_spi.c](Core/Src/sh2_hal_spi.c).
-3. [bno085_runner.h](Core/Inc/bno085_runner.h).
-4. [bno085_runner.c](Core/Src/bno085_runner.c).
-
-#### 4.6.1 SH2 Set Reorientation Quaternion
-
-The hub composes the re-orientation vector as:
-
-$$q_{\mathrm{out}} = q_{\mathrm{reorient}} \otimes q_{\mathrm{measured}}$$
-
-To make a specific physical pose `P` report as identity (0,0,0,1),
-the **inverse of that pose in the sensor/device frame** must be sent, converted
-to Q14 and passed to `sh2_setReorientation()`.
-
----
-
-## 5 BMP390 Barometric Pressure Sensor
-
-24-bit absolute barometric pressure sensor by Bosch Sensortec, designed for
-performant altimeter applications. Very small package, I2C and SPI capable.
-
-> Utilized reference documents:
-> 1. `BST-BMP390-DS002-07 - BMP390 Datasheet v1.7`
-
-### 5.1 Background
-
-The BMP390 is ideally suited for burst communications over both I2C and SPI. I2C
-was chosen due to its simplified wiring and ease of peripheral integration.
-Additionally, in most applications, a 9-DOF IMU is likely to be used as the
-primary dynamic sensor. _(I also just wanted to not use SPI for everything,
-that's kinda boring)_.
-
-### 5.2 Inter-Integrated Circuit (I2C)
-
-As specified by datasheets, I2C Fast Mode is used for the (fast mode standard)
-400 kHz clock.
-
-### 5.3 Timer
-
-Similar to the BNO086's timer ([4.4 Timer](#44-timer)), TIM2 is configured to be
-used for timing operations (1 us time base) in the BMP3 drivers.
-
-Since TIM2 is also on APB1, the prescaler calculations are the same as the
-BNO086,
-see [4.4.1 Timer Prescaler Calculation](#441-timer-prescaler-calculation).
-
-### 5.4 BMP390 Driver
-
-Submodule: [BMP3_SensorAPI](Core/BMP3_SensorAPI).
-
-Source: [github.com/boschsensortec/BMP3_SensorAPI](https://github.com/boschsensortec/BMP3_SensorAPI).
-
-STM32 HAL abstraction and runner functions:
-
-1. [bmp3_hal_i2c.h](Core/Inc/bmp3_hal_i2c.h).
-2. [bmp3_hal_i2c.c](Core/Src/bmp3_hal_i2c.c).
-3. [bmp390_runner.h](Core/Inc/bmp390_runner.h).
-4. [bmp390_runner.c](Core/Src/bmp390_runner.c).
-
----
-
-## 6 TJA1057BTK CAN Bus Transceiver
+## 3 TJA1057BTK CAN Bus Transceiver
 
 CAN transceiver (MCU to 2-wire CAN bus) by NXP. 3V - 5V variant of TJA1057BTK.
 
 > Utilized reference documents:
 > 1. `TJA1057 Product data sheet Rev. 8`
 
-### 6.1 Background
+### 3.1 Background
 
 The 3V variant is used for convince, just an easy pick. _(I also had experience
 with it previously)_.
 
-### 6.2 Controller Area Network (CAN)
+### 3.2 Controller Area Network (CAN)
 
-#### 6.2.1 Bit Time Calculation
+#### 3.2.1 Bit Time Calculation
 
 CAN peripherals run on APB1 (80 MHz), the goal is for a 500 kHz CAN bus with an
 87.5% sample point.
@@ -521,7 +255,7 @@ Time Quantum                 = 125.0    ns
 > Lots of resources and calculators online, example here:
 > [http://www.bittiming.can-wiki.info/](http://www.bittiming.can-wiki.info/).
 
-#### 6.2.2 Nested Vectored Interrupt Controller (NVIC)
+#### 3.2.2 Nested Vectored Interrupt Controller (NVIC)
 
 `CAN1` has the following NVIC configurations:
 
@@ -531,12 +265,12 @@ Time Quantum                 = 125.0    ns
 This enables reception interrupts for interactions based on incoming CAN
 messages.
 
-### 6.3 CAN High-Level Driver
+### 3.3 CAN High-Level Driver
 
 1. [can.h](Core/Inc/can.h).
 2. [can.c](Core/Src/can.c).
 
-#### 6.3.1 Node ID Assignment
+#### 3.3.1 Node ID Assignment
 
 Every CAN ID packs a 5-bit Node ID alongside the 6-bit message ID, so the DBC
 message IDs a node transmits under depend on the Node ID it holds. `31` is
@@ -568,10 +302,276 @@ With allocation disabled the node is compiled to a single Node ID for its
 lifetime, so a bus of such nodes needs a distinct build per node. Allocation
 instead lets one build serve every node on the bus.
 
-### 6.4 CAN DBC and Low-Level Driver
+### 3.4 CAN DBC and Low-Level Driver
 
 Low level CAN communication drivers can be found
 here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
+
+---
+
+## 4 Serial Peripheral Interface (SPI)
+
+SPI Full-Duplex Slave configuration:
+
+- CPOL = 0.
+- CPHA = 0.
+- Hardware peripheral select (NSS) enabled.
+
+Low level SPI communication drivers can be found
+here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
+
+### 4.1 Direct Memory Access (DMA)
+
+DMA is enabled for both SPI1 RX and TX in order to reduce interrupt utilization.
+
+`SPI3_RX` `DMA2 Stream1`:
+
+- Direction: `Peripheral to Memory`.
+- Mode: `Normal`.
+- Peripheral Increment Address: `Disabled`.
+- Memory Increment Address: `Enabled`.
+- (Both Peripheral and Memory) Data Width: `Byte`.
+- Use FIFO: `Disabled`.
+
+`SPI3_TX` `DMA2 Stream2`:
+
+- Direction: `Memory to Peripheral`.
+- Mode: `Normal`.
+- Peripheral Increment Address: `Disabled`.
+- Memory Increment Address: `Enabled`.
+- (Both Peripheral and Memory) Data Width: `Byte`.
+- Use FIFO: `Disabled`.
+
+### 4.2 Nested Vectored Interrupt Controller (NVIC)
+
+SPI3 global interrupted is enabled.
+
+---
+
+## 5 BNO086 9-DOF IMU
+
+> **Note:** Momentum was originally designed for the BNO085, however hardware
+> files were updated to reflect use of the newer BNO086. Firmware is cross
+> compatible for both the BNO085/6, however source files maintain the use of
+> the "BNO085" naming.
+
+9-axis Inertial Measurement Unit (IMU) combining an accelerometer, gyroscope,
+and magnetometer, based on Bosch Sensortec's BNO080 hardware, with sensor fusion
+firmware developed by CEVA, Inc. (formerly Hillcrest Laboratories).
+(Non-standard) I2C and SPI capable.
+
+> Utilized reference documents:
+> 1. `1000-3535 - Sensor Hub Transport Protocol v1.8`
+> 2. `1000-3600 - SH-2 SHTP Reference Manual v1.5_1`
+> 3. `1000-3625 - SH-2 Reference Manual v1.4`
+> 4. `1000-3918 - BNO080 Migration_1`
+> 5. `1000-3927 - BNO080 Datasheet v1.6`
+> 6. `1000-4044 - BNO080-BNO085 Sensor Calibration Procedure v1.3`
+> 7. `1000-4045 - App Note - BNO080-BNO085 Tare Function Usage Guide_1`
+> 8. `HillcrestLabs BNO080-085 DataSheet_C`
+
+### 5.1 Background
+
+The BNO086 runs the same hardware as the BNO080, however runs custom Sensor Hub
+2 (SH-2) firmware to reduce development overhead on features related to sensor
+fusion and optimization. SH-2 is designed around the Sensor Hub Transport
+Protocol (SHTP), which runs on SPI, I2C, etc.
+
+### 5.2 Serial Peripheral Interface (SPI)
+
+In an SPI setup, there is always one controller (master) connected to one or
+more peripherals (slaves). The controller controls the communication by
+generating a clock signal (SCK) and selecting which slave to communicate with
+using the Chip Select (CS) line. Data is exchanged between the controller and
+peripheral(s) over two data lines: COPI/MOSI and CIPO or MISO.
+
+Basic pinouts:
+
+1. Clock (SCK)
+    - The clock signal generated by the master device that synchronizes data
+      transfer in SPI communication.
+
+2. Chip Select (CS) or Slave Select (NSS)
+    - A signal used to select a specific slave device in SPI communication. When
+      the CS line is active (usually low), the selected slave device is enabled
+      to communicate with the master.
+
+3. Controller Out Peripheral In (COPI) or Master Out Slave In (MOSI)
+    - The data line used to transfer data from the master device to the slave
+      device. The master outputs data on this line, which the slave reads.
+
+4. Controller In Peripheral Out (CIPO) or Master In Slave Out (MISO)
+    - The data line used to transfer data from the slave device to the master
+      device. The slave outputs data on this line, which the master reads.
+
+Since firmware describes the role of the central STM32L432KC controller, the SPI
+configuration is controller (master).
+
+#### 5.2.1 Full-Duplex vs. Half-Duplex
+
+Full-Duplex: Data can be sent and received simultaneously.
+
+Half-Duplex: Data is either sent or received at any given time, not both
+simultaneously.
+
+For the purposes of bidirectional communication full-duplex mode is selected.
+
+#### 5.2.2 Clock Polarity, Phase and Modes
+
+CPOL (Clock Polarity): determines the idle state of the clock signal (SCK).
+
+- CPOL = 0: The clock is low (0) when idle.
+- CPOL = 1: The clock is high (1) when idle.
+
+CPHA (Clock Phase): determines when data is sampled relative to the clock
+signal.
+
+- CPHA = 0: Data is sampled on the leading (1st) clock edge.
+- CPHA = 1: Data is sampled on the trailing (2nd) clock edge.
+
+SPI Modes (Combination of CPOL and CPHA):
+
+| Mode | CPOL | CPHA | SCK idle state | Data captured on               | Data output on |
+|:----:|:----:|:----:|:--------------:|--------------------------------|----------------|
+|  0   |  0   |  0   |    Low (0)     | Rising edge of SCK (1st edge)  | Falling edge   |
+|  1   |  0   |  1   |    Low (0)     | Falling edge of SCK (2nd edge) | Rising edge    |
+|  2   |  1   |  0   |    High (1)    | Falling edge of SCK (1st edge) | Rising edge    |
+|  3   |  1   |  1   |    High (1)    | Rising edge of SCK (2nd edge)  | Falling edge   |
+
+The datasheet specifies the use of CPOL = 1 (high) and CPHA = 1 (2nd edge).
+
+#### 5.2.3 Clock Rate
+
+As specified in the datasheet, the maximum SPI clock rate is 3 MHz. Given that
+SPI1 runs on the APB2 bus clock (80 MHz), and the prescaler values are powers of
+2 (2, 4, 8, etc.):
+
+$$PSC = \frac{Source}{Target} - 1 = \frac{ 80 \space \mathrm{MHz} }{ 3 \space \mathrm{MHz} } - 1 = 25.7$$
+
+PSC = 32 is used (powers of 2).
+
+$$Clock = \frac{Source}{PSC} = \frac{ 80 \space \mathrm{MHz} }{ 32 } = 2.5 \space \mathrm{MHz}$$
+
+Final clock rate is 2.5 MHz.
+
+#### 5.2.4 Direct Memory Access (DMA)
+
+DMA is enabled for both SPI1 RX and TX in order to reduce interrupt utilization.
+
+`SPI1_RX` `DMA2 Stream3`:
+
+- Direction: `Peripheral to Memory`.
+- Mode: `Normal`.
+- Peripheral Increment Address: `Disabled`.
+- Memory Increment Address: `Enabled`.
+- (Both Peripheral and Memory) Data Width: `Byte`.
+- Use FIFO: `Disabled`.
+
+`SPI1_TX` `DMA1 Stream3`:
+
+- Direction: `Memory to Peripheral`.
+- Mode: `Normal`.
+- Peripheral Increment Address: `Disabled`.
+- Memory Increment Address: `Enabled`.
+- (Both Peripheral and Memory) Data Width: `Byte`.
+- Use FIFO: `Disabled`.
+
+### 5.3 General-Purpose Input/Output (GPIO) Output
+
+3 GPIO output pins are used to control pins: PS0/Wake, PS1 and NRST. These pins
+manage SPI/I2C switching, the SPI configuration and reset. Theoretically, some
+of these can be pulled low via hardware and it would still work. However, as
+suggested by the official SH2 driver struct and for flexibility purposes, all 3
+pins are set for their own GPIO output pins.
+
+### 5.4 Timer
+
+TIM2 is configured to be used for timing operations (1 us time base) in the SH2
+SHTP drivers.
+
+#### 5.4.1 Timer Prescaler Calculation
+
+TIM2 runs based on the APB1 timer clocks which are set to 80 MHz. The
+prescaler (PSC) must be calculated accordingly to achieve a 1 us (1 MHz) time
+base. In other words, aiming for 1 tick = 1 us.
+
+$$PSC = \frac{Source}{Target} - 1 = \frac{ 80 \space \mathrm{MHz} }{ 1 \space \mathrm{MHz} } - 1 = 79$$
+
+### 5.5 Nested Vectored Interrupt Controller (NVIC)
+
+`GPIO_EXTI0`is configured for the `INTN` pin of the BNO086 to trigger an MCU
+response:
+
+- External Interrupt Mode with Falling edge trigger detection.
+- Pull-up.
+
+### 5.6 BNO086 Driver
+
+Submodule: [sh2](Core/sh2).
+
+Source: [github.com/ceva-dsp/sh2](https://github.com/ceva-dsp/sh2).
+
+STM32 HAL abstraction and runner functions:
+
+1. [sh2_hal_spi.h](Core/Inc/sh2_hal_spi.h).
+2. [sh2_hal_spi.c](Core/Src/sh2_hal_spi.c).
+3. [bno085_runner.h](Core/Inc/bno085_runner.h).
+4. [bno085_runner.c](Core/Src/bno085_runner.c).
+
+#### 5.6.1 SH2 Set Reorientation Quaternion
+
+The hub composes the re-orientation vector as:
+
+$$q_{\mathrm{out}} = q_{\mathrm{reorient}} \otimes q_{\mathrm{measured}}$$
+
+To make a specific physical pose `P` report as identity (0,0,0,1),
+the **inverse of that pose in the sensor/device frame** must be sent, converted
+to Q14 and passed to `sh2_setReorientation()`.
+
+---
+
+## 6 BMP390 Barometric Pressure Sensor
+
+24-bit absolute barometric pressure sensor by Bosch Sensortec, designed for
+performant altimeter applications. Very small package, I2C and SPI capable.
+
+> Utilized reference documents:
+> 1. `BST-BMP390-DS002-07 - BMP390 Datasheet v1.7`
+
+### 6.1 Background
+
+The BMP390 is ideally suited for burst communications over both I2C and SPI. I2C
+was chosen due to its simplified wiring and ease of peripheral integration.
+Additionally, in most applications, a 9-DOF IMU is likely to be used as the
+primary dynamic sensor. _(I also just wanted to not use SPI for everything,
+that's kinda boring)_.
+
+### 6.2 Inter-Integrated Circuit (I2C)
+
+As specified by datasheets, I2C Fast Mode is used for the (fast mode standard)
+400 kHz clock.
+
+### 6.3 Timer
+
+Similar to the BNO086's timer ([4.4 Timer](#44-timer)), TIM2 is configured to be
+used for timing operations (1 us time base) in the BMP3 drivers.
+
+Since TIM2 is also on APB1, the prescaler calculations are the same as the
+BNO086,
+see [4.4.1 Timer Prescaler Calculation](#441-timer-prescaler-calculation).
+
+### 6.4 BMP390 Driver
+
+Submodule: [BMP3_SensorAPI](Core/BMP3_SensorAPI).
+
+Source: [github.com/boschsensortec/BMP3_SensorAPI](https://github.com/boschsensortec/BMP3_SensorAPI).
+
+STM32 HAL abstraction and runner functions:
+
+1. [bmp3_hal_i2c.h](Core/Inc/bmp3_hal_i2c.h).
+2. [bmp3_hal_i2c.c](Core/Src/bmp3_hal_i2c.c).
+3. [bmp390_runner.h](Core/Inc/bmp390_runner.h).
+4. [bmp390_runner.c](Core/Src/bmp390_runner.c).
 
 ---
 
