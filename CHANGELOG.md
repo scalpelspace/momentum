@@ -25,6 +25,7 @@
   * [v0.5.1 (2026-07-09)](#v051--2026-07-09-)
   * [v0.5.2 (2026-07-10)](#v052--2026-07-10-)
   * [v0.5.3 (2026-08-02)](#v053--2026-08-02-)
+  * [v0.5.4 (2026-08-16)](#v054--2026-08-16-)
 <!-- TOC -->
 
 </details>
@@ -227,3 +228,20 @@
       checkers to the early-return guard-clause form.
 - Fix WS2812B PWM DMA memory data width to match the `uint16_t` DMA buffer.
     - Previously was BYTE, corrected to HALFWORD.
+
+---
+
+## [v0.5.4 (2026-08-16)](https://github.com/scalpelspace/momentum/releases/tag/v0.5.4)
+
+- Rename `ALLOW_CAN_NODE_ID_REASSIGNMENT` to `ALLOW_CAN_NODE_ID_ALLOCATION`, now
+  acts as a single switch for the CAN ID allocation protocol.
+    - Undefined: the node never participates in allocation and operates on
+      `DEFAULT_CAN_NODE_ID` for its lifetime. The allocatee scheduler task and
+      the allocatee receive callbacks are compiled out.
+    - Defined: unchanged behaviour, the allocatee runs and restarts after every
+      assignment.
+- Support pre-compile time CAN Node IDs via `DEFAULT_CAN_NODE_ID`.
+    - A non-zero `DEFAULT_CAN_NODE_ID` is now applied to the DBC message IDs in
+      `can_db_init()`. Previously the value only set `can_node_id` and the DBC
+      was left unpatched, so the node transmitted under the authored ID.
+    - Add a compile time range check rejecting IDs outside `[0, 30]`.

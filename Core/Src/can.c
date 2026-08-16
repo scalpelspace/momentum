@@ -15,6 +15,15 @@
 #include <stdint.h>
 #include <string.h>
 
+/** Definitions. **************************************************************/
+
+// Node IDs occupy 5 bits with the top of the range reserved for broadcast, so
+// anything at or above it would collide. 0 (unassigned) is permitted, a node
+// may legitimately operate there when allocation is disabled.
+#if DEFAULT_CAN_NODE_ID >= CAN_ID_NODE_ID_BROADCAST
+#error "DEFAULT_CAN_NODE_ID must be in the range [0, 30]."
+#endif
+
 /** Private variables. ********************************************************/
 
 // Transmit variables.
@@ -40,6 +49,7 @@ can_node_id_t can_node_id = DEFAULT_CAN_NODE_ID;
  * @param data Pointer to the raw data of the CAN message.
  */
 static void process_can_message(CAN_RxHeaderTypeDef *header, uint8_t *data) {
+#ifdef ALLOW_CAN_NODE_ID_ALLOCATION
   // CAN ID allocatee callbacks.
   // TODO: Overhead here, reduce via control flag or extended state variable?
   const can_header_t l_header = {
@@ -47,6 +57,7 @@ static void process_can_message(CAN_RxHeaderTypeDef *header, uint8_t *data) {
   };
   can_rx_can_id_allocatee_discovery(&l_header, data);
   can_rx_can_id_allocatee_assignment(&l_header, data);
+#endif
 
   // CAN PWM Node DBC written callbacks.
   for (int i = 0; i < MOMENTUM_CAN_DBC_IDX_COUNT; i++) {
@@ -152,6 +163,25 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
   }
 }
 
+/**
+ * @brief Adopt a Node ID, patching every DBC message ID to match.
+ *
+ * Shared by both assignment paths: the pre-compile time ID applied in
+ * can_db_init() and the runtime ID delivered by the allocatee.
+ *
+ * @param node_id Node ID to adopt, must be in range [0, 30].
+ */
+static void can_apply_node_id(const can_node_id_t node_id) {
+  can_node_id = node_id; // Update CAN node ID.
+
+  // Patch all DBC message IDs with the node_id.
+  for (int i = 0; i < MOMENTUM_CAN_DBC_IDX_COUNT; i++) {
+    can_message_id_t msg_id;
+    can_id_unpack(mod_dbc_messages[i].message_id, &msg_id, NULL);
+    can_id_pack(msg_id, node_id, (can_id_t *)&mod_dbc_messages[i].message_id);
+  }
+}
+
 /** Public functions. *********************************************************/
 
 void can_init(void) {
@@ -202,6 +232,13 @@ void can_db_init(void) {
       (can_rx_handler_t)can_rx_rgb_led_set;
   mod_dbc_messages[MOMENTUM_CAN_DBC_IDX_VERSION_GET].rx_handler =
       (can_rx_handler_t)can_rx_version_get;
+
+  // Apply the pre-compile time Node ID. The DBC is authored against the
+  // unassigned ID, so this is only needed when configured otherwise. Allocation
+  // (when allowed) re-patches the DBC on assignment via allocatee_complete().
+#if DEFAULT_CAN_NODE_ID != CAN_ID_NODE_ID_UNASSIGNED
+  can_apply_node_id((can_node_id_t)DEFAULT_CAN_NODE_ID);
+#endif
 }
 
 HAL_StatusTypeDef can_send_message_raw32(CAN_HandleTypeDef *h_can_x,
@@ -261,7 +298,8 @@ bool can_tx_direct(const can_message_t *msg, const uint8_t data[8]) {
 }
 
 void auto_can_id_allocatee_start(void) {
-#ifndef ALLOW_CAN_NODE_ID_REASSIGNMENT
+#ifndef ALLOW_CAN_NODE_ID_ALLOCATION
+  // Allocation disabled, the node holds DEFAULT_CAN_NODE_ID.
   return;
 #endif
   const allocatee_config_t l_config = {
@@ -278,14 +316,7 @@ void allocatee_complete(const can_node_id_t node_id) {
     return;
   }
 
-  can_node_id = node_id; // Update CAN node ID.
-
-  // Patch all DBC message IDs with the assigned node_id.
-  for (int i = 0; i < MOMENTUM_CAN_DBC_IDX_COUNT; i++) {
-    can_message_id_t msg_id;
-    can_id_unpack(mod_dbc_messages[i].message_id, &msg_id, NULL);
-    can_id_pack(msg_id, node_id, (can_id_t *)&mod_dbc_messages[i].message_id);
-  }
+  can_apply_node_id(node_id);
 
   // Restart allocatee state machine to permit Node ID reassignment.
   auto_can_id_allocatee_start();

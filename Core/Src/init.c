@@ -145,7 +145,7 @@ void momentum_init(void) {
   // Momentum runner SPI communication start.
   momentum_spi_start();
 
-  // CAN allocatee begin (configuration check internally).
+  // CAN allocatee begin (ALLOW_CAN_NODE_ID_ALLOCATION checked internally).
   auto_can_id_allocatee_start();
 
   // MCU internal core temperature sense (ADC self-calibration), then kick the
@@ -155,7 +155,9 @@ void momentum_init(void) {
 
   // Scheduler.
   scheduler_init(); // Initialize scheduler.
+#ifdef ALLOW_CAN_NODE_ID_ALLOCATION
   scheduler_add_task(can_id_allocatee_state_machine, 20);
+#endif
   scheduler_add_task(can_tx_gnss, 25);
   scheduler_add_task(led_status_run, 100);
   scheduler_add_task(can_tx_state, 1000);

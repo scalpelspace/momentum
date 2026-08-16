@@ -15,12 +15,16 @@
 // Software version: `MAJOR.MINOR.PATCH-IDENTIFIER`.
 #define MOMENTUM_VERSION_MAJOR (0u)     // uint8_t number.
 #define MOMENTUM_VERSION_MINOR (5u)     // uint8_t number.
-#define MOMENTUM_VERSION_PATCH (3u)     // uint8_t number.
+#define MOMENTUM_VERSION_PATCH (4u)     // uint8_t number.
 #define MOMENTUM_VERSION_IDENTIFIER 'p' // ASCII character.
 
 // CAN ID standard.
-#define DEFAULT_CAN_NODE_ID (0u)       // Unassigned.
-#define ALLOW_CAN_NODE_ID_REASSIGNMENT // Allow node ID reassignment always.
+// Node ID held from boot, in range [0, 30]. Assigned pre-compile time, the
+// allocation protocol overwrites it at runtime if allowed (see below).
+#define DEFAULT_CAN_NODE_ID (0u) // Unassigned.
+// Run the CAN ID allocation protocol (allocatee). Undefined: the node never
+// participates and operates on DEFAULT_CAN_NODE_ID for its lifetime.
+#define ALLOW_CAN_NODE_ID_ALLOCATION
 
 // Full telemetry flood on CAN bus intended for debug/development purposes.
 #define MOMENTUM_FULL_CAN_TELEMETRY

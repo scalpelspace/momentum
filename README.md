@@ -48,6 +48,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
       * [6.2.1 Bit Time Calculation](#621-bit-time-calculation)
       * [6.2.2 Nested Vectored Interrupt Controller (NVIC)](#622-nested-vectored-interrupt-controller-nvic)
     * [6.3 CAN High-Level Driver](#63-can-high-level-driver)
+      * [6.3.1 Node ID Assignment](#631-node-id-assignment)
     * [6.4 CAN DBC and Low-Level Driver](#64-can-dbc-and-low-level-driver)
   * [7 SAM-M10Q RF Receiver Galileo, GLONASS, GPS](#7-sam-m10q-rf-receiver-galileo-glonass-gps)
     * [7.1 Background](#71-background)
@@ -534,6 +535,38 @@ messages.
 
 1. [can.h](Core/Inc/can.h).
 2. [can.c](Core/Src/can.c).
+
+#### 6.3.1 Node ID Assignment
+
+Every CAN ID packs a 5-bit Node ID alongside the 6-bit message ID, so the DBC
+message IDs a node transmits under depend on the Node ID it holds. `31` is
+reserved for broadcast, leaving `[0, 30]` usable.
+
+Two macros in [`configuration.h`](Core/Inc/configuration.h) control the Node ID,
+and they are independent of one another:
+
+| Macro                          | Effect                                                                                             |
+|--------------------------------|----------------------------------------------------------------------------------------------------|
+| `DEFAULT_CAN_NODE_ID`          | Node ID held from boot, assigned pre-compile time. Range `[0, 30]`.                                |
+| `ALLOW_CAN_NODE_ID_ALLOCATION` | When defined, the node runs the allocation protocol, letting an allocator assign an ID at runtime. |
+
+Combined behaviour:
+
+| `DEFAULT_CAN_NODE_ID` | `ALLOW_CAN_NODE_ID_ALLOCATION` | Allocatee state machine                         |
+|-----------------------|--------------------------------|-------------------------------------------------|
+| `0` (unassigned)      | Undefined                      | Never runs, the node stays out of the protocol. |
+| `0` (unassigned)      | Defined                        | Runs, restarts after every assignment.          |
+| `[1, 30]` (fixed)     | Undefined                      | Never runs, the node stays out of the protocol. |
+| `[1, 30]` (fixed)     | Defined                        | Runs, an allocator may override the fixed ID.   |
+
+The pre-compile time ID is applied to the DBC copy during `can_db_init()`, and a
+runtime ID is applied by `allocatee_complete()`. Both share
+`can_apply_node_id()`, which repacks every message ID in `mod_dbc_messages`
+against the new Node ID.
+
+With allocation disabled the node is compiled to a single Node ID for its
+lifetime, so a bus of such nodes needs a distinct build per node. Allocation
+instead lets one build serve every node on the bus.
 
 ### 6.4 CAN DBC and Low-Level Driver
 

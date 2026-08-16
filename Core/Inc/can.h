@@ -86,6 +86,9 @@ bool can_tx_direct(const can_message_t *msg, const uint8_t data[8]);
 
 /**
  * @brief Initialize an instance of allocatee_config_t and begin state machine.
+ *
+ * No-ops unless ALLOW_CAN_NODE_ID_ALLOCATION is defined, leaving the node on
+ * DEFAULT_CAN_NODE_ID.
  */
 void auto_can_id_allocatee_start(void);
 
