@@ -87,13 +87,20 @@ bool can_tx_direct(const can_message_t *msg, const uint8_t data[8]);
 /**
  * @brief Initialize an instance of allocatee_config_t and begin state machine.
  *
- * No-ops unless ALLOW_CAN_NODE_ID_ALLOCATION is defined, leaving the node on
- * DEFAULT_CAN_NODE_ID.
+ * Runs in both allocation modes. ALLOW_CAN_NODE_ID_ALLOCATION selects the
+ * advertised can_alloc_mode_t: defined -> CAN_ALLOC_MODE_REASSIGNABLE,
+ * undefined -> CAN_ALLOC_MODE_NOT_REASSIGNABLE (the node advertises and holds
+ * DEFAULT_CAN_NODE_ID, and the allocator reserves that ID). The allocatee is
+ * seeded with the Node ID currently held, so a restart after an assignment
+ * keeps advertising the assigned ID.
  */
 void auto_can_id_allocatee_start(void);
 
 /**
  * @brief General node ID completion callback for CAN ID implementation.
+ *
+ * Adopts the assigned Node ID only. The allocatee returns to awaiting discovery
+ * by itself, so it is not restarted here.
  *
  * @param node_id
  */

@@ -26,6 +26,7 @@
   * [v0.5.2 (2026-07-10)](#v052--2026-07-10-)
   * [v0.5.3 (2026-08-02)](#v053--2026-08-02-)
   * [v0.5.4 (2026-08-16)](#v054--2026-08-16-)
+  * [v0.6.0 (2026-09-01)](#v060--2026-09-01-)
 <!-- TOC -->
 
 </details>
@@ -246,3 +247,28 @@
       was left unpatched, so the node transmitted under the authored ID.
     - Add a compile time range check rejecting IDs outside `[0, 30]`.
 - Reorganize `README.md` docs.
+
+---
+
+## [v0.6.0 (2026-09-01)](https://github.com/scalpelspace/momentum/releases/tag/v0.6.0)
+
+- Update `momentum_driver` to tagged version v0.5.0.
+- Carry the `ALLOW_CAN_NODE_ID_ALLOCATION` configuration forward onto the new
+  `can_alloc_mode_t` advertised by the allocatee.
+    - Undefined now maps to `CAN_ALLOC_MODE_NOT_REASSIGNABLE` instead of
+      compiling the protocol out. The node still advertises, so the allocator
+      reserves `DEFAULT_CAN_NODE_ID` rather than handing it to another node.
+      Assignments are refused inside the allocatee.
+    - Defined maps to `CAN_ALLOC_MODE_REASSIGNABLE`, unchanged behaviour.
+    - The allocatee scheduler task and the allocatee receive callbacks are no
+      longer compiled out, they are required in both modes to answer DISCOVER.
+    - Add a compile time check rejecting `DEFAULT_CAN_NODE_ID` of `0` while
+      `ALLOW_CAN_NODE_ID_ALLOCATION` is undefined, a node that refuses
+      reassignment has to hold a real Node ID to advertise.
+- Seed `allocatee_config_t::node_id` with the Node ID currently held rather than
+  `DEFAULT_CAN_NODE_ID`, so a restarted allocatee re-advertises the ID it was
+  assigned.
+- Remove the allocatee restart from `allocatee_complete()`.
+    - The allocatee now returns to awaiting discovery on its own after ACKing.
+      Restarting reset the held Node ID back to the configured seed, so the node
+      would advertise as unassigned on the next session.
