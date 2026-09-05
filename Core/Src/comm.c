@@ -89,7 +89,7 @@ static void comm_handle_line(const char *line) {
   else if (strcmp(line, "gnss") == 0) {
     printf("%u/%u/%u %u:%u:%u\r\n", gnss_data.year + 2000, gnss_data.month,
            gnss_data.day, gnss_data.hour, gnss_data.minute, gnss_data.second);
-    printf("%.3f (%c),%.3f (%c), %.3f m\r\n", gnss_data.latitude,
+    printf("%.6f (%c),%.6f (%c), %.3f m\r\n", gnss_data.latitude,
            gnss_data.lat_dir, gnss_data.longitude, gnss_data.lon_dir,
            gnss_data.altitude_m);
   }

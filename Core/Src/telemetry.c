@@ -132,7 +132,7 @@ void comm_tx_barometric(void) {
 }
 
 void comm_tx_gnss1(void) {
-  printf("lat=%.3f,lon=%.3f\r\n", gnss_data.latitude, gnss_data.longitude);
+  printf("lat=%.6f,lon=%.6f\r\n", gnss_data.latitude, gnss_data.longitude);
 }
 
 void comm_tx_gnss2(void) {
