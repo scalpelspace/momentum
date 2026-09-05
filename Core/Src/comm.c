@@ -38,12 +38,32 @@ int _write(int file, char *ptr, int len) {
   return len;
 }
 
+/**
+ * @brief List the supported commands (`help`).
+ */
+static void comm_print_help(void) {
+  printf("Sensors:\r\n");
+  printf("  imu             Orientation quaternion (i, j, k, real)\r\n");
+  printf("  baro            Barometric temperature and pressure\r\n");
+  printf("  gnss            GNSS date/time, position and altitude\r\n");
+  printf("  report          Combined IMU, barometer and GNSS report\r\n");
+  printf("Device:\r\n");
+  printf("  ver | version   Firmware name and version\r\n");
+  printf("  uid             48-bit UID hash parts\r\n");
+  printf("  rgb <R>,<G>,<B> Set the on-board LED colour\r\n");
+  printf("  help | ?        List the supported commands\r\n");
+}
+
 static void comm_handle_line(const char *line) {
   // Skip leading spaces.
   while (*line == ' ' || *line == '\t')
     line++;
 
-  if (strcmp(line, "version") == 0 || strcmp(line, "ver") == 0) {
+  if (strcmp(line, "help") == 0 || strcmp(line, "?") == 0) {
+    comm_print_help();
+  }
+
+  else if (strcmp(line, "version") == 0 || strcmp(line, "ver") == 0) {
     printf("%s %u.%u.%u.%c\r\n", SCALPELSPACE_SHORT_NAME,
            MOMENTUM_VERSION_MAJOR, MOMENTUM_VERSION_MINOR,
            MOMENTUM_VERSION_PATCH, MOMENTUM_VERSION_IDENTIFIER);

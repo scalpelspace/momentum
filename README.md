@@ -193,6 +193,7 @@ The following table shows the available commands through this interface:
 
 | Command   | Example           | R/W | Description                                                                     |
 |-----------|-------------------|-----|---------------------------------------------------------------------------------|
+| `help`    | `help`            | R   | Lists every command with its usage. `?` is an alias.                            |
 | `version` | `version`         | R   | Prints firmware name and full semantic version string.                          |
 | `ver`     | `ver`             | R   | Short alias for `version`.                                                      |
 | `uid`     | `uid`             | R   | Prints the 48-bit UID in decimal as three whitespace-separated 16-bit segments. |
