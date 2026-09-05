@@ -280,3 +280,4 @@
 
 - Update UART (comm) to report 6 decimal places for latitude and longitude.
     - Previously capped to 3 decimal places.
+- Improve and update `README.md`.
