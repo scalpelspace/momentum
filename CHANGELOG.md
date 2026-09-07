@@ -27,7 +27,7 @@
   * [v0.5.3 (2026-08-02)](#v053--2026-08-02-)
   * [v0.5.4 (2026-08-16)](#v054--2026-08-16-)
   * [v0.6.0 (2026-09-01)](#v060--2026-09-01-)
-  * [v0.6.1 (TBD)](#v061--tbd-)
+  * [v0.6.1 (2026-09-06)](#v061--2026-09-06-)
 <!-- TOC -->
 
 </details>
@@ -276,7 +276,7 @@
 
 ---
 
-## [v0.6.1 (TBD)](https://github.com/scalpelspace/momentum/releases/tag/v0.6.1)
+## [v0.6.1 (2026-09-06)](https://github.com/scalpelspace/momentum/releases/tag/v0.6.1)
 
 - Update UART (comm) to report 6 decimal places for latitude and longitude.
     - Previously capped to 3 decimal places.
