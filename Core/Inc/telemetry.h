@@ -1,6 +1,6 @@
 /*******************************************************************************
  * @file telemetry.h
- * @brief General CAN message transmission functions.
+ * @brief General CAN/UART (comm) message transmission functions.
  *******************************************************************************
  */
 
