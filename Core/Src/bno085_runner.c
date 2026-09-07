@@ -11,6 +11,9 @@
 
 #include "bno085_runner.h"
 #include "configuration.h"
+#include "sh2_SensorValue.h"
+#include "sh2_err.h"
+#include "sh2_hal_spi.h"
 
 #if defined(MOMENTUM_FULL_CAN_TELEMETRY) ||                                    \
     defined(MOMENTUM_FULL_COMM_TELEMETRY)

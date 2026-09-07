@@ -13,6 +13,7 @@
 #include "momentum_can_dbc.h"
 #include "rtc.h"
 #include "ublox_hal_uart.h"
+#include <stdio.h>
 
 /** Public functions. *********************************************************/
 

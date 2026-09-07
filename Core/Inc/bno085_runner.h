@@ -13,10 +13,6 @@
 /** Includes. *****************************************************************/
 
 #include "sh2.h"
-#include "sh2_SensorValue.h"
-#include "sh2_err.h"
-#include "sh2_hal_spi.h"
-#include <stdio.h>
 
 /** Definitions. **************************************************************/
 

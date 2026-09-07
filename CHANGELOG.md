@@ -282,3 +282,4 @@
     - Previously capped to 3 decimal places.
 - Add support for `help` command.
 - Improve and update `README.md`.
+- Clean up and remove unnecessary includes.
