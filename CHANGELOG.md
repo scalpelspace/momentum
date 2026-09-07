@@ -283,3 +283,6 @@
 - Add support for `help` command.
 - Improve and update `README.md`.
 - Clean up and remove unnecessary includes.
+- Update the format of GNSS3 UART (comm) telemetry output to include GNSS date
+  and time.
+- Remove unused `comm_tx_rtc()` function.

@@ -30,6 +30,5 @@ void comm_tx_gyro(void);
 void comm_tx_accel(void);
 void comm_tx_lin_accel(void);
 void comm_tx_gravity(void);
-void comm_tx_rtc(void);
 
 #endif

@@ -143,8 +143,9 @@ void comm_tx_gnss2(void) {
 }
 
 void comm_tx_gnss3(void) {
-  printf("alt=%.3f,gid=%.3f,s=%u\r\n", gnss_data.altitude_m,
-         gnss_data.geoid_sep_m, 0); // TODO: Hardcoded state.
+  printf("alt=%.1f,gid=%.3f,%u/%u/%u %u:%u:%u\r\n", gnss_data.altitude_m,
+         gnss_data.geoid_sep_m, gnss_data.year + 2000, gnss_data.month,
+         gnss_data.day, gnss_data.hour, gnss_data.minute, gnss_data.second);
 }
 
 void comm_tx_quaternion(void) {
@@ -175,16 +176,4 @@ void comm_tx_lin_accel(void) {
 void comm_tx_gravity(void) {
   printf("gvx=%.3f,gvy=%.3f,gvz=%.3f\r\n", bno085_gravity_x, bno085_gravity_y,
          bno085_gravity_z);
-}
-
-void comm_tx_rtc(void) {
-  // Get the date and time.
-  RTC_DateTypeDef date;
-  RTC_TimeTypeDef time;
-  HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
-  HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
-  // TODO: Hardcoded state.
-  printf("s=%u,d=%u-%u-%u,wd=%u,t=%u:%u:%u\r\n", 0, 2000 + date.Year,
-         date.Month, date.Date, date.WeekDay, time.Hours, time.Minutes,
-         time.Seconds);
 }
