@@ -28,6 +28,7 @@
   * [v0.5.4 (2026-08-16)](#v054--2026-08-16-)
   * [v0.6.0 (2026-09-01)](#v060--2026-09-01-)
   * [v0.6.1 (2026-09-06)](#v061--2026-09-06-)
+  * [v0.6.2 (2026-10-20)](#v062--2026-10-20-)
 <!-- TOC -->
 
 </details>
@@ -286,3 +287,14 @@
 - Update the format of GNSS3 UART (comm) telemetry output to include GNSS date
   and time.
 - Remove unused `comm_tx_rtc()` function.
+
+---
+
+## [v0.6.2 (2026-10-20)](https://github.com/scalpelspace/momentum/releases/tag/v0.6.2)
+
+- Add `LED_EXTERNAL_CONTROL_ONLY` to `configuration.h` (undefined by default).
+    - When defined, the firmware no longer drives the on-board WS2812B, the boot
+      colour and the `led_status_run()` control state indication are compiled
+      out.
+    - The LED is then only set externally, via the CAN `rgb_led_set` message or
+      the comm `rgb` command.

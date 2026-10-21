@@ -96,6 +96,7 @@ static void can_tx_gnss(void) {
   phase = (uint8_t)((phase + 1u) & 0x03u); // Cycle 0..3 (100 ms period).
 }
 
+#ifndef LED_EXTERNAL_CONTROL_ONLY
 /**
  * @brief Drive the on-board WS2812B to reflect GNSS fix status.
  */
@@ -126,6 +127,7 @@ static void led_status_run(void) {
   }
   ws2812b_update();
 }
+#endif
 
 /** Public functions. *********************************************************/
 
@@ -139,8 +141,10 @@ void momentum_init(void) {
 
   // On-board miscellaneous components.
   ws2812b_init();
+#ifndef LED_EXTERNAL_CONTROL_ONLY
   ws2812b_set_colour(0, 2, 1, 3); // Init colour.
   ws2812b_update();
+#endif
 
   // Momentum runner SPI communication start.
   momentum_spi_start();
@@ -157,7 +161,9 @@ void momentum_init(void) {
   scheduler_init(); // Initialize scheduler.
   scheduler_add_task(can_id_allocatee_state_machine, 20);
   scheduler_add_task(can_tx_gnss, 25);
+#ifndef LED_EXTERNAL_CONTROL_ONLY
   scheduler_add_task(led_status_run, 100);
+#endif
   scheduler_add_task(can_tx_state, 1000);
 #if MOMENTUM_BAROMETER_REPORT_MS > 0
   scheduler_add_task(bmp390_get_data, MOMENTUM_BAROMETER_REPORT_MS);

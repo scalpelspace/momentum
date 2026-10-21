@@ -15,7 +15,7 @@
 // Software version: `MAJOR.MINOR.PATCH-IDENTIFIER`.
 #define MOMENTUM_VERSION_MAJOR (0u)     // uint8_t number.
 #define MOMENTUM_VERSION_MINOR (6u)     // uint8_t number.
-#define MOMENTUM_VERSION_PATCH (1u)     // uint8_t number.
+#define MOMENTUM_VERSION_PATCH (2u)     // uint8_t number.
 #define MOMENTUM_VERSION_IDENTIFIER 'p' // ASCII character.
 
 // CAN ID standard.
@@ -32,6 +32,12 @@
 //                reserves that ID instead of handing it to another node.
 //                DEFAULT_CAN_NODE_ID must be in [1, 30].
 #define ALLOW_CAN_NODE_ID_ALLOCATION
+
+// Disable firmware driven WS2812B control (ie, boot colour, status, etc). The
+// LED is then only set externally via CAN or UART (comm).
+// #define LED_EXTERNAL_CONTROL_ONLY
+
+/** Telemetry configuration. **************************************************/
 
 // Full telemetry flood on CAN bus intended for debug/development purposes.
 #define MOMENTUM_FULL_CAN_TELEMETRY
