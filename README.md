@@ -18,6 +18,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
     * [1.3 Pin Configurations](#13-pin-configurations)
     * [1.4 Clock Configurations](#14-clock-configurations)
     * [1.5 Firmware Configuration Macros](#15-firmware-configuration-macros)
+    * [1.6 CAN Bus Protocol](#16-can-bus-protocol)
   * [2 USB Interface via CP2102N (USB-to-UART)](#2-usb-interface-via-cp2102n-usb-to-uart)
     * [2.1 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#21-universal-synchronousasynchronous-receivertransmitter-usart)
       * [2.1.1 UART/Serial Interface](#211-uartserial-interface)
@@ -198,6 +199,24 @@ For momentum report intervals, `0` disables the specific report.
 | `MOMENTUM_ACCELEROMETER_REPORT_US`         | `10000` (100 Hz) | BNO086 accelerometer report interval in µs.                                                                                                                                 |
 | `MOMENTUM_LINEAR_ACCELEROMETER_REPORT_US`  | `0`              | BNO086 linear acceleration (gravity removed) report interval in µs.                                                                                                         |
 | `MOMENTUM_GRAVITY_ACCELEROMETER_REPORT_US` | `0`              | BNO086 gravity vector report interval in µs.                                                                                                                                |
+
+### 1.6 CAN Bus Protocol
+
+CAN bus communication follows the ScalpelSpace CAN bus protocol, documented
+at [docs.scalpelspace.com/protocols/can_driver](https://docs.scalpelspace.com/protocols/can_driver/).
+
+The firmware utilized `CAN1` running classic CAN at 500 kbps (87.5% sample
+point).
+
+The drivers and message definitions are not maintained in this repository, they
+are pulled in through nested submodules:
+
+| Submodule                                                            | Path                              | Contents                                                                                                                                        |
+|----------------------------------------------------------------------|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`momentum_driver`](https://github.com/scalpelspace/momentum_driver) | `Core/momentum_driver`            | Protocol contract, the DBC (`can_momentum.dbc`) and its implementation (`momentum_can_dbc.c/h`): message IDs, DLCs, signals and scaling.        |
+| [`can_driver`](https://github.com/scalpelspace/can_driver)           | `Core/momentum_driver/can_driver` | Generic CAN drivers, the ScalpelSpace CAN ID/Node ID scheme, the Node ID allocation protocol (`can_id_scalpelspace.dbc`) and DBC merge tooling. |
+
+Refer to each submodule's `README.md` for message tables and signal layouts.
 
 ---
 
