@@ -205,7 +205,7 @@ For momentum report intervals, `0` disables the specific report.
 CAN bus communication follows the ScalpelSpace CAN bus protocol, documented
 at [docs.scalpelspace.com/protocols/can_driver](https://docs.scalpelspace.com/protocols/can_driver/).
 
-The firmware utilized `CAN1` running classic CAN at 500 kbps (87.5% sample
+The firmware utilizes `CAN1` running classic CAN at 500 kbps (87.5% sample
 point).
 
 The drivers and message definitions are not maintained in this repository, they
