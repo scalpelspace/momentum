@@ -298,3 +298,4 @@
       out.
     - The LED is then only set externally, via the CAN `rgb_led_set` message or
       the comm `rgb` command.
+- Clean up documentation.

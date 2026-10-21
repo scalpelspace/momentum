@@ -17,6 +17,7 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
       * [1.2.1 Default Sensor Report Rates](#121-default-sensor-report-rates)
     * [1.3 Pin Configurations](#13-pin-configurations)
     * [1.4 Clock Configurations](#14-clock-configurations)
+    * [1.5 Firmware Configuration Macros](#15-firmware-configuration-macros)
   * [2 USB Interface via CP2102N (USB-to-UART)](#2-usb-interface-via-cp2102n-usb-to-uart)
     * [2.1 Universal Synchronous/Asynchronous Receiver/Transmitter (USART)](#21-universal-synchronousasynchronous-receivertransmitter-usart)
       * [2.1.1 UART/Serial Interface](#211-uartserial-interface)
@@ -26,9 +27,6 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
     * [3.2 Controller Area Network (CAN)](#32-controller-area-network-can)
       * [3.2.1 Bit Time Calculation](#321-bit-time-calculation)
       * [3.2.2 Nested Vectored Interrupt Controller (NVIC)](#322-nested-vectored-interrupt-controller-nvic)
-    * [3.3 CAN High-Level Driver](#33-can-high-level-driver)
-      * [3.3.1 Node ID Assignment](#331-node-id-assignment)
-    * [3.4 CAN DBC and Low-Level Driver](#34-can-dbc-and-low-level-driver)
   * [4 Serial Peripheral Interface (SPI)](#4-serial-peripheral-interface-spi)
     * [4.1 Direct Memory Access (DMA)](#41-direct-memory-access-dma)
     * [4.2 Nested Vectored Interrupt Controller (NVIC)](#42-nested-vectored-interrupt-controller-nvic)
@@ -105,9 +103,9 @@ STM32L432KC microcontroller firmware for `momentum_pcb`.
 #### 1.2.1 Default Sensor Report Rates
 
 The following sensor data is configured for the specified rates by default. The
-BNO086 and BMP390 report rates are set
-in [`configuration.h`](Core/Inc/configuration.h). The SAM-M10Q rates are set by
-the scheduler task period and module configuration respectively.
+BNO086 and BMP390 report rates are set in [
+`configuration.h`](Core/Inc/configuration.h). The SAM-M10Q rates are set by the
+scheduler task period and module configuration respectively.
 
 | Sensor   | Data                                                | Report Rate |
 |----------|-----------------------------------------------------|-------------|
@@ -175,6 +173,30 @@ the scheduler task period and module configuration respectively.
      -> 80 MHz APB1 (Maxed) -> 80 MHz APB1 Timer
      -> 80 MHz APB2 (Maxed) -> 80 MHz APB2 Timer
 ```
+
+### 1.5 Firmware Configuration Macros
+
+Compile-time options are set in [`configuration.h`](Core/Inc/configuration.h).
+Flag macros are enabled by defining them and disabled by commenting them out.
+
+For momentum report intervals, `0` disables the specific report.
+
+| Macro                                      | Default          | Effect                                                                                                                                                         |
+|--------------------------------------------|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `MOMENTUM_VERSION_*`                       |                  | Software version reported by the firmware (`MAJOR.MINOR.PATCH-IDENTIFIER`).                                                                                    |
+| `DEFAULT_CAN_NODE_ID`                      | `0`              | CAN Node ID held from boot, range `[0, 30]`.                                                                                                                   |
+| `ALLOW_CAN_NODE_ID_ALLOCATION`             | Defined          | Lets the CAN ID allocation protocol (re)assign the Node ID at runtime.                                                                                         |
+| `LED_EXTERNAL_CONTROL_ONLY`                | Undefined        | Disables firmware-driven WS2812B control (boot colour and GNSS fix status). The LED stays off until it is set externally via CAN, UART (`rgb` command) or SPI. |
+| `MOMENTUM_FULL_CAN_TELEMETRY`              | Defined          | Transmits all sensor and GNSS telemetry on the CAN bus. Intended for debug/development.                                                                        |
+| `MOMENTUM_FULL_COMM_TELEMETRY`             | Undefined        | Prints all sensor and GNSS telemetry over UART. Intended for debug/development.                                                                                |
+| `MOMENTUM_BAROMETER_REPORT_MS`             | `40` (25 Hz)     | BMP390 pressure and temperature sample period in ms.                                                                                                           |
+| `MOMENTUM_QUATERNION_REPORT_US`            | `10000` (100 Hz) | BNO086 rotation vector report interval in µs.                                                                                                                  |
+| `MOMENTUM_USE_9DOF_QUATERNION`             | `0`              | Quaternion source: `0` uses the 6-DOF game rotation vector (no magnetometer), `1` uses the 9-DOF rotation vector.                                              |
+| `MOMENTUM_GYROSCOPE_REPORT_US`             | `10000` (100 Hz) | BNO086 calibrated gyroscope report interval in µs.                                                                                                             |
+| `MOMENTUM_MAGNETOMETER_REPORT_US`          | `40000` (25 Hz)  | BNO086 calibrated magnetometer report interval in µs.                                                                                                          |
+| `MOMENTUM_ACCELEROMETER_REPORT_US`         | `10000` (100 Hz) | BNO086 accelerometer report interval in µs.                                                                                                                    |
+| `MOMENTUM_LINEAR_ACCELEROMETER_REPORT_US`  | `0`              | BNO086 linear acceleration (gravity removed) report interval in µs.                                                                                            |
+| `MOMENTUM_GRAVITY_ACCELEROMETER_REPORT_US` | `0`              | BNO086 gravity vector report interval in µs.                                                                                                                   |
 
 ---
 
@@ -266,48 +288,6 @@ Time Quantum                 = 125.0    ns
 This enables reception interrupts for interactions based on incoming CAN
 messages.
 
-### 3.3 CAN High-Level Driver
-
-1. [can.h](Core/Inc/can.h).
-2. [can.c](Core/Src/can.c).
-
-#### 3.3.1 Node ID Assignment
-
-Every CAN ID packs a 5-bit Node ID alongside the 6-bit message ID, so the DBC
-message IDs a node transmits under depend on the Node ID it holds. `31` is
-reserved for broadcast, leaving `[0, 30]` usable.
-
-Two macros in [`configuration.h`](Core/Inc/configuration.h) control the Node ID,
-and they are independent of one another:
-
-| Macro                          | Effect                                                                                             |
-|--------------------------------|----------------------------------------------------------------------------------------------------|
-| `DEFAULT_CAN_NODE_ID`          | Node ID held from boot, assigned pre-compile time. Range `[0, 30]`.                                |
-| `ALLOW_CAN_NODE_ID_ALLOCATION` | When defined, the node runs the allocation protocol, letting an allocator assign an ID at runtime. |
-
-Combined behaviour:
-
-| `DEFAULT_CAN_NODE_ID` | `ALLOW_CAN_NODE_ID_ALLOCATION` | Allocatee state machine                         |
-|-----------------------|--------------------------------|-------------------------------------------------|
-| `0` (unassigned)      | Undefined                      | Never runs, the node stays out of the protocol. |
-| `0` (unassigned)      | Defined                        | Runs, restarts after every assignment.          |
-| `[1, 30]` (fixed)     | Undefined                      | Never runs, the node stays out of the protocol. |
-| `[1, 30]` (fixed)     | Defined                        | Runs, an allocator may override the fixed ID.   |
-
-The pre-compile time ID is applied to the DBC copy during `can_db_init()`, and a
-runtime ID is applied by `allocatee_complete()`. Both share
-`can_apply_node_id()`, which repacks every message ID in `mod_dbc_messages`
-against the new Node ID.
-
-With allocation disabled the node is compiled to a single Node ID for its
-lifetime, so a bus of such nodes needs a distinct build per node. Allocation
-instead lets one build serve every node on the bus.
-
-### 3.4 CAN DBC and Low-Level Driver
-
-Low level CAN communication drivers can be found
-here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
-
 ---
 
 ## 4 Serial Peripheral Interface (SPI)
@@ -318,8 +298,8 @@ SPI Full-Duplex Slave configuration:
 - CPHA = 0.
 - Hardware peripheral select (NSS) enabled.
 
-Low level SPI communication drivers can be found
-here: [`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
+Low level SPI communication drivers can be found here: [
+`momentum_driver`](https://github.com/scalpelspace/momentum_driver).
 
 ### 4.1 Direct Memory Access (DMA)
 
@@ -384,7 +364,7 @@ In an SPI setup, there is always one controller (master) connected to one or
 more peripherals (slaves). The controller controls the communication by
 generating a clock signal (SCK) and selecting which slave to communicate with
 using the Chip Select (CS) line. Data is exchanged between the controller and
-peripheral(s) over two data lines: COPI/MOSI and CIPO or MISO.
+peripheral over two data lines: COPI/MOSI and CIPO or MISO.
 
 Basic pinouts:
 
@@ -492,9 +472,9 @@ SHTP drivers.
 
 #### 5.4.1 Timer Prescaler Calculation
 
-TIM2 runs based on the APB1 timer clocks which are set to 80 MHz. The
-prescaler (PSC) must be calculated accordingly to achieve a 1 us (1 MHz) time
-base. In other words, aiming for 1 tick = 1 us.
+TIM2 runs based on the APB1 timer clocks which are set to 80 MHz. The prescaler
+(PSC) must be calculated accordingly to achieve a 1 us (1 MHz) time base. In
+other words, aiming for 1 tick = 1 us.
 
 $$PSC = \frac{Source}{Target} - 1 = \frac{ 80 \space \mathrm{MHz} }{ 1 \space \mathrm{MHz} } - 1 = 79$$
 
@@ -525,9 +505,9 @@ The hub composes the re-orientation vector as:
 
 $$q_{\mathrm{out}} = q_{\mathrm{reorient}} \otimes q_{\mathrm{measured}}$$
 
-To make a specific physical pose `P` report as identity (0,0,0,1),
-the **inverse of that pose in the sensor/device frame** must be sent, converted
-to Q14 and passed to `sh2_setReorientation()`.
+To make a specific physical pose `P` report as identity (0,0,0,1), the **inverse
+of that pose in the sensor/device frame** must be sent, converted to Q14 and
+passed to `sh2_setReorientation()`.
 
 ---
 
@@ -669,7 +649,7 @@ htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 
 Given the PWM equation:
 
-$$f_{PWM} = \frac{f_{TIM}}{ \left( ARR + 1 \right) \times \left( PSC + 1 \right) }$$
+$$f_{PWM} = \frac{f_{TIM}}{ \left (ARR + 1 \right) \times \left (PSC + 1 \right) }$$
 
 - $f_{TIM} = 80 \space \mathrm{MHz}$
     - Defined by the PWM channel's peripheral clock.
@@ -736,7 +716,7 @@ Duty cycle required for PWM control:
 
 $$D = \frac{PW}{T} \times 100$$
 
-$$Value = \frac{PW}{T} \times \left( ARR + 1 \right)$$
+$$Value = \frac{PW}{T} \times \left (ARR + 1 \right)$$
 $$Value = \frac{PW}{T} \times 25$$
 
 - $D$ = Duty cycle percentage, required calculation.
@@ -752,8 +732,8 @@ $$Value = \frac{PW}{T} \times 25$$
 
 #### 8.5.2 Reset Code Time Periods Calculation
 
-The datasheet requires a low signal of > 50 us. Thus, the minimum number of
-full (low) cycles is given by:
+The datasheet requires a low signal of > 50 us. Thus, the minimum number of full
+(low) cycles is given by:
 
 $$50 \space \mathrm{\mu s} \div 1.25 \space \mathrm{\mu s} = 40$$
 
@@ -851,8 +831,8 @@ centralized within the following module:
 
 This approach ensures that callback functions remain atomic and specific to
 individual drivers. These atomic functions are then consolidated into a single
-function (user implementation), overriding the weak declarations provided by
-the STM32 HAL.
+function (user implementation), overriding the weak declarations provided by the
+STM32 HAL.
 
 ---
 
