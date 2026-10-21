@@ -181,22 +181,23 @@ Flag macros are enabled by defining them and disabled by commenting them out.
 
 For momentum report intervals, `0` disables the specific report.
 
-| Macro                                      | Default          | Effect                                                                                                                                                         |
-|--------------------------------------------|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `MOMENTUM_VERSION_*`                       |                  | Software version reported by the firmware (`MAJOR.MINOR.PATCH-IDENTIFIER`).                                                                                    |
-| `DEFAULT_CAN_NODE_ID`                      | `0`              | CAN Node ID held from boot, range `[0, 30]`.                                                                                                                   |
-| `ALLOW_CAN_NODE_ID_ALLOCATION`             | Defined          | Lets the CAN ID allocation protocol (re)assign the Node ID at runtime.                                                                                         |
-| `LED_EXTERNAL_CONTROL_ONLY`                | Undefined        | Disables firmware-driven WS2812B control (boot colour and GNSS fix status). The LED stays off until it is set externally via CAN, UART (`rgb` command) or SPI. |
-| `MOMENTUM_FULL_CAN_TELEMETRY`              | Defined          | Transmits all sensor and GNSS telemetry on the CAN bus. Intended for debug/development.                                                                        |
-| `MOMENTUM_FULL_COMM_TELEMETRY`             | Undefined        | Prints all sensor and GNSS telemetry over UART. Intended for debug/development.                                                                                |
-| `MOMENTUM_BAROMETER_REPORT_MS`             | `40` (25 Hz)     | BMP390 pressure and temperature sample period in ms.                                                                                                           |
-| `MOMENTUM_QUATERNION_REPORT_US`            | `10000` (100 Hz) | BNO086 rotation vector report interval in µs.                                                                                                                  |
-| `MOMENTUM_USE_9DOF_QUATERNION`             | `0`              | Quaternion source: `0` uses the 6-DOF game rotation vector (no magnetometer), `1` uses the 9-DOF rotation vector.                                              |
-| `MOMENTUM_GYROSCOPE_REPORT_US`             | `10000` (100 Hz) | BNO086 calibrated gyroscope report interval in µs.                                                                                                             |
-| `MOMENTUM_MAGNETOMETER_REPORT_US`          | `40000` (25 Hz)  | BNO086 calibrated magnetometer report interval in µs.                                                                                                          |
-| `MOMENTUM_ACCELEROMETER_REPORT_US`         | `10000` (100 Hz) | BNO086 accelerometer report interval in µs.                                                                                                                    |
-| `MOMENTUM_LINEAR_ACCELEROMETER_REPORT_US`  | `0`              | BNO086 linear acceleration (gravity removed) report interval in µs.                                                                                            |
-| `MOMENTUM_GRAVITY_ACCELEROMETER_REPORT_US` | `0`              | BNO086 gravity vector report interval in µs.                                                                                                                   |
+| Macro                                      | Default          | Effect                                                                                                                                                                      |
+|--------------------------------------------|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SCALPELSPACE_SHORT_NAME`                  | `"momentum"`     | Firmware name reported by the `version` command.                                                                                                                            | 
+| `MOMENTUM_VERSION_*`                       |                  | Software version reported by the firmware (`MAJOR.MINOR.PATCH-IDENTIFIER`).                                                                                                 |
+| `DEFAULT_CAN_NODE_ID`                      | `0`              | CAN Node ID held from boot, range `[0, 30]`. `0` is unassigned. Must be `[1, 30]` when `ALLOW_CAN_NODE_ID_ALLOCATION` is undefined.                                         |
+| `ALLOW_CAN_NODE_ID_ALLOCATION`             | Defined          | Lets the CAN ID allocation protocol (re)assign the Node ID at runtime. When undefined, the node holds `DEFAULT_CAN_NODE_ID` for its lifetime and the allocator reserves it. |
+| `LED_EXTERNAL_CONTROL_ONLY`                | Undefined        | Disables firmware-driven WS2812B control (boot colour and GNSS fix status). The LED stays off until it is set externally via CAN, UART (`rgb` command) or SPI.              |
+| `MOMENTUM_FULL_CAN_TELEMETRY`              | Defined          | Transmits all sensor and GNSS telemetry on the CAN bus. Intended for debug/development.                                                                                     |
+| `MOMENTUM_FULL_COMM_TELEMETRY`             | Undefined        | Prints all sensor and GNSS telemetry over UART. Intended for debug/development.                                                                                             |
+| `MOMENTUM_BAROMETER_REPORT_MS`             | `40` (25 Hz)     | BMP390 pressure and temperature sample period in ms.                                                                                                                        |
+| `MOMENTUM_QUATERNION_REPORT_US`            | `10000` (100 Hz) | BNO086 rotation vector report interval in µs.                                                                                                                               |
+| `MOMENTUM_USE_9DOF_QUATERNION`             | `0`              | Quaternion source: `0` uses the 6-DOF game rotation vector (no magnetometer), `1` uses the 9-DOF rotation vector.                                                           |
+| `MOMENTUM_GYROSCOPE_REPORT_US`             | `10000` (100 Hz) | BNO086 calibrated gyroscope report interval in µs.                                                                                                                          |
+| `MOMENTUM_MAGNETOMETER_REPORT_US`          | `40000` (25 Hz)  | BNO086 calibrated magnetometer report interval in µs.                                                                                                                       |
+| `MOMENTUM_ACCELEROMETER_REPORT_US`         | `10000` (100 Hz) | BNO086 accelerometer report interval in µs.                                                                                                                                 |
+| `MOMENTUM_LINEAR_ACCELEROMETER_REPORT_US`  | `0`              | BNO086 linear acceleration (gravity removed) report interval in µs.                                                                                                         |
+| `MOMENTUM_GRAVITY_ACCELEROMETER_REPORT_US` | `0`              | BNO086 gravity vector report interval in µs.                                                                                                                                |
 
 ---
 
